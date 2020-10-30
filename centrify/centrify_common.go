@@ -32,20 +32,6 @@ var servicePermissions = map[string]string{"Grant": "Grant", "Edit": "Edit", "De
 var appPermissions = map[string]string{"Grant": "Grant", "View": "View", "Run": "Execute"}
 var folderPermissions = map[string]string{"Grant": "Grant", "View": "View", "Edit": "Edit", "Delete": "Delete", "Add": "Add"}
 
-/*
-type vaultObjectInterface interface {
-	deleteObjectBoolAPI() (*restapi.BoolResponse, error)
-	deleteObjectMapAPI() (*restapi.GenericMapResponse, error)
-}
-
-
-// Make all object types to be vaultInterface
-// Only Read() and Update() functions signiture are identical across all
-type vaultObjectInterface interface {
-	Read() error
-	Update() (*restapi.GenericMapResponse, error)
-}
-*/
 var (
 	// LogE logs error message
 	LogE = log.New(LogWriter{}, "[ERROR] ", 0)
