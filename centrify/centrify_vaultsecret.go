@@ -370,11 +370,11 @@ func (o *VaultSecret) CheckoutSecret() (*restapi.GenericMapResponse, error) {
 		{
 			"success": true,
 			"Result": {
-				"_encryptkeyid": "ABC3434",
+				"_encryptkeyid": "XXXXXX",
 				"_TableName": "datavault",
 				"_Timestamp": "/Date(1592380339832)/",
 				"ACL": "true",
-				"_PartitionKey": "ABC3434",
+				"_PartitionKey": "XXXXXX",
 				"WhenCreated": "/Date(1592380339057)/",
 				"_entitycontext": "W/\"datetime'2020-06-17T07%3A52%3A19.8321511Z'\"",
 				"_RowKey": "xxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxx",
