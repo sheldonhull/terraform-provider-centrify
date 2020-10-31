@@ -122,7 +122,7 @@ https://developer.centrify.com/reference#post_subscriptions-getmultiplexedaccoun
 
 	Request body
 	{
-		"ID": "399db3d4-473a-452f-bfdf-6f8c000c545d",
+		"ID": "xxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxx",
 		"RRFormat": true,
 		"Args": {
 			"PageNumber": 1,
@@ -136,15 +136,15 @@ https://developer.centrify.com/reference#post_subscriptions-getmultiplexedaccoun
 	{
 		"success": true,
 		"Result": {
-			"RealAccount2ID": "3ab3d4e3-a7b9-4992-b5a2-b2b983df86b0",
+			"RealAccount2ID": "xxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxx",
 			"Name": "My Multiplexed Account",
-			"_RowKey": "399db3d4-473a-452f-bfdf-6f8c000c545d",
-			"ActiveAccount": "csvc_acct1 (demo.lab)",
-			"RealAccount1ID": "8835f86f-36fd-481d-81ff-e28fc3079f1b",
+			"_RowKey": "xxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxx",
+			"ActiveAccount": "csvc_acct1 (exampoe.com)",
+			"RealAccount1ID": "xxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxx",
 			"Issues": "",
 			"Description": "My Multiplexed Account -",
-			"RealAccount2": "csvc_acct2 (demo.lab)",
-			"RealAccount1": "csvc_acct1 (demo.lab)"
+			"RealAccount2": "csvc_acct2 (example.com)",
+			"RealAccount1": "csvc_acct1 (example.com)"
 		},
 		"Message": null,
 		"MessageID": null,
@@ -160,22 +160,22 @@ https://developer.centrify.com/reference#post_subscriptions-deletempaccount
 
 	Request body
 	{
-		"RealAccount1ID": "8835f86f-36fd-481d-81ff-e28fc3079f1b",
-		"RealAccount2ID": "3ab3d4e3-a7b9-4992-b5a2-b2b983df86b0",
+		"RealAccount1ID": "xxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxx",
+		"RealAccount2ID": "xxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxx",
 		"Name": "My Multiplexed Account",
 		"Description": "My Multiplexed Account",
-		"RealAccount1": "csvc_acct1 (demo.lab)",
-		"RealAccount2": "csvc_acct2 (demo.lab)",
+		"RealAccount1": "csvc_acct1 (example.com)",
+		"RealAccount2": "csvc_acct2 (example.com)",
 		"RealAccounts": [
-			"8835f86f-36fd-481d-81ff-e28fc3079f1b",
-			"3ab3d4e3-a7b9-4992-b5a2-b2b983df86b0"
+			"xxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxx",
+			"xxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxx"
 		]
 	}
 
 	Responde Result
 	{
 		"success": true,
-		"Result": "399db3d4-473a-452f-bfdf-6f8c000c545d",
+		"Result": "xxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxx",
 		"Message": null,
 		"MessageID": null,
 		"Exception": null,
@@ -190,25 +190,25 @@ https://developer.centrify.com/reference#post_subscriptions-updatempaccount
 
 	Request body
 	{
-		"RealAccount2ID": "3ab3d4e3-a7b9-4992-b5a2-b2b983df86b0",
+		"RealAccount2ID": "xxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxx",
 		"Name": "My Multiplexed Account",
-		"_RowKey": "399db3d4-473a-452f-bfdf-6f8c000c545d",
-		"ActiveAccount": "csvc_acct1 (demo.lab)",
-		"RealAccount1ID": "8835f86f-36fd-481d-81ff-e28fc3079f1b",
+		"_RowKey": "xxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxx",
+		"ActiveAccount": "csvc_acct1 (example.com)",
+		"RealAccount1ID": "xxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxx",
 		"Description": "My Multiplexed Account -",
-		"RealAccount2": "csvc_acct2 (demo.lab)",
-		"RealAccount1": "csvc_acct1 (demo.lab)",
-		"ID": "399db3d4-473a-452f-bfdf-6f8c000c545d",
+		"RealAccount2": "csvc_acct2 (example.com)",
+		"RealAccount1": "csvc_acct1 (example.com)",
+		"ID": "xxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxx",
 		"RealAccounts": [
-			"8835f86f-36fd-481d-81ff-e28fc3079f1b",
-			"3ab3d4e3-a7b9-4992-b5a2-b2b983df86b0"
+			"xxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxx",
+			"xxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxx"
 		]
 	}
 
 	Responde Result
 	{
 		"success": true,
-		"Result": "399db3d4-473a-452f-bfdf-6f8c000c545d",
+		"Result": "xxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxx",
 		"Message": null,
 		"MessageID": null,
 		"Exception": null,
@@ -223,7 +223,7 @@ https://developer.centrify.com/reference#post_subscriptions-updatempaccount
 
 	Request body
 	{
-		"ID": "399db3d4-473a-452f-bfdf-6f8c000c545d"
+		"ID": "xxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxx"
 	}
 
 	Responde Result

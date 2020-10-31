@@ -165,7 +165,7 @@ func (o *VaultDatabase) Query() (map[string]interface{}, error) {
 
 		Request body format
 		{
-			"Script": "SELECT * FROM VaultDatabase WHERE VaultDatabase.ID = '6bbc81ca-36a5-4a77-8f41-fd79f4af11af'",
+			"Script": "SELECT * FROM VaultDatabase WHERE VaultDatabase.ID = 'xxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxx'",
 			"Args": {
 				"PageNumber": 1,
 				"Limit": 1,
@@ -187,7 +187,7 @@ func (o *VaultDatabase) Query() (map[string]interface{}, error) {
                 "Entities": [
                     {
                         "Type": "VaultDatabase",
-                        "Key": "6bbc81ca-36a5-4a77-8f41-fd79f4af11af",
+                        "Key": "xxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxx",
                         "IsForeignKey": false
                     }
                 ],
@@ -198,7 +198,7 @@ func (o *VaultDatabase) Query() (map[string]interface{}, error) {
                     "HealthCheckInterval": null,
                     "ProxyCollectionList": null,
                     "PasswordHistoryCleanUpDuration": null,
-                    "ID": "6bbc81ca-36a5-4a77-8f41-fd79f4af11af",
+                    "ID": "xxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxx",
                     "MinimumPasswordAge": null,
                     "Description": "Test DB Instance 2",
                     "HealthStatus": "Unreachable",
@@ -252,7 +252,7 @@ func (o *VaultDatabase) Query() (map[string]interface{}, error) {
 		Respond result
 		{
 			"success": true,
-			"Result": "6bbc81ca-36a5-4a77-8f41-fd79f4af11af",
+			"Result": "xxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxx",
 			"Message": null,
 			"MessageID": null,
 			"Exception": null,
@@ -268,7 +268,7 @@ func (o *VaultDatabase) Query() (map[string]interface{}, error) {
 		Request body format
 		{
 			"Name": "Test DB",
-			"ID": "6bbc81ca-36a5-4a77-8f41-fd79f4af11af",
+			"ID": "xxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxx",
 			"Description": "Test DB Instance 2",
 			"HealthStatus": "Unreachable",
 			"InstanceName": "INSTANCE",
@@ -279,14 +279,14 @@ func (o *VaultDatabase) Query() (map[string]interface{}, error) {
 			"Reachable": false,
 			"DatabaseClass": "SQLServer",
 			"Port": 1433,
-			"_RowKey": "6bbc81ca-36a5-4a77-8f41-fd79f4af11af"
+			"_RowKey": "xxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxx"
 		}
 
 		Respond result
 		{
 			"success": true,
 			"Result": {
-				"ID": "6bbc81ca-36a5-4a77-8f41-fd79f4af11af"
+				"ID": "xxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxx"
 			},
 			"Message": null,
 			"MessageID": null,
@@ -302,7 +302,7 @@ func (o *VaultDatabase) Query() (map[string]interface{}, error) {
 
 		Request body format
 		{
-			"ID": "ba08a2bb-0667-4737-a80e-13112f2fdb1e"
+			"ID": "xxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxx"
 		}
 
 		Respond result

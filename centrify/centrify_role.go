@@ -395,7 +395,7 @@ func (o *Role) Query() (map[string]interface{}, error) {
 
 		Request body format
 		{
-			"name": "d958fad8_f90a_4c40_b986_f6fa31713bba",
+			"name": "xxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxx",
 			"suppressPrincipalsList": true,
 			"Args": {
 				"PageNumber": 1,
@@ -411,11 +411,11 @@ func (o *Role) Query() (map[string]interface{}, error) {
 			"Result": {
 				"ReadOnly": false,
 				"Description": "AD accounts that are granted local administrator access to non-domain joined machines.",
-				"DirectoryServiceUuid": "09B9A9B0-6CE8-465F-AB03-65766D33B05E",
-				"_RowKey": "d958fad8_f90a_4c40_b986_f6fa31713bba",
+				"DirectoryServiceUuid": "xxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxx",
+				"_RowKey": "xxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxx",
 				"RoleType": "PrincipalList",
 				"Name": "LAB Cloud Local Admins",
-				"Uuid": "d958fad8_f90a_4c40_b986_f6fa31713bba"
+				"Uuid": "xxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxx"
 			},
 			"Message": null,
 			"MessageID": null,
@@ -440,7 +440,7 @@ func (o *Role) Query() (map[string]interface{}, error) {
 		{
 			"success": true,
 			"Result": {
-				"_RowKey": "a5bee88b_226a_4ce3_a52b_5c58c39cbb4a"
+				"_RowKey": "xxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxx"
 			},
 			"Message": null,
 			"MessageID": null,
@@ -458,7 +458,7 @@ func (o *Role) Query() (map[string]interface{}, error) {
 
 		Request body format
 		{
-			"Name": "a5bee88b_226a_4ce3_a52b_5c58c39cbb4a",
+			"Name": "xxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxx",
 			"NewName": "afdsaf",
 			"Description": "sdafsdasd afasdf"
 		}
@@ -481,7 +481,7 @@ func (o *Role) Query() (map[string]interface{}, error) {
 
 		Request body format
 		{
-			"Name": "a5bee88b_226a_4ce3_a52b_5c58c39cbb4a"
+			"Name": "xxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxx"
 		}
 
 		Respond result
@@ -503,10 +503,10 @@ func (o *Role) Query() (map[string]interface{}, error) {
 
 		Request body format
 		[{
-			"Role": "a5bee88b_226a_4ce3_a52b_5c58c39cbb4a",
+			"Role": "xxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxx",
 			"Path": "/lib/rights/cssintegration.json"
 		}, {
-			"Role": "a5bee88b_226a_4ce3_a52b_5c58c39cbb4a",
+			"Role": "xxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxx",
 			"Path": "/lib/rights/fedman.json"
 		}]
 
@@ -529,20 +529,20 @@ func (o *Role) Query() (map[string]interface{}, error) {
 	{
 		"Users": {
 			"Delete": [
-				"aa1c0094-c973-4aba-bfc3-91179768c748"
+				"xxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxx"
 			]
 		},
 		"Roles": {
 			"Add": [
-				"d06fc516_8c9b_4f76_a08d_797ca6fd0a55"
+				"xxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxx"
 			]
 		},
 		"Groups": {
 			"Add": [
-				"f91a5ddd-1240-4f9e-a3e9-6d084066c11b"
+				"xxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxx"
 			]
 		},
-		"Name": "66c2ddf1_3c23_4615_ba82_048f5f25d52d",
+		"Name": "xxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxx",
 		"Description": "AD accounts who can login to non-domain joined machines but without any privileges."
 	}
 */

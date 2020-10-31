@@ -24,7 +24,7 @@ resource "centrifyvault_vaultaccount" "testsystem2_account1" {
     //credential_type = "Password"
     credential_type = "SshKey"
     //password = "xxxxxxxxxxxxxx"
-    sshkey_id = "56ec631d-635a-48f7-b100-6b97b6eb6f47"
+    sshkey_id = "xxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
     host_id = centrifyvault_vaultsystem.testsystem2.id
     description = "Account 1 for Linux system 1"
     //use_proxy_account = true

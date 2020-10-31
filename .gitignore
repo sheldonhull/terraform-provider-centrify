@@ -2,5 +2,7 @@
 bin/.DS_Store
 centrify/.DS_Store
 .DS_Store
-examples/demolab/.terraform/
+examples/demolab
 examples/.terraform/
+examples/terraform.tfstate
+examples/terraform.tfstate.backup

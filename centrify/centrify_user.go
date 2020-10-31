@@ -142,33 +142,6 @@ func (o *User) ChangePassword() (*restapi.BoolResponse, error) {
 	return reply, nil
 }
 
-/*
-	{
-		"DisplayName": "mspadmin",
-		"SourceDsInstance": "CDS",
-		"ServiceUser": null,
-		"DirectoryServiceUuid": "09B9A9B0-6CE8-465F-AB03-65766D33B05E",
-		"CloudState": null,
-		"LastInvite": null,
-		"LastLogin": "/Date(1597376561524)/",
-		"UserType": "User",
-		"SearchEmail": "ADMIN@DEMO.LAB",
-		"SourceDsLocalized": "Centrify Directory",
-		"StatusEnum": "Active",
-		"SecurityQuestionSet": true,
-		"_MatchFilter": null,
-		"Email": "admin@demo.lab",
-		"Username": "mspadmin@centrify.com.207",
-		"Forest": null,
-		"SourceDs": "CDS",
-		"Status": "Active",
-		"ID": "c2c7bcc6-9560-44e0-8dff-5be221cd37ee",
-		"SecurityQuestionCount": 1,
-		"SourceDsType": "CDS",
-		"PhonePinLastChangeDate": "/Date(1582610444169)/"
-    }
-*/
-
 // Query function returns a single user object in map format
 func (o *User) Query() (map[string]interface{}, error) {
 	query := "SELECT * FROM User WHERE 1=1"
@@ -188,8 +161,8 @@ func (o *User) Query() (map[string]interface{}, error) {
 
 		Request body format
 		{
-			"ID": "3e34ea2b-0c74-4a28-9307-4908fb94c3a3",
-			"DirectoryServiceUuid": "09B9A9B0-6CE8-465F-AB03-65766D33B05E"
+			"ID": "xxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxx",
+			"DirectoryServiceUuid": "xxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxx"
 		}
 
 		Respond result
@@ -198,27 +171,27 @@ func (o *User) Query() (map[string]interface{}, error) {
 			"Result": {
 				"Description": "Test user",
 				"ForcePasswordChangeNext": "True",
-				"directoryServiceUuid": "09B9A9B0-6CE8-465F-AB03-65766D33B05E",
+				"directoryServiceUuid": "xxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxx",
 				"DisplayName": "Test User",
-				"PictureUri": "/UserMgmt/GetUserPicture?id=3e34ea2b-0c74-4a28-9307-4908fb94c3a3",
+				"PictureUri": "/UserMgmt/GetUserPicture?id=xxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxx",
 				"CloudState": "None",
 				"InEverybodyRole": false,
 				"OauthClient": false,
-				"MobileNumber": "+65 97323323",
+				"MobileNumber": "+00 00000000",
 				"LastPasswordChangeDate": "/Date(-62135596800000)/",
 				"CreateDate": "/Date(1597323830750)/",
-				"OfficeNumber": "+65 97323323",
-				"CmaRedirectedUser": "mspadmin@centrify.com.207",
+				"OfficeNumber": "+00 00000000",
+				"CmaRedirectedUser": "admin@examp.com",
 				"SubjectToCloudLocks": true,
-				"Alias": "centrify.com.207",
-				"HomeNumber": "+65 97323323",
-				"ReportsTo": "mspadmin@centrify.com.207",
-				"Name": "testuser@centrify.com.207",
+				"Alias": "example.com",
+				"HomeNumber": "+00 00000000",
+				"ReportsTo": "admin@examp.com",
+				"Name": "testuser@example.com",
 				"PreferredCulture": "",
 				"Version": "1",
-				"Mail": "testuser@centrify.lab",
-				"CmaRedirectedUserUuid": "c2c7bcc6-9560-44e0-8dff-5be221cd37ee",
-				"Uuid": "3e34ea2b-0c74-4a28-9307-4908fb94c3a3",
+				"Mail": "testuser@example.com",
+				"CmaRedirectedUserUuid": "xxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxx",
+				"Uuid": "xxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxx",
 				"State": "None"
 			},
 			"Message": null,
@@ -247,23 +220,23 @@ func (o *User) Query() (map[string]interface{}, error) {
 			"OauthClient": false,
 			"SendEmailInvite": true,
 			"Description": "Test user",
-			"OfficeNumber": "+65 97323323",
-			"HomeNumber": "+65 97323323",
-			"MobileNumber": "+65 97323323",
+			"OfficeNumber": "+00 00000000",
+			"HomeNumber": "+00 00000000",
+			"MobileNumber": "+00 00000000",
 			"fileName": "centrify_logo.jpg",
 			"ID": "",
 			"state": "None",
 			"jsutil-checkbox-2598-inputEl": true,
-			"CmaRedirectedUserUuid": "c2c7bcc6-9560-44e0-8dff-5be221cd37ee",
-			"jsutil-text-2601-inputEl": "mspadmin@centrify.com.207",
-			"ReportsTo": "mspadmin@centrify.com.207",
-			"Name": "testuser@centrify.com.207"
+			"CmaRedirectedUserUuid": "xxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxx",
+			"jsutil-text-2601-inputEl": "admin@examp.com",
+			"ReportsTo": "admin@examp.com",
+			"Name": "testuser@example.com"
 		}
 
 		Respond result
 		{
 			"success": true,
-			"Result": "3e34ea2b-0c74-4a28-9307-4908fb94c3a3",
+			"Result": "xxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxx",
 			"Message": null,
 			"MessageID": null,
 			"Exception": null,
@@ -290,17 +263,17 @@ func (o *User) Query() (map[string]interface{}, error) {
 			"OauthClient": false,
 			"SendEmailInvite": false,
 			"Description": "Test user",
-			"OfficeNumber": "+65 97323323",
-			"HomeNumber": "+65 97323323",
-			"MobileNumber": "+65 97323323",
+			"OfficeNumber": "+00 00000000",
+			"HomeNumber": "+00 00000000",
+			"MobileNumber": "+00 00000000",
 			"fileName": "",
-			"ID": "3e34ea2b-0c74-4a28-9307-4908fb94c3a3",
+			"ID": "xxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxx",
 			"state": "None",
 			"jsutil-checkbox-2914-inputEl": true,
-			"CmaRedirectedUserUuid": "c2c7bcc6-9560-44e0-8dff-5be221cd37ee",
-			"jsutil-text-2917-inputEl": "mspadmin@centrify.com.207",
-			"ReportsTo": "mspadmin@centrify.com.207",
-			"Name": "testuser@centrify.com.207",
+			"CmaRedirectedUserUuid": "xxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxx",
+			"jsutil-text-2917-inputEl": "admin@examp.com",
+			"ReportsTo": "admin@examp.com",
+			"Name": "testuser@example.com",
 			"Password": "undefined"
 		}
 
@@ -322,7 +295,7 @@ func (o *User) Query() (map[string]interface{}, error) {
 
 		Request body format
 		{
-			"ID": "56ad7afe-0044-4b19-a52f-47b8685d048d"
+			"ID": "xxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxx"
 		}
 
 		Respond result
@@ -342,7 +315,7 @@ func (o *User) Query() (map[string]interface{}, error) {
 
 		Request body format
 		{
-			"ID": "7c062918-b1f6-4e1e-95ba-b3d0fc12b8f4",
+			"ID": "xxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxx",
 			"newPassword": "xxxxxx"
 		}
 		Respond result

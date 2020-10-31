@@ -237,7 +237,7 @@ func (o *VaultSecretFolder) SetMemberPermissions(isRemove bool) (*restapi.Generi
 
 		Request body format
 		{
-			"ID": "47420056-88fb-4b1e-8187-23a0214bdf4b",
+			"ID": "xxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxx",
 			"RRFormat": true
 		}
 
@@ -254,7 +254,7 @@ func (o *VaultSecretFolder) SetMemberPermissions(isRemove bool) (*restapi.Generi
 						"Entities": [
 							{
 								"Type": "DataVaultFolder",
-								"Key": "47420056-88fb-4b1e-8187-23a0214bdf4b",
+								"Key": "xxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxx",
 								"IsForeignKey": false
 							}
 						],
@@ -266,11 +266,11 @@ func (o *VaultSecretFolder) SetMemberPermissions(isRemove bool) (*restapi.Generi
 								"IndexingVersion": 1
 							},
 							"ACL": "true",
-							"_PartitionKey": "ABC0751",
+							"_PartitionKey": "XXXXXX",
 							"WhenCreated": "/Date(1597543728366)/",
 							"_Timestamp": "/Date(1597543728399)/",
-							"_encryptkeyid": "ABC0751",
-							"ID": "47420056-88fb-4b1e-8187-23a0214bdf4b",
+							"_encryptkeyid": "XXXXXX",
+							"ID": "xxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxx",
 							"Description": "Test Folder",
 							"Type": "Folder",
 							"ObjectType": "DataVault",
@@ -305,7 +305,7 @@ func (o *VaultSecretFolder) SetMemberPermissions(isRemove bool) (*restapi.Generi
 		}
 		or
 		{
-			"Parent": "77cc181e-dbab-4662-9be4-67c49d3becf5",
+			"Parent": "xxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxx",
 			"Name": "Sub folder",
 			"Description": "Sub folder",
 			"Type": "Folder",
@@ -315,7 +315,7 @@ func (o *VaultSecretFolder) SetMemberPermissions(isRemove bool) (*restapi.Generi
 		Respond result
 		{
 			"success": true,
-			"Result": "47420056-88fb-4b1e-8187-23a0214bdf4b",
+			"Result": "xxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxx",
 			"Message": null,
 			"MessageID": null,
 			"Exception": null,
@@ -337,9 +337,9 @@ func (o *VaultSecretFolder) SetMemberPermissions(isRemove bool) (*restapi.Generi
 				"IndexingVersion": 1
 			},
 			"ACL": "true",
-			"_PartitionKey": "ABC0751",
-			"_encryptkeyid": "ABC0751",
-			"ID": "922a1c91-ab5f-40f5-b274-be2eafd4a754",
+			"_PartitionKey": "XXXXXX",
+			"_encryptkeyid": "XXXXXX",
+			"ID": "xxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxx",
 			"Description": "Sub folder of something",
 			"Type": "Folder",
 			"ObjectType": "DataVault",
@@ -347,10 +347,10 @@ func (o *VaultSecretFolder) SetMemberPermissions(isRemove bool) (*restapi.Generi
 			"CollectionType": "Phantom",
 			"_TableName": "collections",
 			"Filters": "FolderId",
-			"Parent": "77cc181e-dbab-4662-9be4-67c49d3becf5",
+			"Parent": "xxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxx",
 			"ParentPath": "Folder 1",
 			"Rights": "View, Edit, Delete, Grant, Add",
-			"CollectionMembersDefaultProfile": "30804754-3b87-4862-a39e-0f042825a3a0",
+			"CollectionMembersDefaultProfile": "xxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxx",
 			"updateChallenges": true
 		}
 
@@ -358,7 +358,7 @@ func (o *VaultSecretFolder) SetMemberPermissions(isRemove bool) (*restapi.Generi
 		{
 			"success": true,
 			"Result": {
-				"ID": "922a1c91-ab5f-40f5-b274-be2eafd4a754"
+				"ID": "xxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxx"
 			},
 			"Message": null,
 			"MessageID": null,
@@ -374,7 +374,7 @@ func (o *VaultSecretFolder) SetMemberPermissions(isRemove bool) (*restapi.Generi
 
 		Request body format
 		{
-			"ID": "47420056-88fb-4b1e-8187-23a0214bdf4b"
+			"ID": "xxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxx"
 		}
 
 		Respond result
@@ -393,7 +393,7 @@ func (o *VaultSecretFolder) SetMemberPermissions(isRemove bool) (*restapi.Generi
 		{
 			"success": false,
 			"Result": {
-				"ChallengeId": "YO4JYIqjLE-92DUemT_P63jlnHK5swPQdIwsxm-JsEA1"
+				"ChallengeId": "xxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxx"
 			},
 			"Message": "You must respond to a challenge to proceed.",
 			"MessageID": null,
@@ -408,7 +408,7 @@ func (o *VaultSecretFolder) SetMemberPermissions(isRemove bool) (*restapi.Generi
 
 	Request body format
 	{
-		"ID": "8c63769c-6f2d-4ab1-be3a-fb8f050a7a45"
+		"ID": "xxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxx"
 	}
 
 	Respond result
@@ -423,7 +423,7 @@ func (o *VaultSecretFolder) SetMemberPermissions(isRemove bool) (*restapi.Generi
 					"Enabled": true,
 					"_Type": "RowSet"
 				},
-				"CollectionMembersDefaultProfile": "30804754-3b87-4862-a39e-0f042825a3a0"
+				"CollectionMembersDefaultProfile": "xxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxx"
 			}
 		},
 		"Message": null,
@@ -440,15 +440,15 @@ func (o *VaultSecretFolder) SetMemberPermissions(isRemove bool) (*restapi.Generi
 
 	Request body format
 	{
-		"ID": "922a1c91-ab5f-40f5-b274-be2eafd4a754",
-		"targetFolderId": "7bded2b8-b481-4302-b2bd-f0a93375953c"
+		"ID": "xxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxx",
+		"targetFolderId": "xxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxx"
 	}
 
 	Respond result
 	{
 		"success": false,
 		"Result": {
-			"ChallengeId": "ETLI9qbu-nrnB915fTMdrd4c2n4pdhxMtJhmPNKw3KY1"
+			"ChallengeId": "xxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxx"
 		},
 		"Message": "You must respond to a challenge to proceed.",
 		"MessageID": null,

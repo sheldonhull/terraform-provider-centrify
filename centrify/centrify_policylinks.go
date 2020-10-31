@@ -193,7 +193,7 @@ https://developer.centrify.com/reference#post_policy-setplinksv2
 		"Plinks": [
 			{
 				"Params": [
-					"3c5cfe44_3e4c_4115_bbdd_fc21da693de2"
+					"xxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxx"
 				],
 				"ID": "/Policy/Invited Users",
 				"EnableCompliant": true,

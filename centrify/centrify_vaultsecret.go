@@ -211,7 +211,7 @@ func (o *VaultSecret) CheckoutSecret() (*restapi.GenericMapResponse, error) {
 
 		Request body format
 		{
-			"ID": "c79f49e7-77c2-4ea1-b84e-fcd49a01d464",
+			"ID": "xxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxx",
 			"RRFormat": true,
 			"Args": {
 				"PageNumber": 1,
@@ -225,19 +225,19 @@ func (o *VaultSecret) CheckoutSecret() (*restapi.GenericMapResponse, error) {
 		{
 			"success": true,
 			"Result": {
-				"_encryptkeyid": "ABC0751",
+				"_encryptkeyid": "XXXXXX",
 				"_TableName": "datavault",
 				"_Timestamp": "/Date(1584413116338)/",
 				"WhenContentsReplaced": "/Date(1584413116309)/",
 				"ACL": "true",
-				"_PartitionKey": "ABC0751",
+				"_PartitionKey": "XXXXXX",
 				"WhenCreated": "/Date(1582558666855)/",
 				"_entitycontext": "W/\"datetime'2020-03-17T02%3A45%3A16.3380444Z'\"",
-				"_RowKey": "c79f49e7-77c2-4ea1-b84e-fcd49a01d464",
+				"_RowKey": "xxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxx",
 				"WhenUpdated": "/Date(1584413116309)/",
 				"ParentPath": "Folder 1\\Folder level 2",
-        		"FolderId": "7bded2b8-b481-4302-b2bd-f0a93375953c",
-				"Description": "mspadmin@centrify.com.207",
+        		"FolderId": "xxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxx",
+				"Description": "admin@example.com",
 				"SecretName": "Centrify PAS Admin Credential",
 				"Type": "Text",
 				"_metadata": {
@@ -261,27 +261,27 @@ func (o *VaultSecret) CheckoutSecret() (*restapi.GenericMapResponse, error) {
 		{
 			"SecretName": "Access key",
 			"Description": "AWS access key",
-			"SecretText": "987489jkhjkahfdksa980242",
+			"SecretText": "xxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxx",
 			"Type": "Text",
-			"SetID": "4b6caf44-71af-4939-af2e-e9d176e062f4",
+			"SetID": "xxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxx",
 			"updateChallenges": false
 		}
 		or
 		{
-			"FolderId": "77cc181e-dbab-4662-9be4-67c49d3becf5",
+			"FolderId": "xxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxx",
 			"SecretName": "Another secret",
 			"Description": "Another secret",
-			"SecretText": "asfdafsd fass",
+			"SecretText": "xxxxxxxxxxxxx",
 			"Type": "Text",
 			"updateChallenges": false
 		}
 		or
 		{
-			"FolderId": "7bded2b8-b481-4302-b2bd-f0a93375953c",
+			"FolderId": "xxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxc",
 			"SecretName": "File1",
-			"SecretFilePath": "8f051e7f-40c7-41a9-ae9e-e0d4b240211d",
+			"SecretFilePath": "xxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxx",
 			"SecretFileSize": "38.003 KB",
-			"SecretFilePassword": "abc",
+			"SecretFilePassword": "xxxxxxx",
 			"Type": "File",
 			"Description": "",
 			"updateChallenges": false
@@ -290,7 +290,7 @@ func (o *VaultSecret) CheckoutSecret() (*restapi.GenericMapResponse, error) {
 		Respond result
 		{
 			"success": true,
-			"Result": "85cd59ae-0024-456d-97c3-3236e26feb0c",
+			"Result": "xxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxx",
 			"Message": null,
 			"MessageID": null,
 			"Exception": null,
@@ -307,26 +307,26 @@ func (o *VaultSecret) CheckoutSecret() (*restapi.GenericMapResponse, error) {
 		{
 			"SecretName": "Access key",
 			"Description": "AWS access key",
-			"SecretText": "987489jkhjkahfdksa980242",
+			"SecretText": "xxxxxxxxxxxxx",
 			"Type": "Text",
-			"SetID": "4b6caf44-71af-4939-af2e-e9d176e062f4",
+			"SetID": "xxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxx",
 			"updateChallenges": true,
-			"ID": "85cd59ae-0024-456d-97c3-3236e26feb0c",
-			"DataVaultDefaultProfile": "30804754-3b87-4862-a39e-0f042825a3a0"
+			"ID": "xxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxx",
+			"DataVaultDefaultProfile": "xxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxx"
 		}
 		or
 		{
-			"SecretText": "jklkajsldf09890",
+			"SecretText": "xxxxxxxxxxxxx",
 			"SecretName": "Random secret",
 			"Type": "Text",
-			"ID": "361da762-d7da-4d30-9e16-b1c2f40366be"
+			"ID": "xxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxx"
 		}
 
 		Respond result
 		{
 			"success": true,
 			"Result": {
-				"ID": "85cd59ae-0024-456d-97c3-3236e26feb0c"
+				"ID": "xxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxx"
 			},
 			"Message": null,
 			"MessageID": null,
@@ -342,7 +342,7 @@ func (o *VaultSecret) CheckoutSecret() (*restapi.GenericMapResponse, error) {
 
 		Request body format
 		{
-			"ID": "85cd59ae-0024-456d-97c3-3236e26feb0c"
+			"ID": "xxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxx"
 		}
 
 		Respond result
@@ -363,7 +363,7 @@ func (o *VaultSecret) CheckoutSecret() (*restapi.GenericMapResponse, error) {
 
 		Request body format
 		{
-			"ID": "7ea14b7e-f049-469a-bd3f-cebd9e96c77b"
+			"ID": "xxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxx"
 		}
 
 		Respond result
@@ -377,7 +377,7 @@ func (o *VaultSecret) CheckoutSecret() (*restapi.GenericMapResponse, error) {
 				"_PartitionKey": "ABC3434",
 				"WhenCreated": "/Date(1592380339057)/",
 				"_entitycontext": "W/\"datetime'2020-06-17T07%3A52%3A19.8321511Z'\"",
-				"_RowKey": "7ea14b7e-f049-469a-bd3f-cebd9e96c77b",
+				"_RowKey": "xxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxx",
 				"ParentPath": "",
 				"Description": "A random secret",
 				"SecretName": "Randon secret",
@@ -402,8 +402,8 @@ func (o *VaultSecret) CheckoutSecret() (*restapi.GenericMapResponse, error) {
 
 	Request body format
 	{
-		"ID": "361da762-d7da-4d30-9e16-b1c2f40366be",
-		"targetFolderId": "77cc181e-dbab-4662-9be4-67c49d3becf5"
+		"ID": "xxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxx",
+		"targetFolderId": "xxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxx"
 	}
 
 	Respond result

@@ -297,7 +297,7 @@ func (o *VaultAccount) setAdminAccount(enable bool) error {
 
 		Request body format
 		{
-			"ID": "aff00452-71d8-4a8a-a535-805cb059ade8"
+			"ID": "xxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxx"
 		}
 
 		Respond result
@@ -315,9 +315,9 @@ func (o *VaultAccount) setAdminAccount(enable bool) error {
 				"VaultAccount": {
 					"Row": {
 						"IsQuickStartAccount": null,
-						"ID": "aff00452-71d8-4a8a-a535-805cb059ade8",
+						"ID": "xxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxx",
 						"ActiveSessions": 0,
-						"Host": "b2888c5d-6ec8-43c9-a0f6-918f9c43c0e5",
+						"Host": "xxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxx",
 						"LastChange": "/Date(1588075662725)/",
 						"DefaultCheckoutTime": null,
 						"EffectiveWorkflowEnabled": null,
@@ -371,12 +371,12 @@ func (o *VaultAccount) setAdminAccount(enable bool) error {
 					"Entities": [
 						{
 							"Type": "Server",
-							"Key": "b2888c5d-6ec8-43c9-a0f6-918f9c43c0e5",
+							"Key": "xxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxx",
 							"IsForeignKey": true
 						},
 						{
 							"Type": "VaultAccount",
-							"Key": "aff00452-71d8-4a8a-a535-805cb059ade8",
+							"Key": "xxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxx",
 							"IsForeignKey": false
 						}
 					]
@@ -410,7 +410,7 @@ func (o *VaultAccount) setAdminAccount(enable bool) error {
 			"Password": "xxxxxxxxxx",
 			"UseWheel": false,
 			"Description": "afdasdfasfd",
-			"Host": "ab6d8e59-39e5-4050-ac38-4b77122a817c"
+			"Host": "xxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxx"
 		}
 		or
 		{
@@ -419,8 +419,8 @@ func (o *VaultAccount) setAdminAccount(enable bool) error {
 			"IsManaged": false,
 			"undefined": "false",
 			"SshKeyName": "my_ami_key",
-			"SshKeyId": "56ec631d-635a-48f7-b100-6b97b6eb6f47",
-			"Host": "ab6d8e59-39e5-4050-ac38-4b77122a817c",
+			"SshKeyId": "xxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxx",
+			"Host": "xxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxx",
 			"Description": ""
 		}
 		or
@@ -430,13 +430,13 @@ func (o *VaultAccount) setAdminAccount(enable bool) error {
 			"UseWheel": false,
 			"Description": "sa account",
 			"IsManaged": false,
-			"DatabaseID": "6bbc81ca-36a5-4a77-8f41-fd79f4af11af"
+			"DatabaseID": "xxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxx"
 		}
 
 		Respond result
 		{
 			"success": true,
-			"Result": "c9772d3d-02b1-411e-ba77-58795586907d",
+			"Result": "xxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxx",
 			"Message": null,
 			"MessageID": null,
 			"Exception": null,
@@ -451,9 +451,9 @@ func (o *VaultAccount) setAdminAccount(enable bool) error {
 
 		Request body format
 		{
-			"ID": "c9772d3d-02b1-411e-ba77-58795586907d",
+			"ID": "xxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxx",
 			"ActiveSessions": 0,
-			"Host": "80b5847a-fcff-471f-8278-990c620eed24",
+			"Host": "xxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxx",
 			"CanManage": true,
 			"Status": "Unknown",
 			"User": "testaccount",
@@ -478,7 +478,7 @@ func (o *VaultAccount) setAdminAccount(enable bool) error {
 			"IsFavorite": false,
 			"NeedPassword": false,
 			"IsAdministrativeAccount": false,
-			"_RowKey": "c9772d3d-02b1-411e-ba77-58795586907d",
+			"_RowKey": "xxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxx",
 			"updateChallenges": true,
 			"WorkflowEnabled": null
 		}
@@ -487,7 +487,7 @@ func (o *VaultAccount) setAdminAccount(enable bool) error {
 		{
 			"success": true,
 			"Result": {
-				"PVID": "c9772d3d-02b1-411e-ba77-58795586907d"
+				"PVID": "xxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxx"
 			},
 			"Message": null,
 			"MessageID": null,
@@ -504,7 +504,7 @@ func (o *VaultAccount) setAdminAccount(enable bool) error {
 		Check if Account can be deleted
 		Request body format
 		{
-			"ID": "c9772d3d-02b1-411e-ba77-58795586907d",
+			"ID": "xxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxx",
 			"RRFormat": true
 		}
 
@@ -527,7 +527,7 @@ func (o *VaultAccount) setAdminAccount(enable bool) error {
 		Deleting account
 		Request body format
 		{
-			"ID": "c9772d3d-02b1-411e-ba77-58795586907d"
+			"ID": "xxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxx"
 		}
 
 		Respond result
@@ -548,14 +548,14 @@ func (o *VaultAccount) setAdminAccount(enable bool) error {
 
 		Request body format
 		{
-			"ID": "da96a581-22a8-4aa5-a077-7cf43c78666f"
+			"ID": "xxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxx"
 		}
 
 		Respond result
 		{
 			"success": true,
 			"Result": {
-				"PasswordCheckoutDefaultProfile": "30804754-3b87-4862-a39e-0f042825a3a0",
+				"PasswordCheckoutDefaultProfile": "xxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxx",
 				"PasswordCheckoutRules": {
 					"_UniqueKey": "Condition",
 					"_Value": [
@@ -566,7 +566,7 @@ func (o *VaultAccount) setAdminAccount(enable bool) error {
 									"Op": "OpNotExists"
 								}
 							],
-							"ProfileId": "bdfced4d-e2d3-4dae-a84f-dc8282faf8eb"
+							"ProfileId": "xxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxx"
 						}
 					],
 					"Enabled": true,
@@ -586,9 +586,9 @@ func (o *VaultAccount) setAdminAccount(enable bool) error {
 		Request body format
 		{
 			"Systems": [
-				"949cd9c7-2949-446a-8e78-1fbc3d58b4ee"
+				"xxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxx"
 			],
-			"PVID": "60164260-a7b1-4a1e-9f5f-63f88d99c682"
+			"PVID": "xxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxx"
 		}
 
 		Respond result
@@ -607,23 +607,23 @@ func (o *VaultAccount) setAdminAccount(enable bool) error {
 
 /*
 {
-    "ID": "0714835b-2a52-423a-9b9e-c1934dadb84c",
+    "ID": "xxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxx",
     "ActiveSessions": 0,
-    "Host": "0b07c7b1-5481-4bbc-8ef8-ea7874ea68f2",
+    "Host": "xxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxx",
     "ProxyUser": "root",
     "CanManage": false,
     "User": "user1",
     "PasswordResetRetryCount": 0,
     "WorkflowApproversList": "[
 	{
-		\"DisplayName\":\"mspadmin\",
+		\"DisplayName\":\"admin\",
 		\"ObjectType\":\"User\",
 		\"DistinguishedName\":\"admin@example.com\",
-		\"DirectoryServiceUuid\":\"09B9A9B0-6CE8-465F-AB03-65766D33B05E\",
-		\"SystemName\":\"madmin@example.com\",
+		\"DirectoryServiceUuid\":\"xxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxx\",
+		\"SystemName\":\"admin@example.com\",
 		\"ServiceInstance\":\"CDS\",
 		\"Locked\":false,
-		\"InternalName\":\"c2c7bcc6-9560-44e0-8dff-5be221cd37ee\",
+		\"InternalName\":\"xxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxx\",
 		\"StatusEnum\":\"Active\",
 		\"ServiceInstanceLocalized\":\"Centrify Directory\",
 		\"ServiceType\":\"CDS\",
@@ -631,7 +631,7 @@ func (o *VaultAccount) setAdminAccount(enable bool) error {
 		\"Status\":\"Active\",
 		\"Enabled\":true,\
 		"Name\":\"admin@example.com\",
-		\"Guid\":\"c2c7bcc6-9560-44e0-8dff-5be221cd37ee\",
+		\"Guid\":\"xxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxx\",
 		\"Type\":\"User\",
 		\"Type-generated-field\":\"/vfslow/lib/ui/../uibuild/compiled/centrify/production/resources/images/entities/user_icon_sml.png?_ver=1598087128\",
 		\"Principal\":\"admin@example.com\",
@@ -641,11 +641,11 @@ func (o *VaultAccount) setAdminAccount(enable bool) error {
 	{
 		\"ReadOnly\":false,
 		\"Description\":\"AD accounts that are granted local administrator access to non-domain joined machines.\",
-		\"DirectoryServiceUuid\":\"09B9A9B0-6CE8-465F-AB03-65766D33B05E\",
+		\"DirectoryServiceUuid\":\"xxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxx\",
 		\"RoleType\":\"PrincipalList\",
-		\"_ID\":\"d958fad8_f90a_4c40_b986_f6fa31713bba\",
+		\"_ID\":\"xxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxx\",
 		\"Name\":\"LAB Cloud Local Admins\",
-		\"Guid\":\"d958fad8_f90a_4c40_b986_f6fa31713bba\",
+		\"Guid\":\"xxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxx\",
 		\"Type\":\"Role\",
 		\"ObjectType\":\"Role\",
 		\"Type-generated-field\":\"/vfslow/lib/ui/../uibuild/compiled/centrify/production/resources/images/entities/group_icon_sml.png?_ver=1598087128\",
@@ -659,11 +659,11 @@ func (o *VaultAccount) setAdminAccount(enable bool) error {
 		{
 			\"ReadOnly\":false,
 			\"Description\":\"Machines and users who are enforced MFA for direct access without going through PAS.\",
-			\"DirectoryServiceUuid\":\"09B9A9B0-6CE8-465F-AB03-65766D33B05E\",
+			\"DirectoryServiceUuid\":\"xxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxx\",
 			\"RoleType\":\"PrincipalList\",
-			\"_ID\":\"d06fc516_8c9b_4f76_a08d_797ca6fd0a55\",
+			\"_ID\":\"xxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxx\",
 			\"Name\":\"LAB MFA Machines & Users\",
-			\"Guid\":\"d06fc516_8c9b_4f76_a08d_797ca6fd0a55\",
+			\"Guid\":\"xxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxx\",
 			\"Type\":\"Role\",
 			\"ObjectType\":\"Role\",
 			\"Type-generated-field\":\"/vfslow/lib/ui/../uibuild/compiled/centrify/production/resources/images/entities/group_icon_sml.png?_ver=1598087128\",
@@ -683,11 +683,11 @@ func (o *VaultAccount) setAdminAccount(enable bool) error {
 			\"DisplayName\":\"mspadmin\",
 			\"ObjectType\":\"User\",
 			\"DistinguishedName\":\"admin@example.com\",
-			\"DirectoryServiceUuid\":\"09B9A9B0-6CE8-465F-AB03-65766D33B05E\",
+			\"DirectoryServiceUuid\":\"xxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxx\",
 			\"SystemName\":\"admin@example.com\",
 			\"ServiceInstance\":\"CDS\",
 			\"Locked\":false,
-			\"InternalName\":\"c2c7bcc6-9560-44e0-8dff-5be221cd37ee\",\
+			\"InternalName\":\"xxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxx\",\
 			"StatusEnum\":\"Active\",
 			\"ServiceInstanceLocalized\":\"Centrify Directory\",
 			\"ServiceType\":\"CDS\",
@@ -695,7 +695,7 @@ func (o *VaultAccount) setAdminAccount(enable bool) error {
 			\"Status\":\"Active\",
 			\"Enabled\":true,
 			\"Name\":\"admin@example.com\",
-			\"Guid\":\"c2c7bcc6-9560-44e0-8dff-5be221cd37ee\",
+			\"Guid\":\"xxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxx\",
 			\"Type\":\"User\",
 			\"Type-generated-field\":\"/vfslow/lib/ui/../uibuild/compiled/centrify/production/resources/images/entities/user_icon_sml.png?_ver=1598087128\",
 			\"Principal\":\"admin@example.com\",
@@ -705,11 +705,11 @@ func (o *VaultAccount) setAdminAccount(enable bool) error {
 		{
 			\"ReadOnly\":false,
 			\"Description\":\"AD accounts that are granted local administrator access to non-domain joined machines.\",
-			\"DirectoryServiceUuid\":\"09B9A9B0-6CE8-465F-AB03-65766D33B05E\",
+			\"DirectoryServiceUuid\":\"xxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxx\",
 			\"RoleType\":\"PrincipalList\",
-			\"_ID\":\"d958fad8_f90a_4c40_b986_f6fa31713bba\",
+			\"_ID\":\"xxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxx\",
 			\"Name\":\"LAB Cloud Local Admins\",
-			\"Guid\":\"d958fad8_f90a_4c40_b986_f6fa31713bba\",
+			\"Guid\":\"xxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxx\",
 			\"Type\":\"Role\",
 			\"ObjectType\":\"Role\",
 			\"Type-generated-field\":\"/vfslow/lib/ui/../uibuild/compiled/centrify/production/resources/images/entities/group_icon_sml.png?_ver=1598087128\",
@@ -723,11 +723,11 @@ func (o *VaultAccount) setAdminAccount(enable bool) error {
 			{
 				\"ReadOnly\":false,
 				\"Description\":\"Machines and users who are enforced MFA for direct access without going through PAS.\",
-				\"DirectoryServiceUuid\":\"09B9A9B0-6CE8-465F-AB03-65766D33B05E\",
+				\"DirectoryServiceUuid\":\"xxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxx\",
 				\"RoleType\":\"PrincipalList\",
-				\"_ID\":\"d06fc516_8c9b_4f76_a08d_797ca6fd0a55\",
+				\"_ID\":\"xxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxx\",
 				\"Name\":\"LAB MFA Machines & Users\",
-				\"Guid\":\"d06fc516_8c9b_4f76_a08d_797ca6fd0a55\",
+				\"Guid\":\"xxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxx\",
 				\"Type\":\"Role\",
 				\"ObjectType\":\"Role\",
 				\"Type-generated-field\":\"/vfslow/lib/ui/../uibuild/compiled/centrify/production/resources/images/entities/group_icon_sml.png?_ver=1598087128\",
@@ -772,11 +772,11 @@ func (o *VaultAccount) setAdminAccount(enable bool) error {
     "BackupApprover": {
         "ReadOnly": false,
         "Description": "Machines and users who are enforced MFA for direct access without going through PAS.",
-        "DirectoryServiceUuid": "09B9A9B0-6CE8-465F-AB03-65766D33B05E",
+        "DirectoryServiceUuid": "xxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxx",
         "RoleType": "PrincipalList",
-        "_ID": "d06fc516_8c9b_4f76_a08d_797ca6fd0a55",
+        "_ID": "xxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxx",
         "Name": "LAB MFA Machines & Users",
-        "Guid": "d06fc516_8c9b_4f76_a08d_797ca6fd0a55",
+        "Guid": "xxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxx",
         "Type": "Role",
         "ObjectType": "Role",
         "Type-generated-field": "/vfslow/lib/ui/../uibuild/compiled/centrify/production/resources/images/entities/group_icon_sml.png?_ver=1598087128",
@@ -784,7 +784,7 @@ func (o *VaultAccount) setAdminAccount(enable bool) error {
         "PType": "Role"
     },
     "WorkflowSent": true,
-    "_RowKey": "0714835b-2a52-423a-9b9e-c1934dadb84c",
+    "_RowKey": "xxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxx",
     "updateChallenges": true,
     "Description": ""
 }

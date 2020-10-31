@@ -147,7 +147,7 @@ https://developer.centrify.com/reference#post_saasmanage-getapplication
 
 	Request body format
 	{
-		"_RowKey": "14e5ba49-1c2b-4614-8692-74d1ae9f3780",
+		"_RowKey": "xxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxx",
 		"RRFormat": true,
 		"Args": {
 			"PageNumber": 1,
@@ -162,8 +162,8 @@ https://developer.centrify.com/reference#post_saasmanage-getapplication
 		"success": true,
 		"Result": {
 			"IsTestApp": false,
-			"Icon": "/vfs/Application/Icons/14e5ba49-1c2b-4614-8692-74d1ae9f3780-6de02fd8-548d-41fb-8d35-f66b285640c8",
-			"DesktopAppRunAccountUuid": "1b1db9ca-28a6-46c2-91a4-4f30de1cee43",
+			"Icon": "/vfs/Application/Icons/xxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxx",
+			"DesktopAppRunAccountUuid": "xxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxx",
 			"DisplayName": "AirWatch ONE UEM",
 			"UseDefaultSigningCert": true,
 			"_entitycontext": "W/\"datetime'2020-06-17T09%3A24%3A09.4903113Z'\"",
@@ -175,14 +175,14 @@ https://developer.centrify.com/reference#post_saasmanage-getapplication
 			"State": "Active",
 			"RegistrationLinkMessage": null,
 			"DesktopAppCmdlineTemplate": "--ini=ini\\web_airwatch_webdriver.ini --username={login.Description} --password={login.SecretText}",
-			"_RowKey": "14e5ba49-1c2b-4614-8692-74d1ae9f3780",
+			"_RowKey": "xxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxx",
 			"DesktopAppProgramName": "pas_desktopapp",
-			"_encryptkeyid": "ABC0751",
+			"_encryptkeyid": "XXXXXXX",
 			"RemoteDesktopHostName": "member2",
 			"DesktopAppRunAccountType": "SharedAccount",
-			"_PartitionKey": "ABC0751",
+			"_PartitionKey": "XXXXXX",
 			"RemoteDesktopUser": "shared_account (demo.lab)",
-			"CertificateSubjectName": "CN=Centrify Customer ABC0751 Application Signing Certificate",
+			"CertificateSubjectName": "CN=Centrify Customer Application Signing Certificate",
 			"ParentDisplayName": null,
 			"_metadata": {
 				"Version": 1,
@@ -198,14 +198,14 @@ https://developer.centrify.com/reference#post_saasmanage-getapplication
 			},
 			"AppType": "Desktop",
 			"Name": "AirWatch ONE UEM",
-			"Thumbprint": "F222EE02CCEA3C2D9243562F316E9C47A7A6B599",
+			"Thumbprint": "XXXXXXXXXXXXXXXXX",
 			"TemplateName": "GenericDesktopApplication",
 			"Handler": "Server.Cloud;Centrify.Server.DesktopApp.GenericDesktopAppHandler",
 			"DefaultAuthProfile": "AlwaysAllowed",
 			"AppTypeDisplayName": "Desktop",
-			"AuthChallengeDefinitionId": "376845f1-dc25-497e-ab5b-ddcdabb50378",
+			"AuthChallengeDefinitionId": "xxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxx",
 			"RegistrationMessage": null,
-			"DesktopAppRunHostId": "4447eebb-4d82-4a2b-859c-141ee9d7f9a1",
+			"DesktopAppRunHostId": "xxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxx",
 			"_Timestamp": "/Date(1592385849490)/",
 			"ProvCapable": false,
 			"AdminTag": "Other",
@@ -216,16 +216,16 @@ https://developer.centrify.com/reference#post_saasmanage-getapplication
 			"LocalizationEnabled": false,
 			"DesktopAppParams": [
 				{
-					"_encryptkeyid": "ABC0751",
+					"_encryptkeyid": "XXXXXXX",
 					"_TableName": "applicationparams",
-					"TargetObjectId": "29f707c9-1a3c-4830-8ce4-cc03ba4a5f5a",
+					"TargetObjectId": "xxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxx",
 					"_Timestamp": "/Date(1592385849244)/",
 					"ParamName": "login",
-					"ApplicationId": "14e5ba49-1c2b-4614-8692-74d1ae9f3780",
+					"ApplicationId": "xxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxx",
 					"ParamValue": "AirWatch Workspace ONE UEM Login",
-					"_PartitionKey": "ABC0751",
+					"_PartitionKey": "XXXXXX",
 					"_entitycontext": "*",
-					"_RowKey": "5432b991-78dd-4b9d-b6ef-0ca0e2c7398a",
+					"_RowKey": "xxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxx",
 					"ParamType": "DataVault",
 					"_metadata": {
 						"Version": 1,
@@ -254,7 +254,7 @@ https://developer.centrify.com/reference#post_saasmanage-importappfromtemplate
 			{
 				"success": true,
 				"ID": "GenericDesktopApplication",
-				"_RowKey": "09cd2ccc-cdcf-423b-b40b-ec8712ed7032"
+				"_RowKey": "xxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxx"
 			}
 		],
 		"Message": null,
@@ -277,11 +277,11 @@ https://developer.centrify.com/reference#post_saasmanage-updateapplicationde
 		],
 		"Name": "AirWatch ONE UEM",
 		"Description": "This template allows you to provide single sign-on to a custom desktop application.",
-		"Icon": "/vfs/Application/Icons/14e5ba49-1c2b-4614-8692-74d1ae9f3780-6de02fd8-548d-41fb-8d35-f66b285640c8",
+		"Icon": "/vfs/Application/Icons/xxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxx",
 		"Handler": "Server.Cloud;Centrify.Server.DesktopApp.GenericDesktopAppHandler",
-		"IconUri": "/vfs/Application/Icons/14e5ba49-1c2b-4614-8692-74d1ae9f3780-6de02fd8-548d-41fb-8d35-f66b285640c8",
-		"DesktopAppRunHostId": "4447eebb-4d82-4a2b-859c-141ee9d7f9a1",
-		"DesktopAppRunAccountUuid": "1b1db9ca-28a6-46c2-91a4-4f30de1cee43",
+		"IconUri": "/vfs/Application/Icons/xxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxx",
+		"DesktopAppRunHostId": "xxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxx",
+		"DesktopAppRunAccountUuid": "xxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxx",
 		"DesktopAppAccountContainerId": "",
 		"DesktopAppAccountUuid": "",
 		"RemoteDesktopHostName": "member2",
@@ -290,16 +290,16 @@ https://developer.centrify.com/reference#post_saasmanage-updateapplicationde
 		"DesktopAppProgramName": "pas_desktopapp",
 		"DesktopAppParams": [
 			{
-				"_encryptkeyid": "ABC0751",
+				"_encryptkeyid": "XXXXXXX",
 				"_TableName": "applicationparams",
-				"TargetObjectId": "29f707c9-1a3c-4830-8ce4-cc03ba4a5f5a",
+				"TargetObjectId": "xxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxx",
 				"_Timestamp": "2020-06-17T09:24:09.244Z",
 				"ParamName": "login",
-				"ApplicationId": "14e5ba49-1c2b-4614-8692-74d1ae9f3780",
+				"ApplicationId": "xxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxx",
 				"ParamValue": "AirWatch Workspace ONE UEM Login",
-				"_PartitionKey": "ABC0751",
+				"_PartitionKey": "XXXXXX",
 				"_entitycontext": "*",
-				"_RowKey": "5432b991-78dd-4b9d-b6ef-0ca0e2c7398a",
+				"_RowKey": "xxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxx",
 				"ParamType": "DataVault",
 				"_metadata": {
 					"Version": 1,
@@ -308,7 +308,7 @@ https://developer.centrify.com/reference#post_saasmanage-updateapplicationde
 			}
 		],
 		"DesktopAppCmdlineTemplate": "--ini=ini\\web_airwatch_webdriver.ini --username={login.Description} --password={login.SecretText}",
-		"_RowKey": "14e5ba49-1c2b-4614-8692-74d1ae9f3780"
+		"_RowKey": "xxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxx"
 	}
 
 	Respond result
@@ -332,7 +332,7 @@ https://developer.centrify.com/reference#post_saasmanage-deleteapplication
 	Request body format
 	{
 		"_RowKey": [
-			"09cd2ccc-cdcf-423b-b40b-ec8712ed7032"
+			"xxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxx"
 		]
 	}
 
@@ -342,7 +342,7 @@ https://developer.centrify.com/reference#post_saasmanage-deleteapplication
 		"Result": [
 			{
 				"success": true,
-				"_RowKey": "09cd2ccc-cdcf-423b-b40b-ec8712ed7032"
+				"_RowKey": "xxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxx"
 			}
 		],
 		"Message": null,

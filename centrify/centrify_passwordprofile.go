@@ -224,7 +224,7 @@ func (o *PasswordProfile) Update() (*restapi.GenericMapResponse, error) {
 						"Entities": [
 							{
 								"Type": "PasswordProfile",
-								"Key": "7cce5826-ec9f-4e99-acaa-2e6897572ebe",
+								"Key": "xxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxx",
 								"IsForeignKey": false
 							}
 						],
@@ -244,7 +244,7 @@ func (o *PasswordProfile) Update() (*restapi.GenericMapResponse, error) {
 							"AtLeastOneSpecial": true,
 							"_encryptkeyid": "RootIndex:1",
 							"AtLeastOneLowercase": true,
-							"ID": "7cce5826-ec9f-4e99-acaa-2e6897572ebe",
+							"ID": "xxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxx",
 							"Description": "Default profile for Check Point Gaia systems",
 							"MaximumPasswordLength": 32,
 							"ProfileFeature": "Infrastructure",
@@ -271,7 +271,7 @@ func (o *PasswordProfile) Update() (*restapi.GenericMapResponse, error) {
 
 		Request body format
 		{
-			"ID": "01757745-3f75-4f1d-be1f-8b1310e71d2a",
+			"ID": "xxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxx",
 			"Name": "Test PW Profile 1",
 			"Description": "Test PW Profile 1",
 			"MinimumPasswordLength": 12,
@@ -295,7 +295,7 @@ func (o *PasswordProfile) Update() (*restapi.GenericMapResponse, error) {
 		Respond result
 		{
 			"success": true,
-			"Result": "d471450f-3ed0-4fe1-b26a-2a97bf3c1193",
+			"Result": "xxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxx",
 			"Message": null,
 			"MessageID": null,
 			"Exception": null,
@@ -309,7 +309,7 @@ func (o *PasswordProfile) Update() (*restapi.GenericMapResponse, error) {
 
 		Request body format
 		{
-			"ID": "d471450f-3ed0-4fe1-b26a-2a97bf3c1193",
+			"ID": "xxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxx",
 			"Name": "Test PW Profile",
 			"Description": "testa afasdf jhjkhjkh",
 			"MinimumPasswordLength": 12,
@@ -331,7 +331,7 @@ func (o *PasswordProfile) Update() (*restapi.GenericMapResponse, error) {
 		{
 			"success": true,
 			"Result": {
-				"ID": "d471450f-3ed0-4fe1-b26a-2a97bf3c1193"
+				"ID": "xxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxx"
 			},
 			"Message": null,
 			"MessageID": null,
@@ -346,7 +346,7 @@ func (o *PasswordProfile) Update() (*restapi.GenericMapResponse, error) {
 
 		Request body format
 		{
-			"ID": "d471450f-3ed0-4fe1-b26a-2a97bf3c1193"
+			"ID": "xxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxx"
 		}
 
 		Respond result

@@ -750,7 +750,7 @@ func (o *Policy) validateSettings() error {
                 "RadiusClientList": [],
                 "AuthProfiles": [
                     {
-                        "Uuid": "cf484a69-4f1b-42e0-9286-2e0ce972b362",
+                        "Uuid": "xxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxx",
                         "Name": "Default New Device Login Profile",
                         "DurationInMinutes": 720,
                         "Challenges": [
@@ -762,7 +762,7 @@ func (o *Policy) validateSettings() error {
                         }
                     },
                     {
-                        "Uuid": "08ccf738-9277-479e-83f4-374609dd9f0e",
+                        "Uuid": "xxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxx",
                         "Name": "Default Other Login Profile",
                         "DurationInMinutes": 720,
                         "Challenges": [
@@ -771,7 +771,7 @@ func (o *Policy) validateSettings() error {
                         "AdditionalData": {}
                     },
                     {
-                        "Uuid": "624a5e94-da4c-4ba3-a596-f56b60637976",
+                        "Uuid": "xxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxx",
                         "Name": "Default Password Reset Profile",
                         "DurationInMinutes": 720,
                         "Challenges": [
@@ -780,7 +780,7 @@ func (o *Policy) validateSettings() error {
                         "AdditionalData": {}
                     },
                     {
-                        "Uuid": "bdfced4d-e2d3-4dae-a84f-dc8282faf8eb",
+                        "Uuid": "xxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxx",
                         "Name": "LAB 2FA Authentication Profile",
                         "DurationInMinutes": 0,
                         "Challenges": [
@@ -792,7 +792,7 @@ func (o *Policy) validateSettings() error {
                         }
                     },
                     {
-                        "Uuid": "30804754-3b87-4862-a39e-0f042825a3a0",
+                        "Uuid": "xxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxx",
                         "Name": "LAB Step-up Authentication Profile",
                         "DurationInMinutes": 0,
                         "Challenges": [
@@ -809,7 +809,7 @@ func (o *Policy) validateSettings() error {
                 "DirectoryServices": [
                     {
                         "DisplayNameShort": "Centrify Directory",
-                        "directoryServiceUuid": "09B9A9B0-6CE8-465F-AB03-65766D33B05E"
+                        "directoryServiceUuid": "xxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxx"
                     },
                 ],
                 "Description": "",
@@ -833,8 +833,8 @@ func (o *Policy) validateSettings() error {
             "plinks": [
                 {
                     "Params": [
-                        "d958fad8_f90a_4c40_b986_f6fa31713bba",
-                        "d06fc516_8c9b_4f76_a08d_797ca6fd0a55"
+                        "xxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxx",
+                        "xxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxx"
                     ],
                     "ID": "/Policy/LAB Machine Login Policy",
                     "EnableCompliant": true,
@@ -868,7 +868,7 @@ func (o *Policy) validateSettings() error {
                 "Description": "PolicySet_1",
                 "Settings": {
                     "AuthenticationEnabled": true,
-                    "/Core/Authentication/AuthenticationRulesDefaultProfileId": "30804754-3b87-4862-a39e-0f042825a3a0",
+                    "/Core/Authentication/AuthenticationRulesDefaultProfileId": "xxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxx",
                     "/Core/Authentication/CookieSessionLifespanHours": 24,
                     "/Core/Authentication/CookieAllowPersist": true,
                     "/Core/Authentication/CookiePersistDefault": true,
@@ -887,27 +887,27 @@ func (o *Policy) validateSettings() error {
                     "/Core/Authentication/SkipMechsInFalseAdvance": true,
                     "/Core/Authentication/AllowLoginMfaCache": true,
                     "/Core/__centrify_cagent/AuthenticationEnabled": true,
-                    "/Core/__centrify_cagent/Authentication/AuthenticationRulesDefaultProfileId": "30804754-3b87-4862-a39e-0f042825a3a0",
+                    "/Core/__centrify_cagent/Authentication/AuthenticationRulesDefaultProfileId": "xxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxx",
                     "/Core/__centrify_cagent/Authentication/NoMfaMechLogin": true,
                     "/Core/Css/AuthenticationEnabled": true,
-                    "/Core/Css/MfaLogin/AuthenticationRulesDefaultProfileId": "08ccf738-9277-479e-83f4-374609dd9f0e",
+                    "/Core/Css/MfaLogin/AuthenticationRulesDefaultProfileId": "xxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxx",
                     "/Core/Css/MfaLogin/CssPinningMode": 1,
                     "/Core/Css/WindowsEndpointAuthenticationEnabled": true,
-                    "/Core/Css/WinClient/AuthenticationRulesDefaultProfileId": "30804754-3b87-4862-a39e-0f042825a3a0",
+                    "/Core/Css/WinClient/AuthenticationRulesDefaultProfileId": "xxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxx",
                     "/Core/Css/PrivilegeElevationEnabled": true,
-                    "/Core/Css/Dzdo/AuthenticationRulesDefaultProfileId": "30804754-3b87-4862-a39e-0f042825a3a0",
+                    "/Core/Css/Dzdo/AuthenticationRulesDefaultProfileId": "xxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxx",
                     "PasswordResetEnabled": true,
                     "/Core/PasswordReset/PasswordResetEnabled": true,
                     "/Core/PasswordReset/PasswordResetADEnabled": true,
                     "/Core/PasswordReset/PasswordResetIdentityCookieOnly": true,
                     "/Core/PasswordReset/PasswordResetRequiresMfaRestart": true,
-                    "/Core/PasswordReset/PasswordResetAuthProfile": "bdfced4d-e2d3-4dae-a84f-dc8282faf8eb",
+                    "/Core/PasswordReset/PasswordResetAuthProfile": "xxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxx",
                     "/Core/PasswordReset/PasswordResetMaxAttemptsPerSession": 9,
                     "/Core/PasswordReset/AccountUnlockEnabled": true,
                     "/Core/PasswordReset/AccountUnlockADEnabled": true,
                     "/Core/PasswordReset/AccountUnlockIdentityCookieOnly": true,
                     "/Mobile/EndpointAgent/showAccountLocked": true,
-                    "/Core/PasswordReset/AccountUnlockAuthProfile": "30804754-3b87-4862-a39e-0f042825a3a0",
+                    "/Core/PasswordReset/AccountUnlockAuthProfile": "xxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxx",
                     "/Core/PasswordReset/UseADAdmin": false,
                     "/Core/PasswordReset/Max": 5,
                     "/Core/PasswordReset/MaxTime": 80,
@@ -935,28 +935,28 @@ func (o *Policy) validateSettings() error {
                     "/Core/Security/CDS/ExternalMFA/ShowQRCode": true,
                     "/Core/Authentication/AllowRadius": true,
                     "/Core/Authentication/RadiusUseChallenges": true,
-                    "/Core/Authentication/RadiusChallengeProfile": "624a5e94-da4c-4ba3-a596-f56b60637976",
+                    "/Core/Authentication/RadiusChallengeProfile": "xxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxx",
                     "/Core/Authentication/SendRadiusVendorSpecificAttributes": false,
                     "/Core/Authentication/AllowExternalRadius": true,
                     "/Core/PasswordChange/UserChangeAllow": true,
-                    "/Core/Authentication/UserUpdateProfile/Password": "30804754-3b87-4862-a39e-0f042825a3a0",
+                    "/Core/Authentication/UserUpdateProfile/Password": "xxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxx",
                     "/Core/Security/CDS/ExternalMFA/ShowU2f": true,
                     "/Core/Security/CDS/ExternalMFA/U2fUiPrompt": "FIDO2 Security Key",
-                    "/Core/Authentication/UserUpdateProfile/U2F": "bdfced4d-e2d3-4dae-a84f-dc8282faf8eb",
+                    "/Core/Authentication/UserUpdateProfile/U2F": "xxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxx",
                     "/Core/Security/CDS/ExternalMFA/ShowQRCodeForSelfService": true,
                     "/Core/Security/CDS/ExternalMFA/UiPrompt": "OATH OTP Client",
-                    "/Core/Authentication/UserUpdateProfile/OathProfile": "bdfced4d-e2d3-4dae-a84f-dc8282faf8eb",
+                    "/Core/Authentication/UserUpdateProfile/OathProfile": "xxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxx",
                     "/Core/Authentication/ConfigureSecurityQuestions": true,
                     "/Core/Authentication/SecurityQuestionPreventDupAnswers": false,
                     "/Core/Authentication/UserSecurityQuestionsPerUser": 2,
                     "/Core/Authentication/AdminSecurityQuestionsPerUser": 3,
                     "/Core/Authentication/SecurityQuestionAnswerMinLength": 4,
-                    "/Core/Authentication/UserUpdateProfile/SecurityQuestion": "30804754-3b87-4862-a39e-0f042825a3a0",
+                    "/Core/Authentication/UserUpdateProfile/SecurityQuestion": "xxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxx",
                     "/Core/PhoneAuth/UserChangeAllow": true,
                     "/Core/Authentication/MinPhonePinLength": "7",
-                    "/Core/Authentication/UserUpdateProfile/PhonePin": "bdfced4d-e2d3-4dae-a84f-dc8282faf8eb",
+                    "/Core/Authentication/UserUpdateProfile/PhonePin": "xxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxx",
                     "/Core/Security/CDS/AllowUserChangeMFARedirect": true,
-                    "/Core/Authentication/UserUpdateProfile/Profile": "bdfced4d-e2d3-4dae-a84f-dc8282faf8eb",
+                    "/Core/Authentication/UserUpdateProfile/Profile": "xxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxx",
                     "/Core/Policy/Culture": "en",
                     "/Mobile/EnrollRules/Common/AllowEnrollment": true,
                     "/Mobile/EnrollRules/Common/AllowJailBrokenDevices": true,
@@ -1000,7 +1000,7 @@ func (o *Policy) validateSettings() error {
 				"Settings": {
 					"/Core/__centrify_cagent/Authentication/AuthenticationRulesHighAuthRequestedProfileId": "AlwaysAllowed",
 					"/Core/__centrify_cagent/AuthenticationEnabled": true,
-					"/Core/__centrify_cagent/Authentication/ChallengeDefinitionId": "7f7fcf81-ee3a-4b78-8e23-97da87f5ac7c",
+					"/Core/__centrify_cagent/Authentication/ChallengeDefinitionId": "xxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxx",
 					"/Core/__centrify_cagent/Authentication/AuthenticationRules": {
 						"_UniqueKey": "Condition",
 						"_Value": [],
@@ -1008,13 +1008,13 @@ func (o *Policy) validateSettings() error {
 						"_Type": "RowSet"
 					},
 					"/Core/Css/MfaLogin/CssPinningMode": 0,
-					"/Core/__centrify_cagent/Authentication/AuthenticationRulesDefaultProfileId": "30804754-3b87-4862-a39e-0f042825a3a0"
+					"/Core/__centrify_cagent/Authentication/AuthenticationRulesDefaultProfileId": "xxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxx"
 				},
 				"RevStamp": "637334975380000000",
 				"RadiusClientList": [],
 				"AuthProfiles": [
 					{
-						"Uuid": "cf484a69-4f1b-42e0-9286-2e0ce972b362",
+						"Uuid": "xxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxx",
 						"Name": "Default New Device Login Profile",
 						"DurationInMinutes": 720,
 						"Challenges": [
@@ -1032,7 +1032,7 @@ func (o *Policy) validateSettings() error {
 				"DirectoryServices": [
 					{
 						"DisplayNameShort": "Centrify Directory",
-						"directoryServiceUuid": "09B9A9B0-6CE8-465F-AB03-65766D33B05E"
+						"directoryServiceUuid": "xxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxx"
 					}
 				],
 				"Description": "Test Policy 1",
@@ -1043,8 +1043,8 @@ func (o *Policy) validateSettings() error {
 			"plinks": [
 				{
 					"Params": [
-						"d958fad8_f90a_4c40_b986_f6fa31713bba",
-						"d06fc516_8c9b_4f76_a08d_797ca6fd0a55"
+						"xxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxx",
+						"xxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxx"
 					],
 					"ID": "/Policy/LAB Machine Login Policy",
 					"EnableCompliant": true,

@@ -1,7 +1,7 @@
 /*
 resource "centrifyvault_user" "testuser1" {
     username = "testuser1@example.com"
-    email = "testuser1@centrify.com"
+    email = "testuser1@example.com"
     displayname = "Test User 1"
     description = "Test user 1"
     password = "xxxxxxxxx"
@@ -9,9 +9,9 @@ resource "centrifyvault_user" "testuser1" {
     //force_password_change_next = true
     //oauth_client = true
     send_email_invite = true
-    office_number = "+65 98273622"
-    home_number = "+65 98273622"
-    mobile_number = "+65 98273622"
+    office_number = "+00 00000000"
+    home_number = "+00 00000000"
+    mobile_number = "+00 00000000"
     //redirect_mfa_user_id = data.centrifyvault_user.admin.id
     //manager_username = "admin@example.com"
     roles = [
@@ -30,9 +30,9 @@ resource "centrifyvault_user" "testuser2" {
     //force_password_change_next = true
     //oauth_client = true
     send_email_invite = true
-    office_number = "+65 98273622"
-    home_number = "+65 98273622"
-    mobile_number = "+65 98273622"
+    office_number = "+00 00000000"
+    home_number = "+00 00000000"
+    mobile_number = "+00 00000000"
     //redirect_mfa_user_id = centrifyvault_user.testuser1.id
     //manager_username = "admin@example.com"
 }

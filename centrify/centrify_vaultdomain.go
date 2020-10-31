@@ -225,19 +225,19 @@ func (o *VaultDomain) setAdminAccount() error {
 						"Entities": [
 							{
 								"Type": "VaultDomain",
-								"Key": "5f742093-6c3a-4235-b84f-f1b86627ba58",
+								"Key": "xxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxx",
 								"IsForeignKey": false
 							}
 						],
 						"Row": {
-							"ID": "5f742093-6c3a-4235-b84f-f1b86627ba58",
+							"ID": "xxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxx",
 							"AllowMultipleCheckouts": null,
 							"DefaultCheckoutTime": null,
 							"MinimumPasswordAge": null,
 							"AllowManualLocalAccountUnlock": true,
 							"ZoneRoleWorkflowRoles": "[{\"Name\":\"cfyl-SSH Management/Unix Zone\",\"Unix\":true,\"ZoneDn\":\"CN=Unix Zone,CN=Global,CN=Zones,OU=Centrify,DC=centrifylab,DC=aws\",\"Description\":\"Manage SSHD daemon and configuration\",\"ZoneCanonicalName\":\"centrifylab.aws/Centrify/Zones/Global/Unix Zone\",\"ParentZoneDn\":\"CN=Global,CN=Zones,OU=Centrify,DC=centrifylab,DC=aws\"},{\"Name\":\"cfyl-Super System Admin/Unix Zone\",\"Unix\":true,\"ZoneDn\":\"CN=Unix Zone,CN=Global,CN=Zones,OU=Centrify,DC=centrifylab,DC=aws\",\"Description\":\"Super system admin with root access\",\"ZoneCanonicalName\":\"centrifylab.aws/Centrify/Zones/Global/Unix Zone\",\"ParentZoneDn\":\"CN=Global,CN=Zones,OU=Centrify,DC=centrifylab,DC=aws\"},{\"Name\":\"cfyw-Windows System Admin/Windows Zone\",\"ZoneDn\":\"CN=Windows Zone,CN=Global,CN=Zones,OU=Centrify,DC=centrifylab,DC=aws\",\"Description\":\"Windows system admin for managing local configurations\",\"ZoneCanonicalName\":\"centrifylab.aws/Centrify/Zones/Global/Windows Zone\",\"Windows\":true,\"ParentZoneDn\":\"CN=Global,CN=Zones,OU=Centrify,DC=centrifylab,DC=aws\"}]",
 							"AllowAutomaticAccountUnlock": null,
-							"ForestID": "5f742093-6c3a-4235-b84f-f1b86627ba58",
+							"ForestID": "xxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxx",
 							"PasswordHistoryCleanUpDuration": null,
 							"AllowHealthCheck": null,
 							"HealthStatusError": "Success",
@@ -247,16 +247,16 @@ func (o *VaultDomain) setAdminAccount() error {
 							"AllowZoneRoleCleanup": true,
 							"ZoneRoleWorkflowApproversList": "[{\"BackupApprover\":{\"PType\":\"Role\",\"ObjectType\":\"Role\",\"Name\":\"LAB Infrastructure Owners\",\"Guid\":\"9e6022c7_028d_47a8_aecb_aa952201c221\",\"_ID\":\"9e6022c7_028d_47a8_aecb_aa952201c221\",\"Type-generated-field\":\"/vfslow/lib/ui/../uibuild/compiled/centrify/production/resources/images/entities/group_icon_sml.png?_ver=1583273484\",\"Principal\":\"LAB Infrastructure Owners\",\"Description\":\"Approver who can approve access to access lab systems.\",\"RoleType\":\"PrincipalList\",\"ReadOnly\":false,\"Type\":\"Role\",\"DirectoryServiceUuid\":\"09B9A9B0-6CE8-465F-AB03-65766D33B05E\"},\"NoManagerAction\":\"useBackup\",\"Type-generated-field\":\"/vfslow/lib/ui/../uibuild/compiled/centrify/production/resources/images/entities/user_icon_sml.png?_ver=1583273484\",\"OptionsSelector\":true,\"Type\":\"Manager\"}]",
 							"LastZoneRoleCleanup": "/Date(1595383548740)/",
-							"Administrator": "846966fa-dd37-40e9-9958-cab9f5b27b66",
+							"Administrator": "xxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxx",
 							"SyncFromConnector": true,
 							"PasswordProfileID": null,
 							"PasswordRotateDuration": null,
 							"Description": "",
-							"ProxyCollectionList": "7ee6c65b-f000-4300-8e42-d110eb6da6c8",
-							"AdministratorDisplayName": "ad_admin (centrifylab.aws)",
+							"ProxyCollectionList": "xxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxx",
+							"AdministratorDisplayName": "admin (example.com)",
 							"AllowPasswordRotationAfterCheckin": null,
 							"AllowAutomaticAccountMaintenance": true,
-							"Name": "centrifylab.aws",
+							"Name": "example.com",
 							"AllowRefreshZoneJoined": true,
 							"ZoneRoleWorkflowApprovers": "[{\"BackupApprover\":{\"PType\":\"Role\",\"ObjectType\":\"Role\",\"Name\":\"LAB Infrastructure Owners\",\"Guid\":\"9e6022c7_028d_47a8_aecb_aa952201c221\",\"_ID\":\"9e6022c7_028d_47a8_aecb_aa952201c221\",\"Type-generated-field\":\"/vfslow/lib/ui/../uibuild/compiled/centrify/production/resources/images/entities/group_icon_sml.png?_ver=1583273484\",\"Description\":\"Approver who can approve access to access lab systems.\",\"Principal\":\"LAB Infrastructure Owners\",\"RoleType\":\"PrincipalList\",\"ReadOnly\":false,\"DirectoryServiceUuid\":\"09B9A9B0-6CE8-465F-AB03-65766D33B05E\",\"Type\":\"Role\"},\"NoManagerAction\":\"useBackup\",\"Type-generated-field\":\"/vfslow/lib/ui/../uibuild/compiled/centrify/production/resources/images/entities/user_icon_sml.png?_ver=1583273484\",\"OptionsSelector\":true,\"Type\":\"Manager\"}]",
 							"AllowAutomaticLocalAccountMaintenance": true,
@@ -301,7 +301,7 @@ func (o *VaultDomain) setAdminAccount() error {
 		Respond result
 		{
 			"success": true,
-			"Result": "5857a828-785d-402e-966e-73ca1a198c98",
+			"Result": "xxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxx",
 			"Message": null,
 			"MessageID": null,
 			"Exception": null,
@@ -316,7 +316,7 @@ func (o *VaultDomain) setAdminAccount() error {
 
 		Request body format
 		{
-			"ID": "5857a828-785d-402e-966e-73ca1a198c98",
+			"ID": "xxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxx",
 			"AllowMultipleCheckouts": true,
 			"DefaultCheckoutTime": 30,
 			"MinimumPasswordAge": 98,
@@ -326,10 +326,10 @@ func (o *VaultDomain) setAdminAccount() error {
 			"Reachable": false,
 			"LastState": "Unreachable",
 			"AllowZoneRoleCleanup": true,
-			"PasswordProfileID": "a5143c7e-1195-4f6e-a755-11b5e0213cda",
+			"PasswordProfileID": "xxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxx",
 			"PasswordRotateDuration": 90,
 			"Description": "example domain",
-			"AdministratorDisplayName": "demo.lab\\ad_admin",
+			"AdministratorDisplayName": "example.om\\admin",
 			"AllowPasswordRotationAfterCheckin": true,
 			"AllowAutomaticAccountMaintenance": true,
 			"Name": "example.com",
@@ -343,20 +343,20 @@ func (o *VaultDomain) setAdminAccount() error {
 			"AllowManualAccountUnlock": true,
 			"AllowPasswordRotation": true,
 			"newAdministrator": {
-				"User": "demo.lab\\ad_admin",
-				"PVID": "6ff45b40-7375-4887-bfba-a84849a2250a",
+				"User": "example.com\\admin",
+				"PVID": "xxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxx",
 				"Domains": [
 					"example.com"
 				]
 			},
-			"_RowKey": "5857a828-785d-402e-966e-73ca1a198c98"
+			"_RowKey": "xxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxx"
 		}
 
 		Respond result
 		{
 			"success": true,
 			"Result": {
-				"ID": "5857a828-785d-402e-966e-73ca1a198c98"
+				"ID": "xxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxx"
 			},
 			"Message": null,
 			"MessageID": null,
@@ -372,7 +372,7 @@ func (o *VaultDomain) setAdminAccount() error {
 
 		Request body format
 		{
-			"ID": "ba08a2bb-0667-4737-a80e-13112f2fdb1e"
+			"ID": "xxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxx"
 		}
 
 		Respond result
@@ -392,19 +392,19 @@ func (o *VaultDomain) setAdminAccount() error {
 
 	Request body format
 	{
-		"User": "demo.lab\\ad_admin",
-		"PVID": "6ff45b40-7375-4887-bfba-a84849a2250a",
+		"User": "example.com\\admin",
+		"PVID": "xxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxx",
 		"Domains": [
 			"example.com"
 		]
 	}
 	or
 	{
-		"User": "Administrator@demo.lab",
-		"UserUuid": "b5e89f6e-ac09-4258-be70-64dc91ca9054",
+		"User": "Administrator@example.com",
+		"UserUuid": "xxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxx",
 		"Password": "xxxxxx",
 		"Domains": [
-			"demo.lab"
+			"example.com"
 		]
 	}
 

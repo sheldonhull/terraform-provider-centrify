@@ -128,7 +128,7 @@ https://developer.centrify.com/reference#post_subscriptions-getsubscription
 
 	Request body
 	{
-		"ID": "e22d687e-345a-4cb4-9068-aca8cb688194",
+		"ID": "xxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxx",
 		"RRFormat": true,
 		"Args": {
 			"PageNumber": 1,
@@ -142,28 +142,28 @@ https://developer.centrify.com/reference#post_subscriptions-getsubscription
 	{
 		"success": true,
 		"Result": {
-			"ComputerID": "7cb80f23-2e68-4d71-990e-748702d0f233",
+			"ComputerID": "xxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxx",
 			"Description": "",
 			"WindowsServiceName": "TestWindowsService",
-			"SecretID": "18cb5bf4-d173-4264-9c1e-da3dba12daa4",
-			"_STAMP": "ee1ce11f-0f53-4cce-b568-b7f0f3f8fb36",
+			"SecretID": "xxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxx",
+			"_STAMP": "xxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxx",
 			"RestartService": true,
-			"LogonCreds": "ad_admin (demo.lab)",
+			"LogonCreds": "ad_admin (example.com)",
 			"_TableName": "cpssubscriptions",
-			"_PartitionKey": "WAD37346",
+			"_PartitionKey": "XXXXXX",
 			"IsActive": true,
-			"_RowKey": "e22d687e-345a-4cb4-9068-aca8cb688194",
+			"_RowKey": "xxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxx",
 			"RestartTimeRestriction": false,
 			"Type": "WindowsService",
 			"Account": "Account for TestWindowsService",
-			"PushCreds": "2d5f0b42-33a2-468d-befd-a80205fb9e6c",
+			"PushCreds": "xxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxx",
 			"LastUpdate": "/Date(1595301043898)/",
-			"AccountID": "ec67b088-8498-4a7c-887f-15edc2e792e2",
+			"AccountID": "xxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxx",
 			"Status": "OK",
-			"Resource": "member1.demo.lab",
+			"Resource": "member1.example.com",
 			"ACL": "true",
 			"Mode": "Push",
-			"CurrentMultiplexAccount": "59a21c8c-ab67-4ffb-a42e-22e2615442bf",
+			"CurrentMultiplexAccount": "xxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxx",
 			"RestartTimeInUtc": true
 		},
 		"Message": null,
@@ -181,15 +181,15 @@ https://developer.centrify.com/reference#post_subscriptions-addsubscription
 	Request body
 	{
 		"RestartTimeInUtc": false,
-		"ComputerID": "4447eebb-4d82-4a2b-859c-141ee9d7f9a1",
-		"AccountID": "d43b4351-ef03-4e9c-8ac6-7fddf39d8a4f",
-		"PushCreds": "6ff45b40-7375-4887-bfba-a84849a2250a",
+		"ComputerID": "xxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxx",
+		"AccountID": "xxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxx",
+		"PushCreds": "xxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxx",
 		"Resource": "member2",
 		"Description": "TestWinService",
 		"Type": "WindowsService",
 		"WindowsServiceName": "testwinsrv",
 		"IsActive": true,
-		"LogonCreds": "ad_admin (demo.lab)",
+		"LogonCreds": "ad_admin (example.com)",
 		"Account": "test",
 		"RestartService": true,
 		"RestartTimeRestriction": true,
@@ -202,7 +202,7 @@ https://developer.centrify.com/reference#post_subscriptions-addsubscription
 	Responde Result
 	{
 		"success":true,
-		"Result":"0bf599ea-74e5-4234-b2ba-c68cbdfdfb18",
+		"Result":"xxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxx",
 		"Message":null,
 		"MessageID":null,
 		"Exception":null,
@@ -217,34 +217,34 @@ https://developer.centrify.com/reference#post_subscriptions-updatesubscription
 
 	Request body
 	{
-		"ComputerID": "7cb80f23-2e68-4d71-990e-748702d0f233",
+		"ComputerID": "xxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxx",
 		"Description": "Test Windows Service",
 		"WindowsServiceName": "TestWindowsService",
-		"SecretID": "18cb5bf4-d173-4264-9c1e-da3dba12daa4",
-		"_STAMP": "ee1ce11f-0f53-4cce-b568-b7f0f3f8fb36",
+		"SecretID": "xxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxx",
+		"_STAMP": "xxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxx",
 		"RestartService": true,
-		"LogonCreds": "ad_admin (demo.lab)",
+		"LogonCreds": "ad_admin (example.com)",
 		"_TableName": "cpssubscriptions",
-		"_PartitionKey": "WAD37346",
+		"_PartitionKey": "XXXXX",
 		"IsActive": true,
-		"_RowKey": "e22d687e-345a-4cb4-9068-aca8cb688194",
+		"_RowKey": "xxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxx",
 		"RestartTimeRestriction": false,
 		"Type": "WindowsService",
 		"Account": "Account for TestWindowsService",
-		"PushCreds": "2d5f0b42-33a2-468d-befd-a80205fb9e6c",
-		"AccountID": "ec67b088-8498-4a7c-887f-15edc2e792e2",
+		"PushCreds": "xxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxx",
+		"AccountID": "xxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxx",
 		"Status": "OK",
-		"Resource": "member1.demo.lab",
+		"Resource": "member1.example.com",
 		"ACL": "true",
 		"Mode": "Push",
-		"CurrentMultiplexAccount": "59a21c8c-ab67-4ffb-a42e-22e2615442bf",
-		"ID": "e22d687e-345a-4cb4-9068-aca8cb688194"
+		"CurrentMultiplexAccount": "xxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxx",
+		"ID": "xxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxx"
 	}
 
 	Responde Result
 	{
 		"success": true,
-		"Result": "e22d687e-345a-4cb4-9068-aca8cb688194",
+		"Result": "xxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxx",
 		"Message": null,
 		"MessageID": null,
 		"Exception": null,
@@ -259,7 +259,7 @@ https://developer.centrify.com/reference#post_subscriptions-deletesubscription
 
 	Request body
 	{
-		"ID": "0bf599ea-74e5-4234-b2ba-c68cbdfdfb18"
+		"ID": "xxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxx"
 	}
 
 	Responde Result

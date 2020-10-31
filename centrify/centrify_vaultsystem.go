@@ -231,7 +231,7 @@ func (o *VaultSystem) Query() (map[string]interface{}, error) {
 
 		Request body format
 		{
-			"Script": "SELECT * FROM Server WHERE Server.ID = '0b2c14d3-3fde-44f4-bd29-30d2ba29b3c3'",
+			"Script": "SELECT * FROM Server WHERE Server.ID = 'xxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxx'",
 			"Args": {
 				"PageNumber": 1,
 				"Limit": 1,
@@ -253,13 +253,13 @@ func (o *VaultSystem) Query() (map[string]interface{}, error) {
 						"Entities": [
 							{
 								"Type": "Server",
-								"Key": "0b2c14d3-3fde-44f4-bd29-30d2ba29b3c3",
+								"Key": "xxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxx",
 								"IsForeignKey": false
 							}
 						],
 						"Row": {
 							"AllowPasswordRotationAfterCheckin": null,
-							"ProxyUser": "admin@demo.lab",
+							"ProxyUser": "admin@example.com",
 							"UseDomainWorkflowApprovers": null,
 							"JoinedDate": null,
 							"CanonicalName": null,
@@ -268,7 +268,7 @@ func (o *VaultSystem) Query() (map[string]interface{}, error) {
 							"DisableNla": null,
 							"SshKeyFolder": null,
 							"AllowRemote": null,
-							"Description": "Windows system 1 wwr343434",
+							"Description": "Windows system 1",
 							"DiscoveryRefreshTime": null,
 							"ProxyUserIsManaged": false,
 							"NumGoodAccounts": -1,
@@ -335,7 +335,7 @@ func (o *VaultSystem) Query() (map[string]interface{}, error) {
 							"ComputerClassDisplayName": "Windows",
 							"LastHealthCheck": "/Date(1596262439557)/",
 							"AdministrativeAccountEnabled": null,
-							"ID": "0b2c14d3-3fde-44f4-bd29-30d2ba29b3c3",
+							"ID": "xxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxx",
 							"AllowMultipleCheckouts": null,
 							"DistinguishedName": null
 						}
@@ -367,7 +367,7 @@ func (o *VaultSystem) Query() (map[string]interface{}, error) {
 		Respond result
 		{
 			"success": true,
-			"Result": "ba08a2bb-0667-4737-a80e-13112f2fdb1e",
+			"Result": "xxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxx",
 			"Message": null,
 			"MessageID": null,
 			"Exception": null,
@@ -382,7 +382,7 @@ func (o *VaultSystem) Query() (map[string]interface{}, error) {
 
 		Request body format
 		{
-			"ProxyUser": "admin@demo.lab",
+			"ProxyUser": "admin@example.com",
 			"Description": "Windows Server 01 Test",
 			"ProxyUserIsManaged": false,
 			"Rights": "ManageSession, Edit, Delete, Grant, AgentAuth, RequestZoneRole, View, AddAccount, UnlockAccount, OfflineRescue",
@@ -391,7 +391,7 @@ func (o *VaultSystem) Query() (map[string]interface{}, error) {
 			"Reachable": false,
 			"CertAuthEnable": false,
 			"IsFavorite": false,
-			"ProxyCollectionList": "101159b9-72db-46c5-908a-3da8ab4d2e09,20f95122-c8cf-4830-b5e4-9744bd31032d",
+			"ProxyCollectionList": "xxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxx,xxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxx",
 			"LastState": "Unreachable",
 			"ActiveSessions": 0,
 			"SessionType": "Rdp",
@@ -401,11 +401,11 @@ func (o *VaultSystem) Query() (map[string]interface{}, error) {
 			"ActiveCheckouts": 0,
 			"ReachableError": "_I18N_NoCloudConnectorsError",
 			"ComputerClassDisplayName": "Windows",
-			"ID": "ba08a2bb-0667-4737-a80e-13112f2fdb1e",
+			"ID": "xxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxx",
 			"SessionCount": 0,
 			"DisableNla": false,
 			"ProxyUserPassword": "xxxxxxxx",
-			"_RowKey": "ba08a2bb-0667-4737-a80e-13112f2fdb1e",
+			"_RowKey": "xxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxx",
 			"updateChallenges": true,
 			"resetProxyUserPassword": false,
 			"AdministrativeAccountID": null
@@ -415,7 +415,7 @@ func (o *VaultSystem) Query() (map[string]interface{}, error) {
 		{
 			"success": true,
 			"Result": {
-				"ID": "ba08a2bb-0667-4737-a80e-13112f2fdb1e"
+				"ID": "xxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxx"
 			},
 			"Message": null,
 			"MessageID": null,
@@ -431,7 +431,7 @@ func (o *VaultSystem) Query() (map[string]interface{}, error) {
 
 		Request body format
 		{
-			"ID": "ba08a2bb-0667-4737-a80e-13112f2fdb1e"
+			"ID": "xxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxx"
 		}
 
 		Respond result
@@ -449,7 +449,7 @@ func (o *VaultSystem) Query() (map[string]interface{}, error) {
 
 		Create Login rules
 		{
-			"ID": "0b07c7b1-5481-4bbc-8ef8-ea7874ea68f2",
+			"ID": "xxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxx",
 			"LoginRules": {
 				"_Type": "RowSet",
 				"Enabled": true,
@@ -467,7 +467,7 @@ func (o *VaultSystem) Query() (map[string]interface{}, error) {
 								"Val": "L,1,2,3,4,5"
 							}
 						],
-						"ProfileId": "30804754-3b87-4862-a39e-0f042825a3a0"
+						"ProfileId": "xxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxx"
 					},
 					{
 						"Conditions": [
@@ -477,7 +477,7 @@ func (o *VaultSystem) Query() (map[string]interface{}, error) {
 								"Val": "WindowsMobile"
 							}
 						],
-						"ProfileId": "bdfced4d-e2d3-4dae-a84f-dc8282faf8eb"
+						"ProfileId": "xxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxx"
 					}
 				]
 			},
@@ -498,7 +498,7 @@ func (o *VaultSystem) Query() (map[string]interface{}, error) {
 									"Op": "OpInCorpIpRange"
 								}
 							],
-							"ProfileId": "30804754-3b87-4862-a39e-0f042825a3a0"
+							"ProfileId": "xxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxx"
 						}
 					],
 					"Enabled": true,

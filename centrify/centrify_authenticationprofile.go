@@ -168,14 +168,14 @@ func (o *AuthenticationProfile) Query() (map[string]interface{}, error) {
 
 		Request body format
 		{
-			"uuid": "30804754-3b87-4862-a39e-0f042825a3a0"
+			"uuid": "xxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxx"
 		}
 
 		Respond result
 		{
 			"success": true,
 			"Result": {
-				"Uuid": "30804754-3b87-4862-a39e-0f042825a3a0",
+				"Uuid": "xxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxx",
 				"Name": "LAB Step-up Authentication Profile",
 				"DurationInMinutes": 0,
 				"Challenges": [
@@ -216,7 +216,7 @@ func (o *AuthenticationProfile) Query() (map[string]interface{}, error) {
 		{
 			"success": true,
 			"Result": {
-				"Uuid": "fe4f152d-1e52-44e3-9822-613f0de32ada",
+				"Uuid": "xxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxx",
 				"Name": "test",
 				"DurationInMinutes": 30,
 				"Challenges": [
@@ -247,7 +247,7 @@ func (o *AuthenticationProfile) Query() (map[string]interface{}, error) {
 
 		Request body format
 		{
-			"uuid": "fe4f152d-1e52-44e3-9822-613f0de32ada"
+			"uuid": "xxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxx"
 		}
 
 		Respond result

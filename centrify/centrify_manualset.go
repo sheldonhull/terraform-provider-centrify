@@ -253,28 +253,28 @@ func (o *ManualSet) getMemberPerms() map[string]string {
 
 		Request body format
 		{
-			"ID": "e0f8aa18-270a-4bb7-82d9-23afd6a81861"
+			"ID": "xxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxx"
 		}
 
 		Respond result
 		{
 			"success": true,
 			"Result": {
-				"_encryptkeyid": "ABC0751",
+				"_encryptkeyid": "XXXXX",
 				"_TableName": "collections",
 				"_Timestamp": "/Date(1569301295080)/",
 				"ObjectType": "Server",
 				"ACL": "true",
 				"Name": "LAB Systems",
 				"Filters": ...
-				"_PartitionKey": "ABC0751",
+				"_PartitionKey": "XXXXX",
 				"WhenCreated": "/Date(1569301294975)/",
-				"ID": "e0f8aa18-270a-4bb7-82d9-23afd6a81861",
+				"ID": "xxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxx",
 				"_entitycontext": "W/\"datetime'2019-09-24T05%3A01%3A35.0809483Z'\"",
-				"_RowKey": "e0f8aa18-270a-4bb7-82d9-23afd6a81861",
+				"_RowKey": "xxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxx",
 				"ParentPath": "",
 				"CollectionType": "ManualBucket",
-				"MembersFile": "/sys/buckets/e0f8aa18-270a-4bb7-82d9-23afd6a81861.json",
+				"MembersFile": "/sys/buckets/exxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxx.json",
 				"_metadata": {
 					"Version": 1,
 					"IndexingVersion": 1
@@ -303,7 +303,7 @@ func (o *ManualSet) getMemberPerms() map[string]string {
 		Respond result
 		{
 			"success": true,
-			"Result": "759bddf3-f91d-415e-a4e8-815060da1e07",
+			"Result": "xxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxx",
 			"Message": null,
 			"MessageID": null,
 			"Exception": null,
@@ -320,17 +320,17 @@ func (o *ManualSet) getMemberPerms() map[string]string {
 		{
 			"Rights": "View, Edit, Delete, Grant",
 			"_TableName": "collections",
-			"_encryptkeyid": "ABC0751",
+			"_encryptkeyid": "XXXXX",
 			"ObjectType": "Server",
 			"ACL": "true",
 			"Name": "Test Set 1",
-			"_PartitionKey": "ABC0751",
-			"ID": "759bddf3-f91d-415e-a4e8-815060da1e07",
+			"_PartitionKey": "XXXXX",
+			"ID": "xxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxx",
 			"_entitycontext": "W/\"datetime'2020-08-01T09%3A49%3A55.7338109Z'\"",
-			"_RowKey": "759bddf3-f91d-415e-a4e8-815060da1e07",
+			"_RowKey": "xxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxx",
 			"CollectionType": "ManualBucket",
 			"Description": "Test Set 2",
-			"MembersFile": "/sys/buckets/759bddf3-f91d-415e-a4e8-815060da1e07.json",
+			"MembersFile": "/sys/buckets/xxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxx.json",
 			"_metadata": {
 				"Version": 1,
 				"IndexingVersion": 1
@@ -356,7 +356,7 @@ func (o *ManualSet) getMemberPerms() map[string]string {
 
 		Request body format
 		{
-			"ID": "759bddf3-f91d-415e-a4e8-815060da1e07"
+			"ID": "xxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxx"
 		}
 
 		Respond result
@@ -376,12 +376,12 @@ func (o *ManualSet) getMemberPerms() map[string]string {
 	https://developer.centrify.com/reference#post_collection-updatememberscollection
 	Request body format
 	{
-		"id": "e0f8aa18-270a-4bb7-82d9-23afd6a81861",
+		"id": "xxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxx",
 		"add": [
 			{
 				"MemberType": "Row",
 				"Table": "Server",
-				"Key": "dc66922b-7d09-4c09-9eba-ce22bf8d7d21"
+				"Key": "xxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxx"
 			}
 		]
 	}
@@ -409,12 +409,12 @@ func (o *ManualSet) getMemberPerms() map[string]string {
 					"Principal": "LAB Infrastructure Admins",
 					"PType": "Role",
 					"Rights": "Grant,View,Edit,Delete",
-					"PrincipalId": "5e104003_eeed_422f_9b45_bca14b61528d"
+					"PrincipalId": "xxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxx"
 				}
 			],
-			"ID": "86cf36c5-fd71-4767-b33c-4531c1af85cc",
-			"RowKey": "86cf36c5-fd71-4767-b33c-4531c1af85cc",
-			"PVID": "86cf36c5-fd71-4767-b33c-4531c1af85cc"
+			"ID": "xxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxx",
+			"RowKey": "xxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxx",
+			"PVID": "xxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxx"
 		}
 
 	Respond result

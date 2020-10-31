@@ -23,7 +23,7 @@ resource "centrifyvault_vaultdatabase" "testdatabase1" {
 
 	# System -> Connectors menu related settings
 	//connector_list = [
-    //    data.centrifyvault_connector.EC2AMAZ-HSVO4VI.id,
+    //    data.centrifyvault_connector.XXXXX-XXXXXX.id,
     //    data.centrifyvault_connector.dc01.id
     //]
 

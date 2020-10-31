@@ -183,7 +183,7 @@ func (o *SSHKey) RetriveSSHKey() (*restapi.StringResponse, error) {
 
 		Request body format
 		{
-			"ID": "56ec631d-635a-48f7-b100-6b97b6eb6f47"
+			"ID": "xxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxx"
 		}
 
 		Respond Result
@@ -199,12 +199,12 @@ func (o *SSHKey) RetriveSSHKey() (*restapi.StringResponse, error) {
 					"IndexingVersion": 1
 				},
 				"_TableName": "sshkeys",
-				"_encryptkeyid": "ABC0751",
-				"_PartitionKey": "ABC0751",
-				"_RowKey": "56ec631d-635a-48f7-b100-6b97b6eb6f47",
+				"_encryptkeyid": "XXXXX",
+				"_PartitionKey": "XXXXX",
+				"_RowKey": "5xxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxx",
 				"Revision": 0,
 				"_Timestamp": "/Date(1582552067897)/",
-				"CreatedBy": "c2c7bcc6-9560-44e0-8dff-5be221cd37ee",
+				"CreatedBy": "xxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxx",
 				"Name": "my_ami_key",
 				"KeyType": "RSA",
 				"Comment": "my AWS AMI key",
@@ -212,7 +212,7 @@ func (o *SSHKey) RetriveSSHKey() (*restapi.StringResponse, error) {
 				"ACL": "true",
 				"KeyLength": 2048,
 				"State": "Active",
-				"LastUpdatedBy": "c2c7bcc6-9560-44e0-8dff-5be221cd37ee"
+				"LastUpdatedBy": "xxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxx
 			},
 			"Message": null,
 			"MessageID": null,
@@ -238,7 +238,7 @@ func (o *SSHKey) RetriveSSHKey() (*restapi.StringResponse, error) {
 		Respond Result
 		{
 			"success": true,
-			"Result": "ba6bda39-68ed-4e27-ab83-4e89aa3ea2da",
+			"Result": "xxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxx",
 			"Message": null,
 			"MessageID": null,
 			"Exception": null,
@@ -256,12 +256,12 @@ func (o *SSHKey) RetriveSSHKey() (*restapi.StringResponse, error) {
 			"IsManaged": false,
 			"IsFavorite": false,
 			"Revision": 0,
-			"CreatedBy": "c2c7bcc6-9560-44e0-8dff-5be221cd37ee",
+			"CreatedBy": "xxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxx",
 			"Name": "Test Key",
 			"KeyType": "RSA",
 			"Comment": "Test Key 1",
 			"KeyLength": 2048,
-			"ID": "ba6bda39-68ed-4e27-ab83-4e89aa3ea2da",
+			"ID": "xxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxx",
 			"State": "Active",
 			"jsutil-enhancecheckbox-35013-inputEl": false
 		}
@@ -284,7 +284,7 @@ func (o *SSHKey) RetriveSSHKey() (*restapi.StringResponse, error) {
 
 		Reqeust body format
 		{
-			"ID": "56ec631d-635a-48f7-b100-6b97b6eb6f47"
+			"ID": "xxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxx"
 		}
 
 		Respond Result
@@ -307,7 +307,7 @@ func (o *SSHKey) RetriveSSHKey() (*restapi.StringResponse, error) {
 		{
 			"KeyPairType": "PrivateKey",
 			"KeyFormat": "PEM",
-			"ID": "ba6bda39-68ed-4e27-ab83-4e89aa3ea2da"
+			"ID": "xxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxx"
 		}
 
 		Respond Result

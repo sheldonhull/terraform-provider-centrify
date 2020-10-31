@@ -10,8 +10,8 @@ resource "centrifyvault_vaultsystem" "testsystem1" {
     //use_my_account = false
     //management_mode = "Smb"
     //system_timezone = "UTC-08"
-    //proxyuser = "admin@demo.lab"
-    //proxyuser_password = "afadsf4243434"
+    //proxyuser = "admin@example.com"
+    //proxyuser_password = "xxxxxxxxxx"
     //proxyuser_managed = false // When this is set to true, Centrify Vault tries to change the password immediately and may result in error if password change fails
 
     # System -> Policy menu related settings
@@ -40,7 +40,7 @@ resource "centrifyvault_vaultsystem" "testsystem1" {
 	# System -> Connectors menu related settings
     
 	//connector_list = [
-    //    data.centrifyvault_connector.EC2AMAZ-HSVO4VI.id,
+    //    data.centrifyvault_connector.XXXXXXXXXX.id,
     //    data.centrifyvault_connector.dc01.id
     //]
 

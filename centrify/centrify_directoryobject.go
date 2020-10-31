@@ -83,9 +83,9 @@ Request body
 {
     "user": "{\"_and\":[{\"_or\":[{\"DisplayName\":{\"_like\":\"LAB\"}},{\"givenName\":{\"_like\":\"LAB\"}},{\"sn\":{\"_like\":\"LAB\"}},{\"SystemName\":{\"_like\":\"LAB\"}}]},{\"ObjectType\":\"user\"}]}",
     "directoryServices": [
-        "09B9A9B0-6CE8-465F-AB03-65766D33B05E",
-        "e09def65-17c3-0f40-c475-a6ee8825611f",
-        "C30B30B1-0B46-49AC-8D99-F6279EED7999"
+        "xxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxx",
+        "xxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxx",
+        "xxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxx"
     ],
     "group": "{\"_or\":[{\"DisplayName\":{\"_like\":\"LAB\"}},{\"SystemName\":{\"_like\":\"LAB\"}}]}",
     "roles": "{\"_or\":[{\"_ID\":{\"_like\":\"LAB\"}},{\"Name\":{\"_like\":\"LAB\"}}]}",
@@ -114,7 +114,7 @@ Respond result
                 {
                     "Entities": [
                         {
-                            "Type": "b44b1f2d-196c-48f5-825e-c4e40812d20a",
+                            "Type": "xxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxx",
                             "Key": "User",
                             "IsForeignKey": false
                         }
@@ -123,17 +123,17 @@ Respond result
                         "Description": null,
                         "DisplayName": "Centrify AD Admin",
                         "ObjectType": "User",
-                        "DistinguishedName": "CN=Centrify AD Admin,OU=Lab Service Accounts,DC=demo,DC=lab",
-                        "DirectoryServiceUuid": "e09def65-17c3-0f40-c475-a6ee8825611f",
-                        "SystemName": "ad_admin@demo.lab",
-                        "ServiceInstance": "AdProxy_demo.lab",
+                        "DistinguishedName": "CN=Centrify AD Admin,OU=Lab Service Accounts,DC=example,DC=com",
+                        "DirectoryServiceUuid": "xxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxx",
+                        "SystemName": "admin@example.com",
+                        "ServiceInstance": "AdProxy_example.com",
                         "Locked": false,
-                        "InternalName": "b44b1f2d-196c-48f5-825e-c4e40812d20a",
+                        "InternalName": "xxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxx",
                         "StatusEnum": "Created",
-                        "ServiceInstanceLocalized": "Active Directory (demo.lab)",
+                        "ServiceInstanceLocalized": "Active Directory (example.com)",
                         "ServiceType": "AdProxy",
-                        "Forest": "demo.lab",
-                        "EMail": "ad_admin@demo.lab",
+                        "Forest": "example.com",
+                        "EMail": "admin@example.com",
                         "Status": "Not Invited",
                         "Enabled": true
                     }

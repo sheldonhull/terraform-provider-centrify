@@ -4,12 +4,12 @@ data "centrifyvault_role" "lab_infra_admin" {
     name = "LAB Infrastructure Admins"
 }
 data "centrifyvault_role" "sso_role" {
-    name = "ABC0751_SSO_Role"
+    name = "SSO_Role"
 }
 /*
 //Existing user
 data "centrifyvault_user" "admin" {
-    username = "admin@centrify.com.207"
+    username = "admin@example.com"
 }
 
 // Existing System Set "LAB Systems"
@@ -57,8 +57,8 @@ data "centrifyvault_authenticationprofile" "step_up_auth_pf" {
 
 /*
 // Connector
-data "centrifyvault_connector" "EC2AMAZ-HSVO4VI" {
-    name = "EC2AMAZ-HSVO4VI"
+data "centrifyvault_connector" "XXXXX-XXXXXX" {
+    name = "XXXXX-XXXXXX"
 }
 
 // Connector

@@ -101,7 +101,7 @@ https://developer.centrify.com/reference#post_core-getdirectoryservices
                 "Row": {
                     "Service": "CDS",
                     "DisplayName": "Centrify Centrify Directory",
-                    "Tenant": "ABC0751",
+                    "Tenant": "XXXXX",
                     "Name": "CDS",
                     "Status": "Active",
                     "Config": "Centrify Directory",
@@ -109,7 +109,7 @@ https://developer.centrify.com/reference#post_core-getdirectoryservices
                     "Everybody": true,
                     "Description": "Centrify Directory",
                     "DisplayNameShort": "Centrify Directory",
-                    "directoryServiceUuid": "09B9A9B0-6CE8-465F-AB03-65766D33B05E"
+                    "directoryServiceUuid": "xxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxx"
                 }
             },
             {
@@ -122,17 +122,17 @@ https://developer.centrify.com/reference#post_core-getdirectoryservices
                 ],
                 "Row": {
                     "Service": "AdProxy",
-                    "DisplayName": "Active Directory: demo.lab",
-                    "Tenant": "ABC0751",
-                    "Name": "AdProxy_demo.lab",
+                    "DisplayName": "Active Directory: example.com",
+                    "Tenant": "XXXXX",
+                    "Name": "AdProxy_example.com",
                     "Status": "Inactive",
-                    "Config": "demo.lab",
+                    "Config": "example.com",
                     "StatusDisplay": "Offline",
                     "Everybody": true,
                     "Description": "Active Directory",
-                    "DisplayNameShort": "AD: demo.lab",
-                    "directoryServiceUuid": "e09def65-17c3-0f40-c475-a6ee8825611f",
-                    "Forest": "demo.lab"
+                    "DisplayNameShort": "AD: example.com",
+                    "directoryServiceUuid": "xxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxx",
+                    "Forest": "example.com"
                 }
             },
             {
@@ -145,17 +145,17 @@ https://developer.centrify.com/reference#post_core-getdirectoryservices
                 ],
                 "Row": {
                     "Service": "AdProxy",
-                    "DisplayName": "Active Directory: centrifylab.aws",
-                    "Tenant": "ABC0751",
-                    "Name": "AdProxy_centrifylab.aws",
+                    "DisplayName": "Active Directory: example.com",
+                    "Tenant": "XXXXX",
+                    "Name": "AdProxy_example.com",
                     "Status": "Inactive",
-                    "Config": "centrifylab.aws",
+                    "Config": "example.com",
                     "StatusDisplay": "Offline",
                     "Everybody": true,
                     "Description": "Active Directory",
-                    "DisplayNameShort": "AD: centrifylab.aws",
-                    "directoryServiceUuid": "e3344ea3-429c-c901-8854-1a72ea1404b9",
-                    "Forest": "centrifylab.aws"
+                    "DisplayNameShort": "AD: example.com",
+                    "directoryServiceUuid": "xxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxx",
+                    "Forest": "example.com"
                 }
             },
             {
@@ -169,7 +169,7 @@ https://developer.centrify.com/reference#post_core-getdirectoryservices
                 "Row": {
                     "Service": "FDS",
                     "DisplayName": "Federated Directory Service",
-                    "Tenant": "ABC0751",
+                    "Tenant": "XXXXXX",
                     "Name": "FDS",
                     "Status": "Active",
                     "Config": "Federated Directory Service",
@@ -177,7 +177,7 @@ https://developer.centrify.com/reference#post_core-getdirectoryservices
                     "Everybody": true,
                     "Description": "Federated Directory",
                     "DisplayNameShort": "FDS",
-                    "directoryServiceUuid": "C30B30B1-0B46-49AC-8D99-F6279EED7999"
+                    "directoryServiceUuid": "xxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxx"
                 }
             }
         ],

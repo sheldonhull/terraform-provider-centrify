@@ -6,11 +6,11 @@ resource "centrifyvault_role" "infra_admin" {
         "Privileged Access Service User",
     ]
     member {
-        id = "8443cca3-a038-4f77-ae82-a2574e94f347"
+        id = "xxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
         type = "Group"
     }
     member {
-        id = "b9654e32-c10e-4e8e-9f7b-14955511d0e6"
+        id = "xxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
         type = "User"
     }
     member {

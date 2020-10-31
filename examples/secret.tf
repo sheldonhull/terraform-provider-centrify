@@ -1,8 +1,8 @@
 /*
 resource "centrifyvault_vaultsecret" "test_secret1" {
     secret_name = "Test Secret 2"
-    description = "Test Secret 1 asfdasdf"
-    secret_text = "33434343434"
+    description = "Test Secret 2"
+    secret_text = "xxxxxxxxxxxxx
     type = "Text"
     //folder_id = centrifyvault_vaultsecretfolder.level2_folder.id
     default_profile_id = data.centrifyvault_authenticationprofile.step_up_auth_pf.id
