@@ -6,3 +6,5 @@ examples/demolab
 examples/.terraform/
 examples/terraform.tfstate
 examples/terraform.tfstate.backup
+examples/terraform.tfstate
+examples/terraform.tfstate.backup
