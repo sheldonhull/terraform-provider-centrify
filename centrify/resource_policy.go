@@ -4,9 +4,11 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/centrify/terraform-provider/cloud-golang-sdk/restapi"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
+	logger "github.com/marcozj/golang-sdk/logging"
+	vault "github.com/marcozj/golang-sdk/platform"
+	"github.com/marcozj/golang-sdk/restapi"
 )
 
 func resourcePolicy() *schema.Resource {
@@ -74,6 +76,7 @@ func resourcePolicy() *schema.Resource {
 						"account_set":              getAccountSetSchema(),
 						"secret_set":               getSecretSetSchema(),
 						"sshkey_set":               getSSHKeySetSchema(),
+						"cloudproviders_set":       getCloudProvidersSchema(),
 						"mobile_device":            getMobileDeviceSchema(),
 					},
 				},
@@ -83,10 +86,10 @@ func resourcePolicy() *schema.Resource {
 }
 
 func resourcePolicyExists(d *schema.ResourceData, m interface{}) (bool, error) {
-	LogD.Printf("Checking policy exist: %s", ResourceIDString(d))
+	logger.Infof("Checking policy exist: %s", ResourceIDString(d))
 	client := m.(*restapi.RestClient)
 
-	object := NewPolicy(client)
+	object := vault.NewPolicy(client)
 	object.ID = d.Id()
 	err := object.Read()
 
@@ -97,16 +100,16 @@ func resourcePolicyExists(d *schema.ResourceData, m interface{}) (bool, error) {
 		return false, err
 	}
 
-	LogD.Printf("Policy exists in tenant: %s", object.ID)
+	logger.Infof("Policy exists in tenant: %s", object.ID)
 	return true, nil
 }
 
 func resourcePolicyRead(d *schema.ResourceData, m interface{}) error {
-	LogD.Printf("Reading policy: %s", ResourceIDString(d))
+	logger.Infof("Reading policy: %s", ResourceIDString(d))
 	client := m.(*restapi.RestClient)
 
 	// Create a policy object and populate ID attribute
-	object := NewPolicy(client)
+	object := vault.NewPolicy(client)
 	object.ID = d.Id()
 	err := object.Read()
 
@@ -116,13 +119,13 @@ func resourcePolicyRead(d *schema.ResourceData, m interface{}) error {
 		d.SetId("")
 		return fmt.Errorf("Error reading policy: %v", err)
 	}
-	//LogD.Printf("Policy from tenant: %v", object)
+	//logger.Debugf("Policy from tenant: %v", object)
 
-	schemamap, err := generateSchemaMap(object)
+	schemamap, err := vault.GenerateSchemaMap(object)
 	if err != nil {
 		return err
 	}
-	LogD.Printf("Generated Map for resourcePolicyRead(): %+v", schemamap)
+	logger.Debugf("Generated Map for resourcePolicyRead(): %+v", schemamap)
 	for k, v := range schemamap {
 		if k == "plink" {
 			// Handle plink content. In schema, following attributes are in root level but they are sub map section
@@ -133,15 +136,15 @@ func resourcePolicyRead(d *schema.ResourceData, m interface{}) error {
 		}
 	}
 
-	LogD.Printf("Completed reading policy: %s", object.Name)
+	logger.Infof("Completed reading policy: %s", object.Name)
 	return nil
 }
 
 func resourcePolicyDelete(d *schema.ResourceData, m interface{}) error {
-	LogD.Printf("Beginning deletion of policy: %s", ResourceIDString(d))
+	logger.Infof("Beginning deletion of policy: %s", ResourceIDString(d))
 	client := m.(*restapi.RestClient)
 
-	object := NewPolicy(client)
+	object := vault.NewPolicy(client)
 	object.ID = d.Id()
 	//object.Path = d.Id()
 	resp, err := object.Delete()
@@ -156,17 +159,17 @@ func resourcePolicyDelete(d *schema.ResourceData, m interface{}) error {
 		d.SetId("")
 	}
 
-	LogD.Printf("Deletion of policy completed: %s", ResourceIDString(d))
+	logger.Infof("Deletion of policy completed: %s", ResourceIDString(d))
 	return nil
 }
 
 func resourcePolicyCreate(d *schema.ResourceData, m interface{}) error {
-	LogD.Printf("Beginning policy creation: %s", ResourceIDString(d))
+	logger.Infof("Beginning policy creation: %s", ResourceIDString(d))
 
 	client := m.(*restapi.RestClient)
 
 	// Create a policy object and populate all attributes
-	object := NewPolicy(client)
+	object := vault.NewPolicy(client)
 	err := createUpateGetPolicyData(d, object)
 	if err != nil {
 		return fmt.Errorf("Error constructing policy data: %v", err)
@@ -187,15 +190,15 @@ func resourcePolicyCreate(d *schema.ResourceData, m interface{}) error {
 	object.ID = id
 
 	// Creation completed
-	LogD.Printf("Creation of policy completed: %s", object.Name)
+	logger.Infof("Creation of policy completed: %s", object.Name)
 	return resourcePolicyRead(d, m)
 }
 
 func resourcePolicyUpdate(d *schema.ResourceData, m interface{}) error {
-	LogD.Printf("Beginning policy update: %s", ResourceIDString(d))
+	logger.Infof("Beginning policy update: %s", ResourceIDString(d))
 
 	client := m.(*restapi.RestClient)
-	object := NewPolicy(client)
+	object := vault.NewPolicy(client)
 
 	object.ID = d.Id()
 	object.Plink.ID = d.Id()
@@ -210,14 +213,14 @@ func resourcePolicyUpdate(d *schema.ResourceData, m interface{}) error {
 		if err != nil || !resp.Success {
 			return fmt.Errorf("Error updating policy attribute: %v", err)
 		}
-		LogD.Printf("Updated attributes to: %+v", object)
+		logger.Debugf("Updated attributes to: %+v", object)
 	}
 
-	LogD.Printf("Updating of policy completed: %s", object.Name)
+	logger.Infof("Updating of policy completed: %s", object.Name)
 	return resourcePolicyRead(d, m)
 }
 
-func createUpateGetPolicyData(d *schema.ResourceData, object *Policy) error {
+func createUpateGetPolicyData(d *schema.ResourceData, object *vault.Policy) error {
 	object.Name = d.Get("name").(string)
 	object.Plink.LinkType = d.Get("link_type").(string)
 	if v, ok := d.GetOk("description"); ok {
@@ -235,7 +238,7 @@ func createUpateGetPolicyData(d *schema.ResourceData, object *Policy) error {
 				return fmt.Errorf("Schema setting error: %s", err)
 			}
 			// Perform validations
-			if err := object.validateSettings(); err != nil {
+			if err := object.ValidateSettings(); err != nil {
 				return fmt.Errorf("Schema setting error: %s", err)
 			}
 		}
@@ -244,13 +247,13 @@ func createUpateGetPolicyData(d *schema.ResourceData, object *Policy) error {
 	return nil
 }
 
-func expandSettingsData(v interface{}) (*settings, error) {
+func expandSettingsData(v interface{}) (*vault.PolicySettings, error) {
 	var err error
 	s := v.([]interface{})
 	//data := &settings{}
 	if len(s) > 0 && s[0] != nil {
 		d := s[0].(map[string]interface{})
-		data := &settings{
+		data := &vault.PolicySettings{
 			//CentrifyServices:       expendCentrifyServicesData(d["centrify_services"]),
 			//CentrifyClient:         expandCentrifyClientData(d["centrify_client"]),
 			//CentrifyCSSServer:      expandCentrifyCSSServerData(d["centrify_css_server"]),
@@ -273,7 +276,7 @@ func expandSettingsData(v interface{}) (*settings, error) {
 		if data.CentrifyServices, err = expendCentrifyServicesData(d["centrify_services"]); err != nil {
 			return nil, err
 		}
-		LogD.Printf("data.CentrifyServices data: %+v", data.CentrifyServices)
+		logger.Debugf("data.CentrifyServices data: %+v", data.CentrifyServices)
 		if data.CentrifyClient, err = expandCentrifyClientData(d["centrify_client"]); err != nil {
 			return nil, err
 		}
@@ -298,16 +301,19 @@ func expandSettingsData(v interface{}) (*settings, error) {
 		if data.SSHKeySet, err = expandSSHKeySetData(d["sshkey_set"]); err != nil {
 			return nil, err
 		}
+		if data.CloudProvidersSet, err = expandCloudProvidersSetData(d["cloudproviders_set"]); err != nil {
+			return nil, err
+		}
 		return data, nil
 	}
 	return nil, nil
 }
 
-func expendCentrifyServicesData(v interface{}) (*centrifyServices, error) {
+func expendCentrifyServicesData(v interface{}) (*vault.PolicyCentrifyServices, error) {
 	subsettings := v.([]interface{})
 	if len(subsettings) > 0 && subsettings[0] != nil {
 		d := subsettings[0].(map[string]interface{})
-		data := &centrifyServices{
+		data := &vault.PolicyCentrifyServices{
 			// Session Parameters
 			AuthenticationEnabled:  d["authentication_enabled"].(bool),
 			DefaultProfileID:       d["default_profile_id"].(string),
@@ -343,11 +349,11 @@ func expendCentrifyServicesData(v interface{}) (*centrifyServices, error) {
 	return nil, nil
 }
 
-func expandCentrifyClientData(v interface{}) (*centrifyClient, error) {
+func expandCentrifyClientData(v interface{}) (*vault.PolicyCentrifyClient, error) {
 	subsettings := v.([]interface{})
 	if len(subsettings) > 0 && subsettings[0] != nil {
 		d := subsettings[0].(map[string]interface{})
-		data := &centrifyClient{
+		data := &vault.PolicyCentrifyClient{
 			AuthenticationEnabled: d["authentication_enabled"].(bool),
 			DefaultProfileID:      d["default_profile_id"].(string),
 			NoMfaMechLogin:        d["allow_no_mfa_mech"].(bool),
@@ -364,11 +370,11 @@ func expandCentrifyClientData(v interface{}) (*centrifyClient, error) {
 	return nil, nil
 }
 
-func expandCentrifyCSSServerData(v interface{}) (*centrifyCSSServer, error) {
+func expandCentrifyCSSServerData(v interface{}) (*vault.PolicyCentrifyCSSServer, error) {
 	subsettings := v.([]interface{})
 	if len(subsettings) > 0 && subsettings[0] != nil {
 		d := subsettings[0].(map[string]interface{})
-		data := &centrifyCSSServer{
+		data := &vault.PolicyCentrifyCSSServer{
 			AuthenticationEnabled: d["authentication_enabled"].(bool),
 			DefaultProfileID:      d["default_profile_id"].(string),
 			PassThroughMode:       d["pass_through_mode"].(int),
@@ -385,11 +391,11 @@ func expandCentrifyCSSServerData(v interface{}) (*centrifyCSSServer, error) {
 	return nil, nil
 }
 
-func expandCentrifyCSSWorkstationData(v interface{}) (*centrifyCSSWorkstation, error) {
+func expandCentrifyCSSWorkstationData(v interface{}) (*vault.PolicyCentrifyCSSWorkstation, error) {
 	subsettings := v.([]interface{})
 	if len(subsettings) > 0 && subsettings[0] != nil {
 		d := subsettings[0].(map[string]interface{})
-		data := &centrifyCSSWorkstation{
+		data := &vault.PolicyCentrifyCSSWorkstation{
 			AuthenticationEnabled: d["authentication_enabled"].(bool),
 			DefaultProfileID:      d["default_profile_id"].(string),
 		}
@@ -405,11 +411,11 @@ func expandCentrifyCSSWorkstationData(v interface{}) (*centrifyCSSWorkstation, e
 	return nil, nil
 }
 
-func expandCentrifyCSSElevationData(v interface{}) (*centrifyCSSElevation, error) {
+func expandCentrifyCSSElevationData(v interface{}) (*vault.PolicyCentrifyCSSElevation, error) {
 	subsettings := v.([]interface{})
 	if len(subsettings) > 0 && subsettings[0] != nil {
 		d := subsettings[0].(map[string]interface{})
-		data := &centrifyCSSElevation{
+		data := &vault.PolicyCentrifyCSSElevation{
 			AuthenticationEnabled: d["authentication_enabled"].(bool),
 			DefaultProfileID:      d["default_profile_id"].(string),
 		}
@@ -425,11 +431,11 @@ func expandCentrifyCSSElevationData(v interface{}) (*centrifyCSSElevation, error
 	return nil, nil
 }
 
-func expandSelfServiceData(v interface{}) *selfService {
+func expandSelfServiceData(v interface{}) *vault.PolicySelfService {
 	subsettings := v.([]interface{})
 	if len(subsettings) > 0 && subsettings[0] != nil {
 		d := subsettings[0].(map[string]interface{})
-		data := &selfService{
+		data := &vault.PolicySelfService{
 			// Password Reset
 			AccountSelfServiceEnabled:    d["account_selfservice_enabled"].(bool),
 			PasswordResetEnabled:         d["password_reset_enabled"].(bool),
@@ -457,11 +463,11 @@ func expandSelfServiceData(v interface{}) *selfService {
 	return nil
 }
 
-func expandAdminPassword(v interface{}) *adAdminPass {
+func expandAdminPassword(v interface{}) *vault.PolicyADAdminPass {
 	subsettings := v.([]interface{})
 	if len(subsettings) > 0 && subsettings[0] != nil {
 		d := subsettings[0].(map[string]interface{})
-		data := &adAdminPass{
+		data := &vault.PolicyADAdminPass{
 			Type:  d["type"].(string),
 			Value: d["value"].(string),
 		}
@@ -470,11 +476,11 @@ func expandAdminPassword(v interface{}) *adAdminPass {
 	return nil
 }
 
-func expandPasswordSettingsData(v interface{}) *passwordSettings {
+func expandPasswordSettingsData(v interface{}) *vault.PolicyPasswordSettings {
 	subsettings := v.([]interface{})
 	if len(subsettings) > 0 && subsettings[0] != nil {
 		d := subsettings[0].(map[string]interface{})
-		data := &passwordSettings{
+		data := &vault.PolicyPasswordSettings{
 			// Password Requirements
 			MinLength:      d["min_length"].(int),
 			MaxLength:      d["max_length"].(int),
@@ -507,11 +513,11 @@ func expandPasswordSettingsData(v interface{}) *passwordSettings {
 	return nil
 }
 
-func expandOATHOTPData(v interface{}) *oathOTP {
+func expandOATHOTPData(v interface{}) *vault.PolicyOathOTP {
 	subsettings := v.([]interface{})
 	if len(subsettings) > 0 && subsettings[0] != nil {
 		d := subsettings[0].(map[string]interface{})
-		data := &oathOTP{
+		data := &vault.PolicyOathOTP{
 			AllowOTP: d["allow_otp"].(bool),
 		}
 		return data
@@ -519,11 +525,11 @@ func expandOATHOTPData(v interface{}) *oathOTP {
 	return nil
 }
 
-func expandRadiusData(v interface{}) *radius {
+func expandRadiusData(v interface{}) *vault.PolicyRadius {
 	subsettings := v.([]interface{})
 	if len(subsettings) > 0 && subsettings[0] != nil {
 		d := subsettings[0].(map[string]interface{})
-		data := &radius{
+		data := &vault.PolicyRadius{
 			AllowRadius:          d["allow_radius"].(bool),
 			RadiusUseChallenges:  d["require_challenges"].(bool),
 			DefaultProfileID:     d["default_profile_id"].(string),
@@ -535,11 +541,11 @@ func expandRadiusData(v interface{}) *radius {
 	return nil
 }
 
-func expandUserAccountData(v interface{}) *userAccount {
+func expandUserAccountData(v interface{}) *vault.PolicyUserAccount {
 	subsettings := v.([]interface{})
 	if len(subsettings) > 0 && subsettings[0] != nil {
 		d := subsettings[0].(map[string]interface{})
-		data := &userAccount{
+		data := &vault.PolicyUserAccount{
 			UserChangePasswordAllow:     d["allow_user_change_password"].(bool),
 			PasswordChangeAuthProfileID: d["password_change_auth_profile_id"].(string),
 			ShowU2f:                     d["show_fido2"].(bool),
@@ -566,18 +572,22 @@ func expandUserAccountData(v interface{}) *userAccount {
 	return nil
 }
 
-func expandSystemSetData(v interface{}) (*systemSet, error) {
+func expandSystemSetData(v interface{}) (*vault.PolicySystemSet, error) {
 	subsettings := v.([]interface{})
 	if len(subsettings) > 0 && subsettings[0] != nil {
 		d := subsettings[0].(map[string]interface{})
-		data := &systemSet{
+		data := &vault.PolicySystemSet{
 			// Account Policy
 			DefaultCheckoutTime: d["checkout_lifetime"].(int),
 			// System Policy
-			AllowRemote:         d["allow_remote_access"].(bool),
-			AllowRdpClipboard:   d["allow_rdp_clipboard"].(bool),
-			LoginDefaultProfile: d["default_profile_id"].(string),
+			AllowRemote:                           d["allow_remote_access"].(bool),
+			AllowRdpClipboard:                     d["allow_rdp_clipboard"].(bool),
+			AllowAutomaticLocalAccountMaintenance: d["local_account_automatic_maintenance"].(bool),
+			AllowManualLocalAccountUnlock:         d["local_account_manual_unlock"].(bool),
+			LoginDefaultProfile:                   d["default_profile_id"].(string),
+			PrivilegeElevationDefaultProfile:      d["privilege_elevation_default_profile_id"].(string),
 			// Security Settings
+			RemoveUserOnSessionEnd:            d["remove_user_on_session_end"].(bool),
 			AllowMultipleCheckouts:            d["allow_multiple_checkouts"].(bool),
 			AllowPasswordRotation:             d["enable_password_rotation"].(bool),
 			PasswordRotateDuration:            d["password_rotate_interval"].(int),
@@ -600,16 +610,23 @@ func expandSystemSetData(v interface{}) (*systemSet, error) {
 				return nil, fmt.Errorf("Schema setting error: %s", err)
 			}
 		}
+		if v, ok := d["privilege_elevation_rule"]; ok {
+			data.PrivilegeElevationRules = expandChallengeRules(v.([]interface{}))
+			// Perform validations
+			if err := validateChallengeRules(data.PrivilegeElevationRules); err != nil {
+				return nil, fmt.Errorf("Schema setting error: %s", err)
+			}
+		}
 		return data, nil
 	}
 	return nil, nil
 }
 
-func expandDatabaseSetData(v interface{}) *databaseSet {
+func expandDatabaseSetData(v interface{}) *vault.PolicyDatabaseSet {
 	subsettings := v.([]interface{})
 	if len(subsettings) > 0 && subsettings[0] != nil {
 		d := subsettings[0].(map[string]interface{})
-		data := &databaseSet{
+		data := &vault.PolicyDatabaseSet{
 			// Account Policy
 			DefaultCheckoutTime: d["checkout_lifetime"].(int),
 			// Security Settings
@@ -627,11 +644,11 @@ func expandDatabaseSetData(v interface{}) *databaseSet {
 	return nil
 }
 
-func expandDomainSetData(v interface{}) *domainSet {
+func expandDomainSetData(v interface{}) *vault.PolicyDomainSet {
 	subsettings := v.([]interface{})
 	if len(subsettings) > 0 && subsettings[0] != nil {
 		d := subsettings[0].(map[string]interface{})
-		data := &domainSet{
+		data := &vault.PolicyDomainSet{
 			// Domain Policy
 			DefaultCheckoutTime: d["checkout_lifetime"].(int),
 			// Security Settings
@@ -649,13 +666,14 @@ func expandDomainSetData(v interface{}) *domainSet {
 	return nil
 }
 
-func expandAccountSetData(v interface{}) (*accountSet, error) {
+func expandAccountSetData(v interface{}) (*vault.PolicyAccountSet, error) {
 	subsettings := v.([]interface{})
 	if len(subsettings) > 0 && subsettings[0] != nil {
 		d := subsettings[0].(map[string]interface{})
-		data := &accountSet{
-			DefaultCheckoutTime:            d["checkout_lifetime"].(int),
-			PasswordCheckoutDefaultProfile: d["default_profile_id"].(string),
+		data := &vault.PolicyAccountSet{
+			DefaultCheckoutTime:                d["checkout_lifetime"].(int),
+			PasswordCheckoutDefaultProfile:     d["default_profile_id"].(string),
+			AccessSecretCheckoutDefaultProfile: d["access_secret_checkout_dfault_profile_id"].(string),
 		}
 		if v, ok := d["challenge_rule"]; ok {
 			data.ChallengeRules = expandChallengeRules(v.([]interface{}))
@@ -664,16 +682,23 @@ func expandAccountSetData(v interface{}) (*accountSet, error) {
 				return nil, fmt.Errorf("Schema setting error: %s", err)
 			}
 		}
+		if v, ok := d["access_secret_checkout_rule"]; ok {
+			data.AccessSecretCheckoutRules = expandChallengeRules(v.([]interface{}))
+			// Perform validations
+			if err := validateChallengeRules(data.AccessSecretCheckoutRules); err != nil {
+				return nil, fmt.Errorf("Schema setting error: %s", err)
+			}
+		}
 		return data, nil
 	}
 	return nil, nil
 }
 
-func expandSecretSetData(v interface{}) (*secretSet, error) {
+func expandSecretSetData(v interface{}) (*vault.PolicySecretSet, error) {
 	subsettings := v.([]interface{})
 	if len(subsettings) > 0 && subsettings[0] != nil {
 		d := subsettings[0].(map[string]interface{})
-		data := &secretSet{
+		data := &vault.PolicySecretSet{
 			DataVaultDefaultProfile: d["default_profile_id"].(string),
 		}
 		if v, ok := d["challenge_rule"]; ok {
@@ -688,11 +713,11 @@ func expandSecretSetData(v interface{}) (*secretSet, error) {
 	return nil, nil
 }
 
-func expandSSHKeySetData(v interface{}) (*sshKeySet, error) {
+func expandSSHKeySetData(v interface{}) (*vault.PolicySshKeySet, error) {
 	subsettings := v.([]interface{})
 	if len(subsettings) > 0 && subsettings[0] != nil {
 		d := subsettings[0].(map[string]interface{})
-		data := &sshKeySet{
+		data := &vault.PolicySshKeySet{
 			SSHKeysDefaultProfile: d["default_profile_id"].(string),
 		}
 		if v, ok := d["challenge_rule"]; ok {
@@ -707,11 +732,34 @@ func expandSSHKeySetData(v interface{}) (*sshKeySet, error) {
 	return nil, nil
 }
 
-func expandMobileDeviceData(v interface{}) *mobileDevice {
+func expandCloudProvidersSetData(v interface{}) (*vault.PolicyCloudProvidersSet, error) {
 	subsettings := v.([]interface{})
 	if len(subsettings) > 0 && subsettings[0] != nil {
 		d := subsettings[0].(map[string]interface{})
-		data := &mobileDevice{
+		data := &vault.PolicyCloudProvidersSet{
+			LoginDefaultProfile:                       d["default_profile_id"].(string),
+			EnableUnmanagedPasswordRotation:           d["enable_interactive_password_rotation"].(bool),
+			EnableUnmanagedPasswordRotationPrompt:     d["prompt_change_root_password"].(bool),
+			EnableUnmanagedPasswordRotationReminder:   d["enable_password_rotation_reminders"].(bool),
+			UnmanagedPasswordRotationReminderDuration: d["password_rotation_reminder_duration"].(int),
+		}
+		if v, ok := d["challenge_rule"]; ok {
+			data.ChallengeRules = expandChallengeRules(v.([]interface{}))
+			// Perform validations
+			if err := validateChallengeRules(data.ChallengeRules); err != nil {
+				return nil, fmt.Errorf("Schema setting error: %s", err)
+			}
+		}
+		return data, nil
+	}
+	return nil, nil
+}
+
+func expandMobileDeviceData(v interface{}) *vault.PolicyMobileDevice {
+	subsettings := v.([]interface{})
+	if len(subsettings) > 0 && subsettings[0] != nil {
+		d := subsettings[0].(map[string]interface{})
+		data := &vault.PolicyMobileDevice{
 			AllowEnrollment:           d["allow_enrollment"].(bool),
 			AllowJailBrokenDevices:    d["permit_non_compliant_device"].(bool),
 			EnableInviteEnrollment:    d["enable_invite_enrollment"].(bool),

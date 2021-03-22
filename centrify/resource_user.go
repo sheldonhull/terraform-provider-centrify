@@ -4,8 +4,10 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/centrify/terraform-provider/cloud-golang-sdk/restapi"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
+	logger "github.com/marcozj/golang-sdk/logging"
+	vault "github.com/marcozj/golang-sdk/platform"
+	"github.com/marcozj/golang-sdk/restapi"
 )
 
 func resourceUser() *schema.Resource {
@@ -71,7 +73,7 @@ func resourceUser() *schema.Resource {
 			"description": {
 				Type:        schema.TypeString,
 				Optional:    true,
-				Description: "Description of the system",
+				Description: "Description of the user",
 			},
 			"office_number": {
 				Type:     schema.TypeString,
@@ -111,10 +113,10 @@ func resourceUser() *schema.Resource {
 }
 
 func resourceUserExists(d *schema.ResourceData, m interface{}) (bool, error) {
-	LogD.Printf("Checking user exist: %s", ResourceIDString(d))
+	logger.Infof("Checking user exist: %s", ResourceIDString(d))
 	client := m.(*restapi.RestClient)
 
-	object := NewUser(client)
+	object := vault.NewUser(client)
 	object.ID = d.Id()
 	err := object.Read()
 
@@ -125,16 +127,16 @@ func resourceUserExists(d *schema.ResourceData, m interface{}) (bool, error) {
 		return false, err
 	}
 
-	LogD.Printf("User exists in tenant: %s", object.ID)
+	logger.Infof("User exists in tenant: %s", object.ID)
 	return true, nil
 }
 
 func resourceUserRead(d *schema.ResourceData, m interface{}) error {
-	LogD.Printf("Reading user: %s", ResourceIDString(d))
+	logger.Infof("Reading user: %s", ResourceIDString(d))
 	client := m.(*restapi.RestClient)
 
 	// Create a NewUser object and populate ID attribute
-	object := NewUser(client)
+	object := vault.NewUser(client)
 	object.ID = d.Id()
 	err := object.Read()
 
@@ -144,29 +146,29 @@ func resourceUserRead(d *schema.ResourceData, m interface{}) error {
 		d.SetId("")
 		return fmt.Errorf("Error reading user: %v", err)
 	}
-	//LogD.Printf("User from tenant: %+v", object)
-	schemamap, err := generateSchemaMap(object)
+	//logger.Debugf("User from tenant: %+v", object)
+	schemamap, err := vault.GenerateSchemaMap(object)
 	if err != nil {
 		return err
 	}
-	LogD.Printf("Generated Map for resourceUserRead(): %+v", schemamap)
+	logger.Debugf("Generated Map for resourceUserRead(): %+v", schemamap)
 	for k, v := range schemamap {
 		d.Set(k, v)
 	}
 
-	LogD.Printf("Completed reading user: %s", object.Name)
+	logger.Infof("Completed reading user: %s", object.Name)
 	return nil
 }
 
 func resourceUserCreate(d *schema.ResourceData, m interface{}) error {
-	LogD.Printf("Beginning user creation: %s", ResourceIDString(d))
+	logger.Infof("Beginning user creation: %s", ResourceIDString(d))
 	// Enable partial state mode
 	d.Partial(true)
 
 	client := m.(*restapi.RestClient)
 
 	// Create a NewUser object and populate all attributes
-	object := NewUser(client)
+	object := vault.NewUser(client)
 	createUpateGetUserData(d, object)
 
 	resp, err := object.Create()
@@ -197,7 +199,7 @@ func resourceUserCreate(d *schema.ResourceData, m interface{}) error {
 	// 2rd step to add system to Sets
 	if len(object.Roles) > 0 {
 		for _, v := range object.Roles {
-			roleObj := NewRole(client)
+			roleObj := vault.NewRole(client)
 			roleObj.ID = v
 			resp, err := roleObj.UpdateMembers([]string{object.ID}, "Add", "Users")
 			if err != nil || !resp.Success {
@@ -209,18 +211,18 @@ func resourceUserCreate(d *schema.ResourceData, m interface{}) error {
 
 	// Creation completed
 	d.Partial(false)
-	LogD.Printf("Creation of user completed: %s", object.Name)
+	logger.Infof("Creation of user completed: %s", object.Name)
 	return resourceUserRead(d, m)
 }
 
 func resourceUserUpdate(d *schema.ResourceData, m interface{}) error {
-	LogD.Printf("Beginning user update: %s", ResourceIDString(d))
+	logger.Infof("Beginning user update: %s", ResourceIDString(d))
 
 	// Enable partial state mode
 	d.Partial(true)
 
 	client := m.(*restapi.RestClient)
-	object := NewUser(client)
+	object := vault.NewUser(client)
 	object.ID = d.Id()
 	createUpateGetUserData(d, object)
 
@@ -231,7 +233,7 @@ func resourceUserUpdate(d *schema.ResourceData, m interface{}) error {
 		if err != nil || !resp.Success {
 			return fmt.Errorf("Error updating VaultAccount attribute: %v", err)
 		}
-		LogD.Printf("Updated attributes to: %+v", object)
+		logger.Debugf("Updated attributes to: %+v", object)
 		d.SetPartial("name")
 		d.SetPartial("email")
 		d.SetPartial("displayname")
@@ -261,7 +263,7 @@ func resourceUserUpdate(d *schema.ResourceData, m interface{}) error {
 		old, new := d.GetChange("roles")
 		// Remove old roles
 		for _, v := range flattenSchemaSetToStringSlice(old) {
-			roleObj := NewRole(client)
+			roleObj := vault.NewRole(client)
 			roleObj.ID = v
 			resp, err := roleObj.UpdateMembers([]string{object.ID}, "Delete", "Users")
 			if err != nil || !resp.Success {
@@ -270,7 +272,7 @@ func resourceUserUpdate(d *schema.ResourceData, m interface{}) error {
 		}
 		// Add new roles
 		for _, v := range flattenSchemaSetToStringSlice(new) {
-			roleObj := NewRole(client)
+			roleObj := vault.NewRole(client)
 			roleObj.ID = v
 			resp, err := roleObj.UpdateMembers([]string{object.ID}, "Add", "Users")
 			if err != nil || !resp.Success {
@@ -282,15 +284,15 @@ func resourceUserUpdate(d *schema.ResourceData, m interface{}) error {
 
 	// We succeeded, disable partial mode. This causes Terraform to save all fields again.
 	d.Partial(false)
-	LogD.Printf("Updating of user completed: %s", object.Name)
+	logger.Infof("Updating of user completed: %s", object.Name)
 	return resourceUserRead(d, m)
 }
 
 func resourceUserDelete(d *schema.ResourceData, m interface{}) error {
-	LogD.Printf("Beginning deletion of user: %s", ResourceIDString(d))
+	logger.Infof("Beginning deletion of user: %s", ResourceIDString(d))
 	client := m.(*restapi.RestClient)
 
-	object := NewUser(client)
+	object := vault.NewUser(client)
 	object.ID = d.Id()
 	resp, err := object.Delete()
 
@@ -304,11 +306,11 @@ func resourceUserDelete(d *schema.ResourceData, m interface{}) error {
 		d.SetId("")
 	}
 
-	LogD.Printf("Deletion of user completed: %s", ResourceIDString(d))
+	logger.Infof("Deletion of user completed: %s", ResourceIDString(d))
 	return nil
 }
 
-func createUpateGetUserData(d *schema.ResourceData, object *User) error {
+func createUpateGetUserData(d *schema.ResourceData, object *vault.User) error {
 	object.Name = d.Get("username").(string)
 	if v, ok := d.GetOk("email"); ok {
 		object.Mail = v.(string)

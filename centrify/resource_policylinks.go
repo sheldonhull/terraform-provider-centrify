@@ -3,8 +3,10 @@ package centrify
 import (
 	"fmt"
 
-	"github.com/centrify/terraform-provider/cloud-golang-sdk/restapi"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
+	logger "github.com/marcozj/golang-sdk/logging"
+	vault "github.com/marcozj/golang-sdk/platform"
+	"github.com/marcozj/golang-sdk/restapi"
 )
 
 func resourcePolicyLinks() *schema.Resource {
@@ -27,11 +29,11 @@ func resourcePolicyLinks() *schema.Resource {
 }
 
 func resourcePolicyLinksRead(d *schema.ResourceData, m interface{}) error {
-	LogD.Printf("Reading policy links: %s", ResourceIDString(d))
+	logger.Infof("Reading policy links: %s", ResourceIDString(d))
 	client := m.(*restapi.RestClient)
 
 	// Create policy links object
-	object := NewPolicyLinks(client)
+	object := vault.NewPolicyLinks(client)
 	err := object.Read()
 
 	// If the resource does not exist, inform Terraform. We want to immediately
@@ -47,17 +49,17 @@ func resourcePolicyLinksRead(d *schema.ResourceData, m interface{}) error {
 }
 
 func resourcePolicyLinksCreate(d *schema.ResourceData, m interface{}) error {
-	LogD.Printf("Beginning policy links creation: %s", ResourceIDString(d))
+	logger.Infof("Beginning policy links creation: %s", ResourceIDString(d))
 
 	d.SetId("centrifyvault_policy_links")
 
 	client := m.(*restapi.RestClient)
-	object := NewPolicyLinks(client)
+	object := vault.NewPolicyLinks(client)
 
 	// Upon creating policy links in local state, update the order in tenant as well
 	ids := d.Get("policy_order").([]interface{})
 	for _, v := range ids {
-		plink := PolicyLink{}
+		plink := vault.PolicyLink{}
 		plink.ID = v.(string)
 		object.Plinks = append(object.Plinks, plink)
 	}
@@ -67,19 +69,19 @@ func resourcePolicyLinksCreate(d *schema.ResourceData, m interface{}) error {
 	}
 
 	// Creation completed
-	LogD.Printf("Creation of policy links completed: %s", d.Id())
+	logger.Infof("Creation of policy links completed: %s", d.Id())
 	return resourcePolicyLinksRead(d, m)
 }
 
 func resourcePolicyLinksUpdate(d *schema.ResourceData, m interface{}) error {
-	LogD.Printf("Beginning policy links update: %s", ResourceIDString(d))
+	logger.Infof("Beginning policy links update: %s", ResourceIDString(d))
 
 	client := m.(*restapi.RestClient)
-	object := NewPolicyLinks(client)
+	object := vault.NewPolicyLinks(client)
 
 	ids := d.Get("policy_order").([]interface{})
 	for _, v := range ids {
-		plink := PolicyLink{}
+		plink := vault.PolicyLink{}
 		plink.ID = v.(string)
 		object.Plinks = append(object.Plinks, plink)
 	}
@@ -95,11 +97,11 @@ func resourcePolicyLinksUpdate(d *schema.ResourceData, m interface{}) error {
 }
 
 func resourcePolicyLinksDelete(d *schema.ResourceData, m interface{}) error {
-	LogD.Printf("Beginning deletion of policy links: %s", ResourceIDString(d))
+	logger.Infof("Beginning deletion of policy links: %s", ResourceIDString(d))
 
-	// We not actually deleting anything from the tenant
+	// We do not actually delete anything from the tenant
 	d.SetId("")
 
-	LogD.Printf("Deletion of policy links completed: %s", ResourceIDString(d))
+	logger.Infof("Deletion of policy links completed: %s", ResourceIDString(d))
 	return nil
 }

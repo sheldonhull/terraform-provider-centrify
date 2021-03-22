@@ -3,8 +3,10 @@ package centrify
 import (
 	"fmt"
 
-	"github.com/centrify/terraform-provider/cloud-golang-sdk/restapi"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
+	logger "github.com/marcozj/golang-sdk/logging"
+	vault "github.com/marcozj/golang-sdk/platform"
+	"github.com/marcozj/golang-sdk/restapi"
 )
 
 func dataSourceVaultSecret() *schema.Resource {
@@ -48,9 +50,9 @@ func dataSourceVaultSecret() *schema.Resource {
 }
 
 func dataSourceVaultSecretRead(d *schema.ResourceData, m interface{}) error {
-	LogD.Printf("Finding vault secret")
+	logger.Infof("Finding vault secret")
 	client := m.(*restapi.RestClient)
-	object := NewVaultSecret(client)
+	object := vault.NewSecret(client)
 	object.SecretName = d.Get("secret_name").(string)
 	if v, ok := d.GetOk("folder_id"); ok {
 		object.FolderID = v.(string)
@@ -61,7 +63,7 @@ func dataSourceVaultSecretRead(d *schema.ResourceData, m interface{}) error {
 		return fmt.Errorf("Error retrieving vault object: %s", err)
 	}
 
-	//LogD.Printf("Found secret: %+v", result)
+	//logger.Debugf("Found secret: %+v", result)
 	object.ID = result["ID"].(string)
 	d.SetId(object.ID)
 	d.Set("secret_name", result["SecretName"].(string))
@@ -76,11 +78,11 @@ func dataSourceVaultSecretRead(d *schema.ResourceData, m interface{}) error {
 	}
 
 	if d.Get("checkout").(bool) {
-		resp, err := object.CheckoutSecret()
+		text, err := object.CheckoutSecret()
 		if err != nil {
 			return fmt.Errorf("Error retrieving secret content: %s", err)
 		}
-		d.Set("secret_text", resp.Result["SecretText"].(string))
+		d.Set("secret_text", text)
 	}
 
 	return nil

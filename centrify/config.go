@@ -3,8 +3,8 @@ package centrify
 import (
 	"fmt"
 
-	"github.com/centrify/terraform-provider/cloud-golang-sdk/dmc"
-	"github.com/centrify/terraform-provider/cloud-golang-sdk/oauth"
+	"github.com/marcozj/golang-sdk/dmc"
+	"github.com/marcozj/golang-sdk/oauth"
 )
 
 // Config - Centrify Vault client struct
@@ -16,7 +16,7 @@ type Config struct {
 	Password       string
 	Token          string
 	UseDMC         bool
-	Debug          bool
+	LogLevel       string
 	LogPath        string
 	SkipCertVerify bool
 }
@@ -31,7 +31,7 @@ func (c *Config) Valid() error {
 	}
 
 	if !c.UseDMC && c.Token == "" {
-		// If DMC isn't used and token isn't supplied, make appid user username is provided
+		// If DMC isn't used and token isn't supplied, make sure appid user username is provided
 		if c.AppID == "" {
 			return fmt.Errorf("AppID must be provided for the CentrifyVault provider")
 		}
@@ -61,22 +61,12 @@ func (c *Config) getClient() (interface{}, error) {
 			Service:        c.URL,
 			AppID:          c.AppID,
 			Scope:          c.Scope,
+			Token:          c.Token,
 			ClientID:       c.Username,
 			ClientSecret:   c.Password,
 			SkipCertVerify: c.SkipCertVerify,
 		}
-
-		if c.Token != "" {
-			// If OAuth token is provided, use it to return authenticated Rest client
-			token := oauth.TokenResponse{
-				AccessToken: c.Token,
-				TokenType:   "Bearer",
-			}
-			client, err = call.GetRestClient(&token)
-		} else {
-			// Login with username and password to get OAuth token, then return authenticated Rest client
-			client, err = call.GetClient()
-		}
+		client, err = call.GetClient()
 	}
 	return client, err
 }

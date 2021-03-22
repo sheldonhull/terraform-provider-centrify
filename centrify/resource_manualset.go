@@ -4,9 +4,12 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/centrify/terraform-provider/cloud-golang-sdk/restapi"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
+	"github.com/marcozj/golang-sdk/enum/settype"
+	logger "github.com/marcozj/golang-sdk/logging"
+	vault "github.com/marcozj/golang-sdk/platform"
+	"github.com/marcozj/golang-sdk/restapi"
 )
 
 func resourceManualSet() *schema.Resource {
@@ -36,15 +39,16 @@ func resourceManualSet() *schema.Resource {
 				// DataVault -> Secrets
 				Description: "Type of set. Valid values are: Server, VaultAccount, VaultDatabase, VaultDomain, DataVault, SshKeys, Subscriptions, Application, ResourceProfiles",
 				ValidateFunc: validation.StringInSlice([]string{
-					"Server",
-					"VaultAccount",
-					"VaultDatabase",
-					"VaultDomain",
-					"DataVault",
-					"SshKeys",
-					"Subscriptions",
-					"Application",
-					"ResourceProfiles",
+					settype.System.String(),
+					settype.Account.String(),
+					settype.Database.String(),
+					settype.Domain.String(),
+					settype.Secret.String(),
+					settype.SSHKey.String(),
+					settype.Service.String(),
+					settype.Application.String(),
+					settype.ResourceProfile.String(),
+					settype.CloudProvider.String(),
 				}, false),
 			},
 			"subtype": {
@@ -63,10 +67,10 @@ func resourceManualSet() *schema.Resource {
 }
 
 func resourceManualSetExists(d *schema.ResourceData, m interface{}) (bool, error) {
-	LogD.Printf("Checking Manual Set exist: %s", ResourceIDString(d))
+	logger.Infof("Checking Manual Set exist: %s", ResourceIDString(d))
 	client := m.(*restapi.RestClient)
 
-	object := NewManualSet(client)
+	object := vault.NewManualSet(client)
 	object.ID = d.Id()
 	err := object.Read()
 
@@ -77,16 +81,16 @@ func resourceManualSetExists(d *schema.ResourceData, m interface{}) (bool, error
 		return false, err
 	}
 
-	LogD.Printf("Manual Set exists in tenant: %s", object.ID)
+	logger.Infof("Manual Set exists in tenant: %s", object.ID)
 	return true, nil
 }
 
 func resourceManualSetRead(d *schema.ResourceData, m interface{}) error {
-	LogD.Printf("Reading Manual Set: %s", ResourceIDString(d))
+	logger.Infof("Reading Manual Set: %s", ResourceIDString(d))
 	client := m.(*restapi.RestClient)
 
 	// Create a Manual Set object and populate ID attribute
-	object := NewManualSet(client)
+	object := vault.NewManualSet(client)
 	object.ID = d.Id()
 	err := object.Read()
 
@@ -96,17 +100,17 @@ func resourceManualSetRead(d *schema.ResourceData, m interface{}) error {
 		d.SetId("")
 		return fmt.Errorf("Error reading Manual Set: %v", err)
 	}
-	//LogD.Printf("Manual Set from tenant: %v", object)
+	//logger.Debugf("Manual Set from tenant: %v", object)
 
 	d.Set("name", object.Name)
 	d.Set("description", object.Description)
 
-	LogD.Printf("Completed reading Manual Set: %s", object.Name)
+	logger.Infof("Completed reading Manual Set: %s", object.Name)
 	return nil
 }
 
 func resourceManualSetCreate(d *schema.ResourceData, m interface{}) error {
-	LogD.Printf("Beginning Manual Set creation: %s", ResourceIDString(d))
+	logger.Infof("Beginning Manual Set creation: %s", ResourceIDString(d))
 
 	// Enable partial state mode
 	d.Partial(true)
@@ -114,8 +118,12 @@ func resourceManualSetCreate(d *schema.ResourceData, m interface{}) error {
 	client := m.(*restapi.RestClient)
 
 	// Create a manual set object and populate all attributes
-	object := NewManualSet(client)
-	err := createUpateGetManualSetData(d, object)
+	object, err := vault.NewManualSetWithType(client, d.Get("type").(string))
+	if err != nil {
+		return err
+	}
+
+	err = createUpateGetManualSetData(d, object)
 	if err != nil {
 		return err
 	}
@@ -159,21 +167,24 @@ func resourceManualSetCreate(d *schema.ResourceData, m interface{}) error {
 
 	// Creation completed
 	d.Partial(false)
-	LogD.Printf("Creation of Manual Set completed: %s", object.Name)
+	logger.Infof("Creation of Manual Set completed: %s", object.Name)
 	return resourceManualSetRead(d, m)
 }
 
 func resourceManualSetUpdate(d *schema.ResourceData, m interface{}) error {
-	LogD.Printf("Beginning Manual Set update: %s", ResourceIDString(d))
+	logger.Infof("Beginning Manual Set update: %s", ResourceIDString(d))
 
 	// Enable partial state mode
 	d.Partial(true)
 
 	client := m.(*restapi.RestClient)
-	object := NewManualSet(client)
+	object, err := vault.NewManualSetWithType(client, d.Get("type").(string))
+	if err != nil {
+		return err
+	}
 	// Both ID and Name must be set
 	object.ID = d.Id()
-	err := createUpateGetManualSetData(d, object)
+	err = createUpateGetManualSetData(d, object)
 	if err != nil {
 		return err
 	}
@@ -184,7 +195,7 @@ func resourceManualSetUpdate(d *schema.ResourceData, m interface{}) error {
 		if err != nil || !resp.Success {
 			return fmt.Errorf("Error updating Manual Set attribute: %v", err)
 		}
-		//LogD.Printf("Updated attributes to: %v", object)
+		//logger.Debugf("Updated attributes to: %v", object)
 		d.SetPartial("name")
 		d.SetPartial("description")
 	}
@@ -197,7 +208,7 @@ func resourceManualSetUpdate(d *schema.ResourceData, m interface{}) error {
 		var err error
 		if old != nil {
 			// do not validate old values
-			object.Permissions, err = expandPermissions(old, setPermissions, false)
+			object.Permissions, err = expandPermissions(old, object.ValidPermissions, false)
 			if err != nil {
 				return err
 			}
@@ -208,7 +219,7 @@ func resourceManualSetUpdate(d *schema.ResourceData, m interface{}) error {
 		}
 
 		if new != nil {
-			object.Permissions, err = expandPermissions(new, setPermissions, true)
+			object.Permissions, err = expandPermissions(new, object.ValidPermissions, true)
 			if err != nil {
 				return err
 			}
@@ -227,7 +238,7 @@ func resourceManualSetUpdate(d *schema.ResourceData, m interface{}) error {
 		// So, let's first remove the old permissions
 		if old != nil {
 			var err error
-			object.MemberPermissions, err = expandPermissions(old, object.getMemberPerms(), false)
+			object.MemberPermissions, err = expandPermissions(old, object.ValidMemberPermissions, false)
 			if err != nil {
 				return err
 			}
@@ -239,7 +250,7 @@ func resourceManualSetUpdate(d *schema.ResourceData, m interface{}) error {
 
 		if new != nil {
 			var err error
-			object.MemberPermissions, err = expandPermissions(new, object.getMemberPerms(), true)
+			object.MemberPermissions, err = expandPermissions(new, object.ValidMemberPermissions, true)
 			if err != nil {
 				return err
 			}
@@ -253,15 +264,15 @@ func resourceManualSetUpdate(d *schema.ResourceData, m interface{}) error {
 
 	// We succeeded, disable partial mode. This causes Terraform to save all fields again.
 	d.Partial(false)
-	LogD.Printf("Updating of Manual Set completed: %s", object.Name)
+	logger.Infof("Updating of Manual Set completed: %s", object.Name)
 	return resourceManualSetRead(d, m)
 }
 
 func resourceManualSetDelete(d *schema.ResourceData, m interface{}) error {
-	LogD.Printf("Beginning deletion of Manual Set: %s", ResourceIDString(d))
+	logger.Infof("Beginning deletion of Manual Set: %s", ResourceIDString(d))
 	client := m.(*restapi.RestClient)
 
-	object := NewManualSet(client)
+	object := vault.NewManualSet(client)
 	object.ID = d.Id()
 	resp, err := object.Delete()
 
@@ -275,11 +286,11 @@ func resourceManualSetDelete(d *schema.ResourceData, m interface{}) error {
 		d.SetId("")
 	}
 
-	LogD.Printf("Deletion of Manual Set completed: %s", ResourceIDString(d))
+	logger.Infof("Deletion of Manual Set completed: %s", ResourceIDString(d))
 	return nil
 }
 
-func createUpateGetManualSetData(d *schema.ResourceData, object *ManualSet) error {
+func createUpateGetManualSetData(d *schema.ResourceData, object *vault.ManualSet) error {
 	object.Name = d.Get("name").(string)
 	object.ObjectType = d.Get("type").(string)
 	object.SubObjectType = d.Get("subtype").(string)
@@ -289,14 +300,14 @@ func createUpateGetManualSetData(d *schema.ResourceData, object *ManualSet) erro
 
 	if v, ok := d.GetOk("permission"); ok {
 		var err error
-		object.Permissions, err = expandPermissions(v, setPermissions, true)
+		object.Permissions, err = expandPermissions(v, object.ValidPermissions, true)
 		if err != nil {
 			return err
 		}
 	}
 	if v, ok := d.GetOk("member_permission"); ok {
 		var err error
-		object.MemberPermissions, err = expandPermissions(v, object.getMemberPerms(), true)
+		object.MemberPermissions, err = expandPermissions(v, object.ValidMemberPermissions, true)
 		if err != nil {
 			return err
 		}

@@ -4,9 +4,14 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/centrify/terraform-provider/cloud-golang-sdk/restapi"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
+	"github.com/marcozj/golang-sdk/enum/desktopapp/applicationtemplate"
+	"github.com/marcozj/golang-sdk/enum/desktopapp/cmdparamtype"
+	"github.com/marcozj/golang-sdk/enum/desktopapp/logincredential"
+	logger "github.com/marcozj/golang-sdk/logging"
+	vault "github.com/marcozj/golang-sdk/platform"
+	"github.com/marcozj/golang-sdk/restapi"
 )
 
 func resourceDesktopApp() *schema.Resource {
@@ -22,23 +27,23 @@ func resourceDesktopApp() *schema.Resource {
 				Type:        schema.TypeString,
 				Required:    true,
 				ForceNew:    true,
-				Description: "Name of the SSH Key",
+				Description: "Template name of the Desktop App",
 				ValidateFunc: validation.StringInSlice([]string{
-					"GenericDesktopApplication",
-					"Ssms",
-					"Toad",
-					"VpxClient",
+					applicationtemplate.Generic.String(),
+					applicationtemplate.SQLServerManagementStudio.String(),
+					applicationtemplate.Toad.String(),
+					applicationtemplate.VSphereClient.String(),
 				}, false),
 			},
 			"name": {
 				Type:        schema.TypeString,
 				Required:    true,
-				Description: "Name of the SSH Key",
+				Description: "Name of the Desktop App",
 			},
 			"description": {
 				Type:        schema.TypeString,
 				Optional:    true,
-				Description: "Description of the SSH Key",
+				Description: "Description of the Desktop App",
 			},
 			"application_host_id": {
 				Type:        schema.TypeString,
@@ -50,10 +55,10 @@ func resourceDesktopApp() *schema.Resource {
 				Required:    true,
 				Description: "Host login credential type",
 				ValidateFunc: validation.StringInSlice([]string{
-					"ADCredential",
-					"SetByUser",
-					"AlternativeAccount",
-					"SharedAccount",
+					logincredential.UserADCredential.String(),
+					logincredential.PromptForCredential.String(),
+					logincredential.SelectAlternativeAccount.String(),
+					logincredential.SharedAccount.String(),
 				}, false),
 			},
 			"application_account_id": {
@@ -64,7 +69,7 @@ func resourceDesktopApp() *schema.Resource {
 			"application_alias": {
 				Type:        schema.TypeString,
 				Required:    true,
-				Description: "Application alias",
+				Description: "The alias name of the published RemoteApp program",
 			},
 			"command_line": {
 				Type:        schema.TypeString,
@@ -87,20 +92,21 @@ func resourceDesktopApp() *schema.Resource {
 							Required:    true,
 							Description: "Type of the parameter",
 							ValidateFunc: validation.StringInSlice([]string{
-								"int",
-								"date",
-								"string",
-								"User",
-								"Role",
-								"Device",
-								"Server",
-								"VaultAccount",
-								"VaultDomain",
-								"VaultDatabase",
-								"Subscriptions",
-								"DataVault",
-								"SshKeys",
-								"system_profile",
+								cmdparamtype.Integer.String(),
+								cmdparamtype.Date.String(),
+								cmdparamtype.String.String(),
+								cmdparamtype.Account.String(),
+								cmdparamtype.CloudProivder.String(),
+								cmdparamtype.Database.String(),
+								cmdparamtype.Device.String(),
+								cmdparamtype.Domain.String(),
+								cmdparamtype.ResourceProfile.String(),
+								cmdparamtype.Role.String(),
+								cmdparamtype.Secret.String(),
+								cmdparamtype.Service.String(),
+								cmdparamtype.SSHKey.String(),
+								cmdparamtype.System.String(),
+								cmdparamtype.User.String(),
 							}, false),
 						},
 						"target_object_id": {
@@ -139,10 +145,10 @@ func resourceDesktopApp() *schema.Resource {
 }
 
 func resourceDesktopAppExists(d *schema.ResourceData, m interface{}) (bool, error) {
-	LogD.Printf("Checking DesktopApp exist: %s", ResourceIDString(d))
+	logger.Infof("Checking DesktopApp exist: %s", ResourceIDString(d))
 	client := m.(*restapi.RestClient)
 
-	object := NewDesktopApp(client)
+	object := vault.NewDesktopApp(client)
 	object.ID = d.Id()
 	err := object.Read()
 
@@ -153,16 +159,16 @@ func resourceDesktopAppExists(d *schema.ResourceData, m interface{}) (bool, erro
 		return false, err
 	}
 
-	LogD.Printf("DesktopApp exists in tenant: %s", object.ID)
+	logger.Infof("DesktopApp exists in tenant: %s", object.ID)
 	return true, nil
 }
 
 func resourceDesktopAppRead(d *schema.ResourceData, m interface{}) error {
-	LogD.Printf("Reading DesktopApp: %s", ResourceIDString(d))
+	logger.Infof("Reading DesktopApp: %s", ResourceIDString(d))
 	client := m.(*restapi.RestClient)
 
 	// Create a NewVaultSecret object and populate ID attribute
-	object := NewDesktopApp(client)
+	object := vault.NewDesktopApp(client)
 	object.ID = d.Id()
 	err := object.Read()
 
@@ -172,22 +178,22 @@ func resourceDesktopAppRead(d *schema.ResourceData, m interface{}) error {
 		d.SetId("")
 		return fmt.Errorf("Error reading DesktopApp: %v", err)
 	}
-	//LogD.Printf("DesktopApp from tenant: %+v", object)
-	schemamap, err := generateSchemaMap(object)
+	//logger.Debugf("DesktopApp from tenant: %+v", object)
+	schemamap, err := vault.GenerateSchemaMap(object)
 	if err != nil {
 		return err
 	}
-	LogD.Printf("Generated Map for resourceDesktopAppRead(): %+v", schemamap)
+	logger.Debugf("Generated Map for resourceDesktopAppRead(): %+v", schemamap)
 	for k, v := range schemamap {
 		d.Set(k, v)
 	}
 
-	LogD.Printf("Completed reading DesktopApp: %s", object.Name)
+	logger.Infof("Completed reading DesktopApp: %s", object.Name)
 	return nil
 }
 
 func resourceDesktopAppCreate(d *schema.ResourceData, m interface{}) error {
-	LogD.Printf("Beginning DesktopApp creation: %s", ResourceIDString(d))
+	logger.Infof("Beginning DesktopApp creation: %s", ResourceIDString(d))
 
 	// Enable partial state mode
 	d.Partial(true)
@@ -195,7 +201,7 @@ func resourceDesktopAppCreate(d *schema.ResourceData, m interface{}) error {
 	client := m.(*restapi.RestClient)
 
 	// Create a DesktopApp object
-	object := NewDesktopApp(client)
+	object := vault.NewDesktopApp(client)
 	object.TemplateName = d.Get("template_name").(string)
 	resp, err := object.Create()
 	if err != nil {
@@ -239,14 +245,9 @@ func resourceDesktopAppCreate(d *schema.ResourceData, m interface{}) error {
 	d.SetPartial("policy_script")
 
 	if len(object.Sets) > 0 {
-		for _, v := range object.Sets {
-			setObj := NewManualSet(client)
-			setObj.ID = v
-			setObj.ObjectType = "Application"
-			resp, err := setObj.UpdateSetMembers([]string{object.ID}, "add")
-			if err != nil || !resp.Success {
-				return fmt.Errorf("Error adding DesktopApp to Set: %v", err)
-			}
+		err := object.AddToSetsByID(object.Sets)
+		if err != nil {
+			return err
 		}
 		d.SetPartial("sets")
 	}
@@ -262,18 +263,18 @@ func resourceDesktopAppCreate(d *schema.ResourceData, m interface{}) error {
 
 	// Creation completed
 	d.Partial(false)
-	LogD.Printf("Creation of DesktopApp completed: %s", object.Name)
+	logger.Infof("Creation of DesktopApp completed: %s", object.Name)
 	return resourceDesktopAppRead(d, m)
 }
 
 func resourceDesktopAppUpdate(d *schema.ResourceData, m interface{}) error {
-	LogD.Printf("Beginning DesktopApp update: %s", ResourceIDString(d))
+	logger.Infof("Beginning DesktopApp update: %s", ResourceIDString(d))
 
 	// Enable partial state mode
 	d.Partial(true)
 
 	client := m.(*restapi.RestClient)
-	object := NewDesktopApp(client)
+	object := vault.NewDesktopApp(client)
 	object.ID = d.Id()
 	err := getUpateGetDesktopAppData(d, object)
 	if err != nil {
@@ -287,7 +288,7 @@ func resourceDesktopAppUpdate(d *schema.ResourceData, m interface{}) error {
 		if err != nil || !resp.Success {
 			return fmt.Errorf("Error updating DesktopApp attribute: %v", err)
 		}
-		LogD.Printf("Updated attributes to: %v", object)
+		logger.Debugf("Updated attributes to: %v", object)
 		d.SetPartial("name")
 		d.SetPartial("template_name")
 		d.SetPartial("description")
@@ -306,9 +307,9 @@ func resourceDesktopAppUpdate(d *schema.ResourceData, m interface{}) error {
 		old, new := d.GetChange("sets")
 		// Remove old Sets
 		for _, v := range flattenSchemaSetToStringSlice(old) {
-			setObj := NewManualSet(client)
+			setObj := vault.NewManualSet(client)
 			setObj.ID = v
-			setObj.ObjectType = "Application"
+			setObj.ObjectType = object.SetType
 			resp, err := setObj.UpdateSetMembers([]string{object.ID}, "remove")
 			if err != nil || !resp.Success {
 				return fmt.Errorf("Error removing DesktopApp from Set: %v", err)
@@ -316,9 +317,9 @@ func resourceDesktopAppUpdate(d *schema.ResourceData, m interface{}) error {
 		}
 		// Add new Sets
 		for _, v := range flattenSchemaSetToStringSlice(new) {
-			setObj := NewManualSet(client)
+			setObj := vault.NewManualSet(client)
 			setObj.ID = v
-			setObj.ObjectType = "Application"
+			setObj.ObjectType = object.SetType
 			resp, err := setObj.UpdateSetMembers([]string{object.ID}, "add")
 			if err != nil || !resp.Success {
 				return fmt.Errorf("Error adding DesktopApp to Set: %v", err)
@@ -335,7 +336,7 @@ func resourceDesktopAppUpdate(d *schema.ResourceData, m interface{}) error {
 		var err error
 		if old != nil {
 			// do not validate old values
-			object.Permissions, err = expandPermissions(old, appPermissions, false)
+			object.Permissions, err = expandPermissions(old, object.ValidPermissions, false)
 			if err != nil {
 				return err
 			}
@@ -346,7 +347,7 @@ func resourceDesktopAppUpdate(d *schema.ResourceData, m interface{}) error {
 		}
 
 		if new != nil {
-			object.Permissions, err = expandPermissions(new, appPermissions, true)
+			object.Permissions, err = expandPermissions(new, object.ValidPermissions, true)
 			if err != nil {
 				return err
 			}
@@ -360,15 +361,15 @@ func resourceDesktopAppUpdate(d *schema.ResourceData, m interface{}) error {
 
 	// We succeeded, disable partial mode. This causes Terraform to save all fields again.
 	d.Partial(false)
-	LogD.Printf("Updating of DesktopApp completed: %s", object.Name)
+	logger.Infof("Updating of DesktopApp completed: %s", object.Name)
 	return resourceDesktopAppRead(d, m)
 }
 
 func resourceDesktopAppDelete(d *schema.ResourceData, m interface{}) error {
-	LogD.Printf("Beginning deletion of DesktopApp: %s", ResourceIDString(d))
+	logger.Infof("Beginning deletion of DesktopApp: %s", ResourceIDString(d))
 	client := m.(*restapi.RestClient)
 
-	object := NewDesktopApp(client)
+	object := vault.NewDesktopApp(client)
 	object.ID = d.Id()
 	resp, err := object.Delete()
 
@@ -382,11 +383,11 @@ func resourceDesktopAppDelete(d *schema.ResourceData, m interface{}) error {
 		d.SetId("")
 	}
 
-	LogD.Printf("Deletion of DesktopApp completed: %s", ResourceIDString(d))
+	logger.Infof("Deletion of DesktopApp completed: %s", ResourceIDString(d))
 	return nil
 }
 
-func getUpateGetDesktopAppData(d *schema.ResourceData, object *DesktopApp) error {
+func getUpateGetDesktopAppData(d *schema.ResourceData, object *vault.DesktopApp) error {
 	object.Name = d.Get("name").(string)
 	if v, ok := d.GetOk("description"); ok {
 		object.Description = v.(string)
@@ -421,7 +422,7 @@ func getUpateGetDesktopAppData(d *schema.ResourceData, object *DesktopApp) error
 	// Permissions
 	if v, ok := d.GetOk("permission"); ok {
 		var err error
-		object.Permissions, err = expandPermissions(v, appPermissions, true)
+		object.Permissions, err = expandPermissions(v, object.ValidPermissions, true)
 		if err != nil {
 			return err
 		}

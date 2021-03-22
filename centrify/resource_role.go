@@ -5,9 +5,11 @@ import (
 	"log"
 	"strings"
 
-	"github.com/centrify/terraform-provider/cloud-golang-sdk/restapi"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
+	logger "github.com/marcozj/golang-sdk/logging"
+	vault "github.com/marcozj/golang-sdk/platform"
+	"github.com/marcozj/golang-sdk/restapi"
 )
 
 func resourceRole() *schema.Resource {
@@ -35,16 +37,6 @@ func resourceRole() *schema.Resource {
 				Elem: &schema.Schema{
 					Type: schema.TypeString,
 				},
-			},
-			// Add users to this role
-			"users": {
-				Type:     schema.TypeSet,
-				Optional: true,
-				Set:      schema.HashString,
-				Elem: &schema.Schema{
-					Type: schema.TypeString,
-				},
-				Description: "Add users to this role",
 			},
 			"member": {
 				Type:     schema.TypeSet,
@@ -81,10 +73,10 @@ func resourceRole() *schema.Resource {
 }
 
 func resourceRoleExists(d *schema.ResourceData, m interface{}) (bool, error) {
-	LogD.Printf("Checking role exist: %s", ResourceIDString(d))
+	logger.Infof("Checking role exist: %s", ResourceIDString(d))
 	client := m.(*restapi.RestClient)
 
-	object := NewRole(client)
+	object := vault.NewRole(client)
 	object.ID = d.Id()
 	err := object.Read()
 
@@ -95,16 +87,16 @@ func resourceRoleExists(d *schema.ResourceData, m interface{}) (bool, error) {
 		return false, err
 	}
 
-	LogD.Printf("Role exists in tenant: %s", object.ID)
+	logger.Infof("Role exists in tenant: %s", object.ID)
 	return true, nil
 }
 
 func resourceRoleRead(d *schema.ResourceData, m interface{}) error {
-	LogD.Printf("Reading role: %s", ResourceIDString(d))
+	logger.Infof("Reading role: %s", ResourceIDString(d))
 	client := m.(*restapi.RestClient)
 
 	// Create a role object and populate ID attribute
-	object := NewRole(client)
+	object := vault.NewRole(client)
 	object.ID = d.Id()
 	err := object.Read()
 
@@ -114,23 +106,23 @@ func resourceRoleRead(d *schema.ResourceData, m interface{}) error {
 		d.SetId("")
 		return fmt.Errorf("Error reading role: %v", err)
 	}
-	LogD.Printf("Role from tenant: %v", object)
+	logger.Debugf("Role from tenant: %v", object)
 
-	schemamap, err := generateSchemaMap(object)
+	schemamap, err := vault.GenerateSchemaMap(object)
 	if err != nil {
 		return err
 	}
-	LogD.Printf("Generated Map for resourceRoleRead(): %+v", schemamap)
+	logger.Debugf("Generated Map for resourceRoleRead(): %+v", schemamap)
 	for k, v := range schemamap {
 		d.Set(k, v)
 	}
 
-	LogD.Printf("Completed reading role: %s", object.Name)
+	logger.Infof("Completed reading role: %s", object.Name)
 	return nil
 }
 
 func resourceRoleCreate(d *schema.ResourceData, m interface{}) error {
-	LogD.Printf("Beginning Role creation: %s", ResourceIDString(d))
+	logger.Infof("Beginning Role creation: %s", ResourceIDString(d))
 
 	// Enable partial state mode
 	d.Partial(true)
@@ -138,7 +130,7 @@ func resourceRoleCreate(d *schema.ResourceData, m interface{}) error {
 	client := m.(*restapi.RestClient)
 
 	// Create a role object and populate all attributes
-	object := NewRole(client)
+	object := vault.NewRole(client)
 	createUpateGetRoleData(d, object)
 
 	// Response contains only role id
@@ -159,7 +151,7 @@ func resourceRoleCreate(d *schema.ResourceData, m interface{}) error {
 	// Need to populate ID attribute otherwise AssignAdminRights function will fail
 	object.ID = id
 
-	LogD.Printf("Role created: %s", object.Name)
+	logger.Debugf("Role created: %s", object.Name)
 
 	// Handle role members
 	if len(object.Members) > 0 {
@@ -174,28 +166,28 @@ func resourceRoleCreate(d *schema.ResourceData, m interface{}) error {
 	if object.AdminRights != nil {
 		resp, err := object.AssignAdminRights()
 		if err != nil || !resp.Success {
-			log.Fatalf("error updating role admin rights: %v", err)
+			log.Fatalf("Error updating role admin rights: %v", err)
 			return nil
 		}
-		LogD.Printf("Updated admin rights to: %v", object.AdminRights)
+		logger.Debugf("Updated admin rights to: %v", object.AdminRights)
 		// Creation partially completed
 		d.SetPartial("adminrights")
 	}
 
 	// Creation completed
 	d.Partial(false)
-	LogD.Printf("Creation of role completed: %s", object.Name)
+	logger.Infof("Creation of role completed: %s", object.Name)
 	return resourceRoleRead(d, m)
 }
 
 func resourceRoleUpdate(d *schema.ResourceData, m interface{}) error {
-	LogD.Printf("Beginning role update: %s", ResourceIDString(d))
+	logger.Infof("Beginning role update: %s", ResourceIDString(d))
 
 	// Enable partial state mode
 	d.Partial(true)
 
 	client := m.(*restapi.RestClient)
-	object := NewRole(client)
+	object := vault.NewRole(client)
 	object.ID = d.Id()
 	createUpateGetRoleData(d, object)
 
@@ -204,7 +196,7 @@ func resourceRoleUpdate(d *schema.ResourceData, m interface{}) error {
 		if err != nil || !resp.Success {
 			return fmt.Errorf("Error updating role attribute: %v", err)
 		}
-		LogD.Printf("Updated attributes to: %+v", object)
+		logger.Debugf("Updated attributes to: %+v", object)
 		d.SetPartial("name")
 		d.SetPartial("description")
 	}
@@ -232,14 +224,14 @@ func resourceRoleUpdate(d *schema.ResourceData, m interface{}) error {
 		if err != nil {
 			return fmt.Errorf("Error getting existing role admin rights: %v", err)
 		}
-		LogD.Printf("Removing existing admin rights: %v", rights)
+		logger.Debugf("Removing existing admin rights: %v", rights)
 		if rights != nil && len(rights) > 0 {
 			resp, err := object.RemoveAdminRights(rights)
 			if err != nil || !resp.Success {
 				return fmt.Errorf("Error removing existing role admin rights: %v", err)
 			}
 		}
-		LogD.Printf("Removed existing admin rights: %v", rights)
+		logger.Debugf("Removed existing admin rights: %v", rights)
 
 		// Set new admin rights
 		if d.Get("adminrights") != nil && d.Get("adminrights").(*schema.Set).Len() > 0 {
@@ -249,13 +241,13 @@ func resourceRoleUpdate(d *schema.ResourceData, m interface{}) error {
 				adminrights[i] = tfAdminRight.(string)
 			}
 			object.AdminRights = adminrights
-			LogD.Printf("Adding admin rights: %v", adminrights)
+			logger.Debugf("Adding admin rights: %v", adminrights)
 
 			resp, err := object.AssignAdminRights()
 			if err != nil || !resp.Success {
 				return fmt.Errorf("Error updating role admin rights: %v", err)
 			}
-			LogD.Printf("Updated admin rights to: %v", adminrights)
+			logger.Debugf("Updated admin rights to: %v", adminrights)
 
 			d.SetPartial("adminrights")
 		}
@@ -263,15 +255,15 @@ func resourceRoleUpdate(d *schema.ResourceData, m interface{}) error {
 
 	// We succeeded, disable partial mode. This causes Terraform to save all fields again.
 	d.Partial(false)
-	LogD.Printf("Updating of role completed: %s", object.Name)
+	logger.Infof("Updating of role completed: %s", object.Name)
 	return resourceRoleRead(d, m)
 }
 
 func resourceRoleDelete(d *schema.ResourceData, m interface{}) error {
-	LogD.Printf("Beginning deletion of role: %s", ResourceIDString(d))
+	logger.Infof("Beginning deletion of role: %s", ResourceIDString(d))
 	client := m.(*restapi.RestClient)
 
-	object := NewRole(client)
+	object := vault.NewRole(client)
 	object.ID = d.Id()
 	resp, err := object.Delete()
 
@@ -285,11 +277,11 @@ func resourceRoleDelete(d *schema.ResourceData, m interface{}) error {
 		d.SetId("")
 	}
 
-	LogD.Printf("Deletion of role completed: %s", ResourceIDString(d))
+	logger.Infof("Deletion of role completed: %s", ResourceIDString(d))
 	return nil
 }
 
-func createUpateGetRoleData(d *schema.ResourceData, object *Role) error {
+func createUpateGetRoleData(d *schema.ResourceData, object *vault.Role) error {
 	object.Name = d.Get("name").(string)
 	if v, ok := d.GetOk("description"); ok {
 		object.Description = v.(string)

@@ -3,8 +3,10 @@ package centrify
 import (
 	"fmt"
 
-	"github.com/centrify/terraform-provider/cloud-golang-sdk/restapi"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
+	logger "github.com/marcozj/golang-sdk/logging"
+	vault "github.com/marcozj/golang-sdk/platform"
+	"github.com/marcozj/golang-sdk/restapi"
 )
 
 func dataSourceConnector() *schema.Resource {
@@ -22,9 +24,9 @@ func dataSourceConnector() *schema.Resource {
 }
 
 func dataSourceConnectorRead(d *schema.ResourceData, m interface{}) error {
-	LogD.Printf("Finding connector")
+	logger.Infof("Finding connector")
 	client := m.(*restapi.RestClient)
-	object := NewConnector(client)
+	object := vault.NewConnector(client)
 	object.Name = d.Get("name").(string)
 
 	result, err := object.Query()
@@ -32,7 +34,7 @@ func dataSourceConnectorRead(d *schema.ResourceData, m interface{}) error {
 		return fmt.Errorf("Error retrieving vault object: %s", err)
 	}
 
-	//LogD.Printf("Found connector: %+v", result)
+	//logger.Debugf("Found connector: %+v", result)
 	d.SetId(result["ID"].(string))
 	d.Set("name", result["Name"].(string))
 

@@ -3,9 +3,12 @@ package centrify
 import (
 	"fmt"
 
-	"github.com/centrify/terraform-provider/cloud-golang-sdk/restapi"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
+	"github.com/marcozj/golang-sdk/enum/computerclass"
+	logger "github.com/marcozj/golang-sdk/logging"
+	vault "github.com/marcozj/golang-sdk/platform"
+	"github.com/marcozj/golang-sdk/restapi"
 )
 
 func dataSourceVaultSystem() *schema.Resource {
@@ -29,20 +32,20 @@ func dataSourceVaultSystem() *schema.Resource {
 				Optional:    true,
 				Description: "Type of the system",
 				ValidateFunc: validation.StringInSlice([]string{
-					"Windows",
-					"Unix",
-					"CiscoAsyncOS",
-					"CiscoIOS",
-					"CiscoNXOS",
-					"JuniperJunos",
-					"HpNonStopOS",
-					"IBMi",
-					"CheckPointGaia",
-					"PaloAltoNetworksPANOS",
-					"F5NetworksBIGIP",
-					"VMwareVMkernel",
-					"GenericSsh",
-					"CustomSsh",
+					computerclass.Windows.String(),
+					computerclass.Unix.String(),
+					computerclass.CiscoAsyncOS.String(),
+					computerclass.CiscoIOS.String(),
+					computerclass.CiscoNXOS.String(),
+					computerclass.JuniperJunos.String(),
+					computerclass.HPNonStop.String(),
+					computerclass.IBMi.String(),
+					computerclass.CheckPointGaia.String(),
+					computerclass.PaloAltoPANOS.String(),
+					computerclass.F5BIGIP.String(),
+					computerclass.VMwareVMkernel.String(),
+					computerclass.GenericSSH.String(),
+					computerclass.CustomSSH.String(),
 				}, false),
 			},
 		},
@@ -50,9 +53,9 @@ func dataSourceVaultSystem() *schema.Resource {
 }
 
 func dataSourceVaultSystemRead(d *schema.ResourceData, m interface{}) error {
-	LogD.Printf("Finding system")
+	logger.Infof("Finding system")
 	client := m.(*restapi.RestClient)
-	object := NewVaultSystem(client)
+	object := vault.NewSystem(client)
 	object.Name = d.Get("name").(string)
 	object.FQDN = d.Get("fqdn").(string)
 	if v, ok := d.GetOk("computer_class"); ok {
@@ -64,7 +67,7 @@ func dataSourceVaultSystemRead(d *schema.ResourceData, m interface{}) error {
 		return fmt.Errorf("Error retrieving vault object: %s", err)
 	}
 
-	//LogD.Printf("Found system: %+v", result)
+	//logger.Debugf("Found system: %+v", result)
 	d.SetId(result["ID"].(string))
 	d.Set("name", result["Name"].(string))
 	d.Set("fqdn", result["FQDN"].(string))

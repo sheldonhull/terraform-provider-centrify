@@ -3,8 +3,10 @@ package centrify
 import (
 	"fmt"
 
-	"github.com/centrify/terraform-provider/cloud-golang-sdk/restapi"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
+	logger "github.com/marcozj/golang-sdk/logging"
+	vault "github.com/marcozj/golang-sdk/platform"
+	"github.com/marcozj/golang-sdk/restapi"
 )
 
 func dataSourceAuthenticationProfile() *schema.Resource {
@@ -32,9 +34,9 @@ func dataSourceAuthenticationProfile() *schema.Resource {
 }
 
 func dataSourceAuthenticationProfileRead(d *schema.ResourceData, m interface{}) error {
-	LogD.Printf("Finding authentication profile")
+	logger.Infof("Finding authentication profile")
 	client := m.(*restapi.RestClient)
-	object := NewAuthenticationProfile(client)
+	object := vault.NewAuthenticationProfile(client)
 	object.Name = d.Get("name").(string)
 
 	result, err := object.Query()
@@ -42,7 +44,7 @@ func dataSourceAuthenticationProfileRead(d *schema.ResourceData, m interface{}) 
 		return fmt.Errorf("Error retrieving vault object: %s", err)
 	}
 
-	//LogD.Printf("Found authentication profile: %+v", result)
+	//logger.Debugf("Found authentication profile: %+v", result)
 	d.SetId(result["Uuid"].(string))
 	d.Set("uuid", result["Uuid"].(string))
 	d.Set("name", result["Name"].(string))

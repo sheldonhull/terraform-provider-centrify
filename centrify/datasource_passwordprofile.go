@@ -3,8 +3,10 @@ package centrify
 import (
 	"fmt"
 
-	"github.com/centrify/terraform-provider/cloud-golang-sdk/restapi"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
+	logger "github.com/marcozj/golang-sdk/logging"
+	vault "github.com/marcozj/golang-sdk/platform"
+	"github.com/marcozj/golang-sdk/restapi"
 )
 
 func dataSourcePasswordProfile() *schema.Resource {
@@ -33,9 +35,9 @@ func dataSourcePasswordProfile() *schema.Resource {
 }
 
 func dataSourcePasswordProfileRead(d *schema.ResourceData, m interface{}) error {
-	LogD.Printf("Finding password profile")
+	logger.Infof("Finding password profile")
 	client := m.(*restapi.RestClient)
-	object := NewPasswordProfile(client)
+	object := vault.NewPasswordProfile(client)
 	object.Name = d.Get("name").(string)
 	object.ProfileType = d.Get("profile_type").(string)
 
@@ -47,7 +49,7 @@ func dataSourcePasswordProfileRead(d *schema.ResourceData, m interface{}) error 
 	if result["ID"] == nil {
 		return fmt.Errorf("Password profile ID is not set")
 	}
-	//LogD.Printf("Found password profile: %+v", result)
+	//logger.Debugf("Found password profile: %+v", result)
 	d.SetId(result["ID"].(string))
 	d.Set("name", result["Name"].(string))
 	d.Set("profile_type", result["ProfileType"].(string))

@@ -4,9 +4,11 @@ import (
 	"errors"
 	"fmt"
 
-	"github.com/centrify/terraform-provider/cloud-golang-sdk/restapi"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
+	logger "github.com/marcozj/golang-sdk/logging"
+	vault "github.com/marcozj/golang-sdk/platform"
+	"github.com/marcozj/golang-sdk/restapi"
 )
 
 func dataSourceDirectoryObject() *schema.Resource {
@@ -65,10 +67,10 @@ func dataSourceDirectoryObject() *schema.Resource {
 }
 
 func dataSourceDirectoryObjectRead(d *schema.ResourceData, m interface{}) error {
-	LogD.Printf("Finding Directory Object")
+	logger.Infof("Finding Directory Object")
 	client := m.(*restapi.RestClient)
-	object := NewDirectoryObjects(client)
-	object.queryName = d.Get("name").(string)
+	object := vault.NewDirectoryObjects(client)
+	object.QueryName = d.Get("name").(string)
 	object.ObjectType = d.Get("object_type").(string)
 	object.DirectoryServices = flattenSchemaSetToStringSlice(d.Get("directory_services"))
 
@@ -77,7 +79,7 @@ func dataSourceDirectoryObjectRead(d *schema.ResourceData, m interface{}) error 
 		return fmt.Errorf("Error retrieving directory services: %s", err)
 	}
 
-	var results []DirectoryObject
+	var results []vault.DirectoryObject
 	// Further narrow down with Distinguished if specified
 	dn := d.Get("distinguished_name").(string)
 	if dn != "" {

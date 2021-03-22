@@ -4,8 +4,10 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/centrify/terraform-provider/cloud-golang-sdk/restapi"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
+	logger "github.com/marcozj/golang-sdk/logging"
+	vault "github.com/marcozj/golang-sdk/platform"
+	"github.com/marcozj/golang-sdk/restapi"
 )
 
 func resourceSSHKey() *schema.Resource {
@@ -67,10 +69,10 @@ func resourceSSHKey() *schema.Resource {
 }
 
 func resourceSSHKeyExists(d *schema.ResourceData, m interface{}) (bool, error) {
-	LogD.Printf("Checking SSH Key exist: %s", ResourceIDString(d))
+	logger.Infof("Checking SSH Key exist: %s", ResourceIDString(d))
 	client := m.(*restapi.RestClient)
 
-	object := NewSSHKey(client)
+	object := vault.NewSSHKey(client)
 	object.ID = d.Id()
 	err := object.Read()
 
@@ -81,16 +83,16 @@ func resourceSSHKeyExists(d *schema.ResourceData, m interface{}) (bool, error) {
 		return false, err
 	}
 
-	LogD.Printf("SSH Key exists in tenant: %s", object.ID)
+	logger.Infof("SSH Key exists in tenant: %s", object.ID)
 	return true, nil
 }
 
 func resourceSSHKeyRead(d *schema.ResourceData, m interface{}) error {
-	LogD.Printf("Reading SSH Key: %s", ResourceIDString(d))
+	logger.Infof("Reading SSH Key: %s", ResourceIDString(d))
 	client := m.(*restapi.RestClient)
 
 	// Create a NewVaultSecret object and populate ID attribute
-	object := NewSSHKey(client)
+	object := vault.NewSSHKey(client)
 	object.ID = d.Id()
 	err := object.Read()
 
@@ -100,22 +102,22 @@ func resourceSSHKeyRead(d *schema.ResourceData, m interface{}) error {
 		d.SetId("")
 		return fmt.Errorf("Error reading SSH Key: %v", err)
 	}
-	//LogD.Printf("SSH Key from tenant: %+v", object)
-	schemamap, err := generateSchemaMap(object)
+	//logger.Debugf("SSH Key from tenant: %+v", object)
+	schemamap, err := vault.GenerateSchemaMap(object)
 	if err != nil {
 		return err
 	}
-	LogD.Printf("Generated Map for resourceSSHKeyRead(): %+v", schemamap)
+	logger.Debugf("Generated Map for resourceSSHKeyRead(): %+v", schemamap)
 	for k, v := range schemamap {
 		d.Set(k, v)
 	}
 
-	LogD.Printf("Completed reading SSH Key: %s", object.Name)
+	logger.Infof("Completed reading SSH Key: %s", object.Name)
 	return nil
 }
 
 func resourceSSHKeyCreate(d *schema.ResourceData, m interface{}) error {
-	LogD.Printf("Beginning SSH Key creation: %s", ResourceIDString(d))
+	logger.Infof("Beginning SSH Key creation: %s", ResourceIDString(d))
 
 	// Enable partial state mode
 	d.Partial(true)
@@ -123,7 +125,7 @@ func resourceSSHKeyCreate(d *schema.ResourceData, m interface{}) error {
 	client := m.(*restapi.RestClient)
 
 	// Create a SSH Key object and populate all attributes
-	object := NewSSHKey(client)
+	object := vault.NewSSHKey(client)
 	err := createUpateGetSSHKeyData(d, object)
 	if err != nil {
 		return err
@@ -159,14 +161,9 @@ func resourceSSHKeyCreate(d *schema.ResourceData, m interface{}) error {
 	}
 
 	if len(object.Sets) > 0 {
-		for _, v := range object.Sets {
-			setObj := NewManualSet(client)
-			setObj.ID = v
-			setObj.ObjectType = "SshKeys"
-			resp, err := setObj.UpdateSetMembers([]string{object.ID}, "add")
-			if err != nil || !resp.Success {
-				return fmt.Errorf("Error adding SSH Key to Set: %v", err)
-			}
+		err := object.AddToSetsByID(object.Sets)
+		if err != nil {
+			return err
 		}
 		d.SetPartial("sets")
 	}
@@ -182,18 +179,18 @@ func resourceSSHKeyCreate(d *schema.ResourceData, m interface{}) error {
 
 	// Creation completed
 	d.Partial(false)
-	LogD.Printf("Creation of SSH Key completed: %s", object.Name)
+	logger.Infof("Creation of SSH Key completed: %s", object.Name)
 	return resourceSSHKeyRead(d, m)
 }
 
 func resourceSSHKeyUpdate(d *schema.ResourceData, m interface{}) error {
-	LogD.Printf("Beginning SSH Key update: %s", ResourceIDString(d))
+	logger.Infof("Beginning SSH Key update: %s", ResourceIDString(d))
 
 	// Enable partial state mode
 	d.Partial(true)
 
 	client := m.(*restapi.RestClient)
-	object := NewSSHKey(client)
+	object := vault.NewSSHKey(client)
 	object.ID = d.Id()
 	err := createUpateGetSSHKeyData(d, object)
 	if err != nil {
@@ -206,7 +203,7 @@ func resourceSSHKeyUpdate(d *schema.ResourceData, m interface{}) error {
 		if err != nil || !resp.Success {
 			return fmt.Errorf("Error updating SSH Key attribute: %v", err)
 		}
-		LogD.Printf("Updated attributes to: %v", object)
+		logger.Debugf("Updated attributes to: %v", object)
 		d.SetPartial("name")
 		d.SetPartial("description")
 		d.SetPartial("private_key")
@@ -218,9 +215,9 @@ func resourceSSHKeyUpdate(d *schema.ResourceData, m interface{}) error {
 		old, new := d.GetChange("sets")
 		// Remove old Sets
 		for _, v := range flattenSchemaSetToStringSlice(old) {
-			setObj := NewManualSet(client)
+			setObj := vault.NewManualSet(client)
 			setObj.ID = v
-			setObj.ObjectType = "SshKeys"
+			setObj.ObjectType = object.SetType
 			resp, err := setObj.UpdateSetMembers([]string{object.ID}, "remove")
 			if err != nil || !resp.Success {
 				return fmt.Errorf("Error removing SSH Key from Set: %v", err)
@@ -228,9 +225,9 @@ func resourceSSHKeyUpdate(d *schema.ResourceData, m interface{}) error {
 		}
 		// Add new Sets
 		for _, v := range flattenSchemaSetToStringSlice(new) {
-			setObj := NewManualSet(client)
+			setObj := vault.NewManualSet(client)
 			setObj.ID = v
-			setObj.ObjectType = "SshKeys"
+			setObj.ObjectType = object.SetType
 			resp, err := setObj.UpdateSetMembers([]string{object.ID}, "add")
 			if err != nil || !resp.Success {
 				return fmt.Errorf("Error adding SSH Key to Set: %v", err)
@@ -247,7 +244,7 @@ func resourceSSHKeyUpdate(d *schema.ResourceData, m interface{}) error {
 		var err error
 		if old != nil {
 			// do not validate old values
-			object.Permissions, err = expandPermissions(old, sshkeyPermissions, false)
+			object.Permissions, err = expandPermissions(old, object.ValidPermissions, false)
 			if err != nil {
 				return err
 			}
@@ -258,7 +255,7 @@ func resourceSSHKeyUpdate(d *schema.ResourceData, m interface{}) error {
 		}
 
 		if new != nil {
-			object.Permissions, err = expandPermissions(new, sshkeyPermissions, true)
+			object.Permissions, err = expandPermissions(new, object.ValidPermissions, true)
 			if err != nil {
 				return err
 			}
@@ -272,15 +269,15 @@ func resourceSSHKeyUpdate(d *schema.ResourceData, m interface{}) error {
 
 	// We succeeded, disable partial mode. This causes Terraform to save all fields again.
 	d.Partial(false)
-	LogD.Printf("Updating of SSH Key completed: %s", object.Name)
+	logger.Infof("Updating of SSH Key completed: %s", object.Name)
 	return resourceSSHKeyRead(d, m)
 }
 
 func resourceSSHKeyDelete(d *schema.ResourceData, m interface{}) error {
-	LogD.Printf("Beginning deletion of SSH Key: %s", ResourceIDString(d))
+	logger.Infof("Beginning deletion of SSH Key: %s", ResourceIDString(d))
 	client := m.(*restapi.RestClient)
 
-	object := NewSSHKey(client)
+	object := vault.NewSSHKey(client)
 	object.ID = d.Id()
 
 	// Remove challenge profile first otherwise deletion will fail
@@ -305,11 +302,11 @@ func resourceSSHKeyDelete(d *schema.ResourceData, m interface{}) error {
 		d.SetId("")
 	}
 
-	LogD.Printf("Deletion of SSH Key completed: %s", ResourceIDString(d))
+	logger.Infof("Deletion of SSH Key completed: %s", ResourceIDString(d))
 	return nil
 }
 
-func createUpateGetSSHKeyData(d *schema.ResourceData, object *SSHKey) error {
+func createUpateGetSSHKeyData(d *schema.ResourceData, object *vault.SSHKey) error {
 	object.Name = d.Get("name").(string)
 	if v, ok := d.GetOk("description"); ok {
 		object.Description = v.(string)
@@ -329,7 +326,7 @@ func createUpateGetSSHKeyData(d *schema.ResourceData, object *SSHKey) error {
 	// Permissions
 	if v, ok := d.GetOk("permission"); ok {
 		var err error
-		object.Permissions, err = expandPermissions(v, sshkeyPermissions, true)
+		object.Permissions, err = expandPermissions(v, object.ValidPermissions, true)
 		if err != nil {
 			return err
 		}

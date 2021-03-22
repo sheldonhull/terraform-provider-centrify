@@ -3,9 +3,11 @@ package centrify
 import (
 	"fmt"
 
-	"github.com/centrify/terraform-provider/cloud-golang-sdk/restapi"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
+	logger "github.com/marcozj/golang-sdk/logging"
+	vault "github.com/marcozj/golang-sdk/platform"
+	"github.com/marcozj/golang-sdk/restapi"
 )
 
 func dataSourcePolicy() *schema.Resource {
@@ -48,9 +50,9 @@ func dataSourcePolicy() *schema.Resource {
 }
 
 func dataSourcePolicyRead(d *schema.ResourceData, m interface{}) error {
-	LogD.Printf("Finding policy")
+	logger.Infof("Finding policy")
 	client := m.(*restapi.RestClient)
-	object := NewPolicy(client)
+	object := vault.NewPolicy(client)
 	object.Name = d.Get("name").(string)
 
 	result, err := object.Query("name")
@@ -58,7 +60,7 @@ func dataSourcePolicyRead(d *schema.ResourceData, m interface{}) error {
 		return fmt.Errorf("Error retrieving vault object: %s", err)
 	}
 
-	//LogD.Printf("Found user: %+v", result)
+	//logger.Debugf("Found user: %+v", result)
 	d.SetId(result["ID"].(string))
 	d.Set("description", result["Description"].(string))
 	d.Set("link_type", result["LinkType"].(string))

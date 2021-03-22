@@ -4,8 +4,10 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/centrify/terraform-provider/cloud-golang-sdk/restapi"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
+	logger "github.com/marcozj/golang-sdk/logging"
+	vault "github.com/marcozj/golang-sdk/platform"
+	"github.com/marcozj/golang-sdk/restapi"
 )
 
 func resourceMultiplexedAccount() *schema.Resource {
@@ -68,10 +70,10 @@ func resourceMultiplexedAccount() *schema.Resource {
 }
 
 func resourceMultiplexedAccountExists(d *schema.ResourceData, m interface{}) (bool, error) {
-	LogD.Printf("Checking multiplexed account exist: %s", ResourceIDString(d))
+	logger.Infof("Checking multiplexed account exist: %s", ResourceIDString(d))
 	client := m.(*restapi.RestClient)
 
-	object := NewMultiplexedAccount(client)
+	object := vault.NewMultiplexedAccount(client)
 	object.ID = d.Id()
 	err := object.Read()
 
@@ -82,16 +84,16 @@ func resourceMultiplexedAccountExists(d *schema.ResourceData, m interface{}) (bo
 		return false, err
 	}
 
-	LogD.Printf("Multiplexed account exists in tenant: %s", object.ID)
+	logger.Infof("Multiplexed account exists in tenant: %s", object.ID)
 	return true, nil
 }
 
 func resourceMultiplexedAccountRead(d *schema.ResourceData, m interface{}) error {
-	LogD.Printf("Reading multiplexed account: %s", ResourceIDString(d))
+	logger.Infof("Reading multiplexed account: %s", ResourceIDString(d))
 	client := m.(*restapi.RestClient)
 
 	// Create a NewMultiplexedAccount object and populate ID attribute
-	object := NewMultiplexedAccount(client)
+	object := vault.NewMultiplexedAccount(client)
 	object.ID = d.Id()
 	err := object.Read()
 
@@ -101,22 +103,22 @@ func resourceMultiplexedAccountRead(d *schema.ResourceData, m interface{}) error
 		d.SetId("")
 		return fmt.Errorf("Error reading multiplexed account: %v", err)
 	}
-	//LogD.Printf("Multiplexed account from tenant: %+v", object)
-	schemamap, err := generateSchemaMap(object)
+	//logger.Debugf("Multiplexed account from tenant: %+v", object)
+	schemamap, err := vault.GenerateSchemaMap(object)
 	if err != nil {
 		return err
 	}
-	LogD.Printf("Generated Map for resourceMultiplexedAccountRead(): %+v", schemamap)
+	logger.Debugf("Generated Map for resourceMultiplexedAccountRead(): %+v", schemamap)
 	for k, v := range schemamap {
 		d.Set(k, v)
 	}
 
-	LogD.Printf("Completed reading multiplexed account: %s", object.Name)
+	logger.Debugf("Completed reading multiplexed account: %s", object.Name)
 	return nil
 }
 
 func resourceMultiplexedAccountCreate(d *schema.ResourceData, m interface{}) error {
-	LogD.Printf("Beginning multiplexed account creation: %s", ResourceIDString(d))
+	logger.Infof("Beginning multiplexed account creation: %s", ResourceIDString(d))
 
 	// Enable partial state mode
 	d.Partial(true)
@@ -124,7 +126,7 @@ func resourceMultiplexedAccountCreate(d *schema.ResourceData, m interface{}) err
 	client := m.(*restapi.RestClient)
 
 	// Create a multiplexed account object and populate all attributes
-	object := NewMultiplexedAccount(client)
+	object := vault.NewMultiplexedAccount(client)
 	err := createUpateGetMultiplexedAccountData(d, object)
 	if err != nil {
 		return err
@@ -158,18 +160,18 @@ func resourceMultiplexedAccountCreate(d *schema.ResourceData, m interface{}) err
 
 	// Creation completed
 	d.Partial(false)
-	LogD.Printf("Creation of multiplexed account completed: %s", object.Name)
+	logger.Infof("Creation of multiplexed account completed: %s", object.Name)
 	return resourceMultiplexedAccountRead(d, m)
 }
 
 func resourceMultiplexedAccountUpdate(d *schema.ResourceData, m interface{}) error {
-	LogD.Printf("Beginning multiplexed account update: %s", ResourceIDString(d))
+	logger.Infof("Beginning multiplexed account update: %s", ResourceIDString(d))
 
 	// Enable partial state mode
 	d.Partial(true)
 
 	client := m.(*restapi.RestClient)
-	object := NewMultiplexedAccount(client)
+	object := vault.NewMultiplexedAccount(client)
 	object.ID = d.Id()
 	err := createUpateGetMultiplexedAccountData(d, object)
 	if err != nil {
@@ -182,7 +184,7 @@ func resourceMultiplexedAccountUpdate(d *schema.ResourceData, m interface{}) err
 		if err != nil || !resp.Success {
 			return fmt.Errorf("Error updating multiplexed account attribute: %v", err)
 		}
-		LogD.Printf("Updated attributes to: %v", object)
+		logger.Debugf("Updated attributes to: %v", object)
 		d.SetPartial("name")
 		d.SetPartial("description")
 		d.SetPartial("accounts")
@@ -196,7 +198,7 @@ func resourceMultiplexedAccountUpdate(d *schema.ResourceData, m interface{}) err
 		var err error
 		if old != nil {
 			// do not validate old values
-			object.Permissions, err = expandPermissions(old, object.MyPermissionList, false)
+			object.Permissions, err = expandPermissions(old, object.ValidPermissions, false)
 			if err != nil {
 				return err
 			}
@@ -207,7 +209,7 @@ func resourceMultiplexedAccountUpdate(d *schema.ResourceData, m interface{}) err
 		}
 
 		if new != nil {
-			object.Permissions, err = expandPermissions(new, object.MyPermissionList, true)
+			object.Permissions, err = expandPermissions(new, object.ValidPermissions, true)
 			if err != nil {
 				return err
 			}
@@ -221,15 +223,15 @@ func resourceMultiplexedAccountUpdate(d *schema.ResourceData, m interface{}) err
 
 	// We succeeded, disable partial mode. This causes Terraform to save all fields again.
 	d.Partial(false)
-	LogD.Printf("Updating of multiplexed account completed: %s", object.Name)
+	logger.Infof("Updating of multiplexed account completed: %s", object.Name)
 	return resourceMultiplexedAccountRead(d, m)
 }
 
 func resourceMultiplexedAccountDelete(d *schema.ResourceData, m interface{}) error {
-	LogD.Printf("Beginning deletion of multiplexed account: %s", ResourceIDString(d))
+	logger.Infof("Beginning deletion of multiplexed account: %s", ResourceIDString(d))
 	client := m.(*restapi.RestClient)
 
-	object := NewMultiplexedAccount(client)
+	object := vault.NewMultiplexedAccount(client)
 	object.ID = d.Id()
 
 	resp, err := object.Delete()
@@ -244,11 +246,11 @@ func resourceMultiplexedAccountDelete(d *schema.ResourceData, m interface{}) err
 		d.SetId("")
 	}
 
-	LogD.Printf("Deletion of multiplexed account completed: %s", ResourceIDString(d))
+	logger.Infof("Deletion of multiplexed account completed: %s", ResourceIDString(d))
 	return nil
 }
 
-func createUpateGetMultiplexedAccountData(d *schema.ResourceData, object *MultiplexedAccount) error {
+func createUpateGetMultiplexedAccountData(d *schema.ResourceData, object *vault.MultiplexedAccount) error {
 	object.Name = d.Get("name").(string)
 	if v, ok := d.GetOk("description"); ok {
 		object.Description = v.(string)
@@ -258,7 +260,7 @@ func createUpateGetMultiplexedAccountData(d *schema.ResourceData, object *Multip
 	// Permissions
 	if v, ok := d.GetOk("permission"); ok {
 		var err error
-		object.Permissions, err = expandPermissions(v, object.MyPermissionList, true)
+		object.Permissions, err = expandPermissions(v, object.ValidPermissions, true)
 		if err != nil {
 			return err
 		}

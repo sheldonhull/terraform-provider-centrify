@@ -479,13 +479,13 @@ func getPasswordSettingsSchema() *schema.Schema {
 					Type:         schema.TypeInt,
 					Optional:     true,
 					Description:  "Capture window for consecutive bad password attempts (default 30 minutes)",
-					ValidateFunc: validation.IntAtLeast(1),
+					ValidateFunc: validation.IntBetween(1, 2147483647),
 				},
 				"lockout_duration": {
 					Type:         schema.TypeInt,
 					Optional:     true,
 					Description:  "Lockout duration before password re-attempt allowed (default 30 minutes)",
-					ValidateFunc: validation.IntAtLeast(1),
+					ValidateFunc: validation.IntBetween(1, 2147483647),
 				},
 			},
 		},
@@ -679,7 +679,7 @@ func getSystemSetSchema() *schema.Schema {
 					Type:         schema.TypeInt,
 					Optional:     true,
 					Description:  "Checkout lifetime (minutes)",
-					ValidateFunc: validation.IntAtLeast(15),
+					ValidateFunc: validation.IntBetween(15, 2147483647),
 				},
 				// System Policy
 				"allow_remote_access": {
@@ -692,13 +692,34 @@ func getSystemSetSchema() *schema.Schema {
 					Optional:    true,
 					Description: "Allow RDP client to sync local clipboard with remote session",
 				},
+				"local_account_automatic_maintenance": {
+					Type:        schema.TypeBool,
+					Optional:    true,
+					Description: "Enable local account automatic maintenance",
+				},
+				"local_account_manual_unlock": {
+					Type:        schema.TypeBool,
+					Optional:    true,
+					Description: "Enable local account manual unlock",
+				},
 				"default_profile_id": {
 					Type:        schema.TypeString,
 					Optional:    true,
 					Description: "Default System Login Profile (used if no conditions matched)",
 				},
 				"challenge_rule": getChallengeRulesSchema(),
+				"privilege_elevation_default_profile_id": {
+					Type:        schema.TypeString,
+					Optional:    true,
+					Description: "Default Privilege Elevation Profile (used if no conditions matched)",
+				},
+				"privilege_elevation_rule": getChallengeRulesSchema(),
 				// Security Settings
+				"remove_user_on_session_end": {
+					Type:        schema.TypeBool,
+					Optional:    true,
+					Description: "Remove local accounts upon session termination - Windows only ",
+				},
 				"allow_multiple_checkouts": {
 					Type:        schema.TypeBool,
 					Optional:    true,
@@ -713,7 +734,7 @@ func getSystemSetSchema() *schema.Schema {
 					Type:         schema.TypeInt,
 					Optional:     true,
 					Description:  "Password rotation interval (days)",
-					ValidateFunc: validation.IntAtLeast(1),
+					ValidateFunc: validation.IntBetween(1, 2147483647),
 				},
 				"enable_password_rotation_after_checkin": {
 					Type:        schema.TypeBool,
@@ -721,14 +742,16 @@ func getSystemSetSchema() *schema.Schema {
 					Description: "Enable password rotation after checkin",
 				},
 				"minimum_password_age": {
-					Type:        schema.TypeInt,
-					Optional:    true,
-					Description: "Minimum Password Age (days)",
+					Type:         schema.TypeInt,
+					Optional:     true,
+					Description:  "Minimum Password Age (days)",
+					ValidateFunc: validation.IntBetween(0, 2147483647),
 				},
 				"minimum_sshkey_age": {
-					Type:        schema.TypeInt,
-					Optional:    true,
-					Description: "Minimum SSH Key Age (days)",
+					Type:         schema.TypeInt,
+					Optional:     true,
+					Description:  "Minimum SSH Key Age (days)",
+					ValidateFunc: validation.IntBetween(0, 2147483647),
 				},
 				"enable_sshkey_rotation": {
 					Type:        schema.TypeBool,
@@ -739,7 +762,7 @@ func getSystemSetSchema() *schema.Schema {
 					Type:         schema.TypeInt,
 					Optional:     true,
 					Description:  "SSH key rotation interval (days)",
-					ValidateFunc: validation.IntAtLeast(1),
+					ValidateFunc: validation.IntBetween(1, 2147483647),
 				},
 				"sshkey_algorithm": {
 					Type:        schema.TypeString,
@@ -765,7 +788,7 @@ func getSystemSetSchema() *schema.Schema {
 					Type:         schema.TypeInt,
 					Optional:     true,
 					Description:  "Password history cleanup (days)",
-					ValidateFunc: validation.IntAtLeast(90),
+					ValidateFunc: validation.IntBetween(90, 2147483647),
 				},
 				"enable_sshkey_history_cleanup": {
 					Type:        schema.TypeBool,
@@ -776,7 +799,7 @@ func getSystemSetSchema() *schema.Schema {
 					Type:         schema.TypeInt,
 					Optional:     true,
 					Description:  "SSH key history cleanup (days)",
-					ValidateFunc: validation.IntAtLeast(1),
+					ValidateFunc: validation.IntBetween(1, 2147483647),
 				},
 			},
 		},
@@ -796,7 +819,7 @@ func getDatabaseAndDomainSetSchema() *schema.Schema {
 					Type:         schema.TypeInt,
 					Optional:     true,
 					Description:  "Checkout lifetime (minutes)",
-					ValidateFunc: validation.IntAtLeast(15),
+					ValidateFunc: validation.IntBetween(15, 2147483647),
 				},
 				// Security Settings
 				"allow_multiple_checkouts": {
@@ -813,7 +836,7 @@ func getDatabaseAndDomainSetSchema() *schema.Schema {
 					Type:         schema.TypeInt,
 					Optional:     true,
 					Description:  "Password rotation interval (days)",
-					ValidateFunc: validation.IntAtLeast(1),
+					ValidateFunc: validation.IntBetween(1, 2147483647),
 				},
 				"enable_password_rotation_after_checkin": {
 					Type:        schema.TypeBool,
@@ -821,9 +844,10 @@ func getDatabaseAndDomainSetSchema() *schema.Schema {
 					Description: "Enable password rotation after checkin",
 				},
 				"minimum_password_age": {
-					Type:        schema.TypeInt,
-					Optional:    true,
-					Description: "Minimum Password Age (days)",
+					Type:         schema.TypeInt,
+					Optional:     true,
+					Description:  "Minimum Password Age (days)",
+					ValidateFunc: validation.IntBetween(0, 2147483647),
 				},
 				// Maintenance Settings
 				"enable_password_history_cleanup": {
@@ -835,7 +859,7 @@ func getDatabaseAndDomainSetSchema() *schema.Schema {
 					Type:         schema.TypeInt,
 					Optional:     true,
 					Description:  "Password history cleanup (days)",
-					ValidateFunc: validation.IntAtLeast(90),
+					ValidateFunc: validation.IntBetween(90, 2147483647),
 				},
 			},
 		},
@@ -854,7 +878,7 @@ func getAccountSetSchema() *schema.Schema {
 					Type:         schema.TypeInt,
 					Optional:     true,
 					Description:  "Checkout lifetime (minutes)",
-					ValidateFunc: validation.IntAtLeast(15),
+					ValidateFunc: validation.IntBetween(15, 2147483647),
 				},
 				"default_profile_id": {
 					Type:        schema.TypeString,
@@ -862,6 +886,12 @@ func getAccountSetSchema() *schema.Schema {
 					Description: "Default Password Checkout Profile (used if no conditions matched)",
 				},
 				"challenge_rule": getChallengeRulesSchema(),
+				"access_secret_checkout_dfault_profile_id": {
+					Type:        schema.TypeString,
+					Optional:    true,
+					Description: "Default Password Checkout Profile (used if no conditions matched)",
+				},
+				"access_secret_checkout_rule": getChallengeRulesSchema(),
 			},
 		},
 	}
@@ -900,6 +930,46 @@ func getSSHKeySetSchema() *schema.Schema {
 					Description: "Default SSH Key Challenge Profile",
 				},
 				"challenge_rule": getChallengeRulesSchema(),
+			},
+		},
+	}
+}
+
+func getCloudProvidersSchema() *schema.Schema {
+	return &schema.Schema{
+		Type:        schema.TypeList,
+		Optional:    true,
+		MaxItems:    1,
+		Description: "Resouces -> Cloud Providers",
+		Elem: &schema.Resource{
+			Schema: map[string]*schema.Schema{
+				"default_profile_id": {
+					Type:        schema.TypeString,
+					Optional:    true,
+					Description: "Default Root Account Login Profile (used if no conditions matched)",
+				},
+				"challenge_rule": getChallengeRulesSchema(),
+				"enable_interactive_password_rotation": {
+					Type:        schema.TypeBool,
+					Optional:    true,
+					Description: "Enable interactive password rotation",
+				},
+				"prompt_change_root_password": {
+					Type:        schema.TypeBool,
+					Optional:    true,
+					Description: "Prompt to change root password every login and password checkin",
+				},
+				"enable_password_rotation_reminders": {
+					Type:        schema.TypeBool,
+					Optional:    true,
+					Description: "Enable password rotation reminders",
+				},
+				"password_rotation_reminder_duration": {
+					Type:         schema.TypeInt,
+					Optional:     true,
+					Description:  "Minimum number of days since last rotation to trigger a reminder",
+					ValidateFunc: validation.IntBetween(1, 2147483647),
+				},
 			},
 		},
 	}

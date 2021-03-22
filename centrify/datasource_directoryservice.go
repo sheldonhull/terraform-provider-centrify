@@ -4,9 +4,12 @@ import (
 	"errors"
 	"fmt"
 
-	"github.com/centrify/terraform-provider/cloud-golang-sdk/restapi"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
+	"github.com/marcozj/golang-sdk/enum/directoryservice"
+	logger "github.com/marcozj/golang-sdk/logging"
+	vault "github.com/marcozj/golang-sdk/platform"
+	"github.com/marcozj/golang-sdk/restapi"
 )
 
 func dataSourceDirectoryService() *schema.Resource {
@@ -24,11 +27,11 @@ func dataSourceDirectoryService() *schema.Resource {
 				Required:    true,
 				Description: "Type of the Directory Service",
 				ValidateFunc: validation.StringInSlice([]string{
-					"Centrify Directory",
-					"Active Directory",
-					"Federated Directory",
-					"Google Directory",
-					"LDAP Directory",
+					directoryservice.CentrifyDirectory.String(),
+					directoryservice.ActiveDirectory.String(),
+					directoryservice.FederatedDirectory.String(),
+					directoryservice.GoogleDirectory.String(),
+					directoryservice.LDAPDirectory.String(),
 				}, false),
 			},
 			"status": {
@@ -42,9 +45,9 @@ func dataSourceDirectoryService() *schema.Resource {
 }
 
 func dataSourceDirectoryServiceRead(d *schema.ResourceData, m interface{}) error {
-	LogD.Printf("Finding DirectoryService")
+	logger.Infof("Finding DirectoryService")
 	client := m.(*restapi.RestClient)
-	object := NewDirectoryServices(client)
+	object := vault.NewDirectoryServices(client)
 
 	err := object.Read()
 	if err != nil {
@@ -54,17 +57,19 @@ func dataSourceDirectoryServiceRead(d *schema.ResourceData, m interface{}) error
 	name := d.Get("name").(string)
 	var dirtype string
 	switch d.Get("type").(string) {
-	case "Centrify Directory":
+	case directoryservice.CentrifyDirectory.String():
 		dirtype = "CDS"
-	case "Active Directory":
+	case directoryservice.ActiveDirectory.String():
 		dirtype = "AdProxy"
-	case "Federated Directory":
+	case directoryservice.FederatedDirectory.String():
 		dirtype = "FDS"
-	case "LDAP Directory":
+	case directoryservice.GoogleDirectory.String():
+		dirtype = "GDS"
+	case directoryservice.LDAPDirectory.String():
 		dirtype = "LdapProxy"
 	}
 
-	var results []DirectoryService
+	var results []vault.DirectoryService
 	for _, v := range object.DirServices {
 		if dirtype == v.Service && name == v.Config {
 			results = append(results, v)
@@ -78,7 +83,7 @@ func dataSourceDirectoryServiceRead(d *schema.ResourceData, m interface{}) error
 	}
 
 	var result = results[0]
-	//LogD.Printf("Found connector: %+v", result)
+	//logger.Debugf("Found connector: %+v", result)
 	d.SetId(result.ID)
 	d.Set("name", result.Config)
 	d.Set("status", result.Status)

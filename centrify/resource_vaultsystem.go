@@ -4,9 +4,13 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/centrify/terraform-provider/cloud-golang-sdk/restapi"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
+	"github.com/marcozj/golang-sdk/enum/computerclass"
+	"github.com/marcozj/golang-sdk/enum/managementmode"
+	logger "github.com/marcozj/golang-sdk/logging"
+	vault "github.com/marcozj/golang-sdk/platform"
+	"github.com/marcozj/golang-sdk/restapi"
 )
 
 func resourceVaultSystem() *schema.Resource {
@@ -35,20 +39,20 @@ func resourceVaultSystem() *schema.Resource {
 				Required:    true,
 				Description: "Type of the system",
 				ValidateFunc: validation.StringInSlice([]string{
-					"Windows",
-					"Unix",
-					"CiscoAsyncOS",
-					"CiscoIOS",
-					"CiscoNXOS",
-					"JuniperJunos",
-					"HpNonStopOS",
-					"IBMi",
-					"CheckPointGaia",
-					"PaloAltoNetworksPANOS",
-					"F5NetworksBIGIP",
-					"VMwareVMkernel",
-					"GenericSsh",
-					"CustomSsh",
+					computerclass.Windows.String(),
+					computerclass.Unix.String(),
+					computerclass.CiscoAsyncOS.String(),
+					computerclass.CiscoIOS.String(),
+					computerclass.CiscoNXOS.String(),
+					computerclass.JuniperJunos.String(),
+					computerclass.HPNonStop.String(),
+					computerclass.IBMi.String(),
+					computerclass.CheckPointGaia.String(),
+					computerclass.PaloAltoPANOS.String(),
+					computerclass.F5BIGIP.String(),
+					computerclass.VMwareVMkernel.String(),
+					computerclass.GenericSSH.String(),
+					computerclass.CustomSSH.String(),
 				}, false),
 			},
 			"session_type": {
@@ -82,17 +86,18 @@ func resourceVaultSystem() *schema.Resource {
 				Computed:    true,
 				Description: "Management mode of the system. For Windows only",
 				ValidateFunc: validation.StringInSlice([]string{
-					"RpcOverTcp",
-					"Smb",
-					"WinRMOverHttp",
-					"WinRMOverHttps",
-					"Disabled",
+					managementmode.Unknown.String(),
+					managementmode.RPCOverTCP.String(),
+					managementmode.SMB.String(),
+					managementmode.WinRMOverHTTP.String(),
+					managementmode.WinRMOverHTTPS.String(),
+					managementmode.Disabled.String(),
 				}, false),
 			},
 			"management_port": {
 				Type:         schema.TypeInt,
 				Optional:     true,
-				Description:  "Management port for account management. For Windows only",
+				Description:  "Management port for account management. For Windows, F5, PAN-OS and VMKernel only",
 				ValidateFunc: validation.IsPortNumber,
 			},
 			"system_timezone": {
@@ -123,7 +128,7 @@ func resourceVaultSystem() *schema.Resource {
 				Type:         schema.TypeInt,
 				Optional:     true,
 				Description:  "Specifies the number of minutes that a checked out password is valid.",
-				ValidateFunc: validation.IntAtLeast(15),
+				ValidateFunc: validation.IntBetween(15, 2147483647),
 			},
 			"allow_remote_access": {
 				Type:        schema.TypeBool,
@@ -139,6 +144,11 @@ func resourceVaultSystem() *schema.Resource {
 				Type:        schema.TypeString,
 				Optional:    true,
 				Description: "Default System Login Profile (used if no conditions matched)",
+			},
+			"privilege_elevation_default_profile_id": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: "Default Privilege Elevation Profile (used if no conditions matched)",
 			},
 			// System -> Advanced menu related settings
 			"local_account_automatic_maintenance": {
@@ -156,6 +166,11 @@ func resourceVaultSystem() *schema.Resource {
 				Optional:    true,
 				Description: "AD domain that this system belongs to",
 			},
+			"remove_user_on_session_end": {
+				Type:        schema.TypeBool,
+				Optional:    true,
+				Description: "Remove local accounts upon session termination - Windows only ",
+			},
 			"allow_multiple_checkouts": {
 				Type:        schema.TypeBool,
 				Optional:    true,
@@ -170,7 +185,7 @@ func resourceVaultSystem() *schema.Resource {
 				Type:         schema.TypeInt,
 				Optional:     true,
 				Description:  "Password rotation interval (days)",
-				ValidateFunc: validation.IntAtLeast(1),
+				ValidateFunc: validation.IntBetween(1, 2147483647),
 			},
 			"enable_password_rotation_after_checkin": {
 				Type:        schema.TypeBool,
@@ -178,9 +193,10 @@ func resourceVaultSystem() *schema.Resource {
 				Description: "Enable password rotation after checkin",
 			},
 			"minimum_password_age": {
-				Type:        schema.TypeInt,
-				Optional:    true,
-				Description: "Minimum Password Age (days)",
+				Type:         schema.TypeInt,
+				Optional:     true,
+				Description:  "Minimum Password Age (days)",
+				ValidateFunc: validation.IntBetween(0, 2147483647),
 			},
 			"password_profile_id": {
 				Type:     schema.TypeString,
@@ -197,7 +213,7 @@ func resourceVaultSystem() *schema.Resource {
 				Type:         schema.TypeInt,
 				Optional:     true,
 				Description:  "Password history cleanup (days)",
-				ValidateFunc: validation.IntAtLeast(90),
+				ValidateFunc: validation.IntBetween(90, 2147483647),
 			},
 			"enable_sshkey_rotation": {
 				Type:        schema.TypeBool,
@@ -208,12 +224,13 @@ func resourceVaultSystem() *schema.Resource {
 				Type:         schema.TypeInt,
 				Optional:     true,
 				Description:  "SSH key rotation interval (days)",
-				ValidateFunc: validation.IntAtLeast(1),
+				ValidateFunc: validation.IntBetween(1, 2147483647),
 			},
 			"minimum_sshkey_age": {
-				Type:        schema.TypeInt,
-				Optional:    true,
-				Description: "Minimum SSH Key Age (days)",
+				Type:         schema.TypeInt,
+				Optional:     true,
+				Description:  "Minimum SSH Key Age (days)",
+				ValidateFunc: validation.IntBetween(0, 2147483647),
 			},
 			"sshkey_algorithm": {
 				Type:        schema.TypeString,
@@ -238,7 +255,7 @@ func resourceVaultSystem() *schema.Resource {
 				Type:         schema.TypeInt,
 				Optional:     true,
 				Description:  "SSH key history cleanup (days)",
-				ValidateFunc: validation.IntAtLeast(90),
+				ValidateFunc: validation.IntBetween(90, 2147483647),
 			},
 
 			// System -> Zone Role Workflow menu related settings
@@ -251,6 +268,16 @@ func resourceVaultSystem() *schema.Resource {
 				Type:        schema.TypeBool,
 				Optional:    true,
 				Description: "Enable zone role requests for this system",
+			},
+			"use_domain_workflow_rules": {
+				Type:        schema.TypeBool,
+				Optional:    true,
+				Description: "Assignable Zone Roles - Use domain assignments",
+			},
+			"use_domain_workflow_approvers": {
+				Type:        schema.TypeBool,
+				Optional:    true,
+				Description: "Approver list - Use domain assignments",
 			},
 			// System -> Connectors menu related settings
 			"connector_list": {
@@ -273,37 +300,18 @@ func resourceVaultSystem() *schema.Resource {
 				},
 				Description: "Add to list of Sets",
 			},
-			"permission":     getPermissionSchema(),
-			"challenge_rule": getChallengeRulesSchema(),
-			/* Can't use TypeMap because some attributes are string but some are bool
-			"proxy_account": {
-				Type:     schema.TypeMap,
-				Optional: true,
-				Elem: &schema.Resource{
-					Schema: map[string]*schema.Schema{
-						"username": {
-							Type:     schema.TypeString,
-							Optional: true,
-						},
-						"password": {
-							Type:      schema.TypeString,
-							Optional:  true,
-							Sensitive: true,
-						},
-					},
-				},
-			},
-			*/
-			//"proxy_account": proxyAccountSchema(),
+			"permission":               getPermissionSchema(),
+			"challenge_rule":           getChallengeRulesSchema(),
+			"privilege_elevation_rule": getChallengeRulesSchema(),
 		},
 	}
 }
 
 func resourceVaultSystemExists(d *schema.ResourceData, m interface{}) (bool, error) {
-	LogD.Printf("Checking System exist: %s", ResourceIDString(d))
+	logger.Infof("Checking System exist: %s", ResourceIDString(d))
 	client := m.(*restapi.RestClient)
 
-	object := NewVaultSystem(client)
+	object := vault.NewSystem(client)
 	object.ID = d.Id()
 	err := object.Read()
 
@@ -314,16 +322,16 @@ func resourceVaultSystemExists(d *schema.ResourceData, m interface{}) (bool, err
 		return false, err
 	}
 
-	LogD.Printf("System exists in tenant: %s", object.ID)
+	logger.Infof("System exists in tenant: %s", object.ID)
 	return true, nil
 }
 
 func resourceVaultSystemRead(d *schema.ResourceData, m interface{}) error {
-	LogD.Printf("Reading System: %s", ResourceIDString(d))
+	logger.Infof("Reading System: %s", ResourceIDString(d))
 	client := m.(*restapi.RestClient)
 
 	// Create a System object and populate ID attribute
-	object := NewVaultSystem(client)
+	object := vault.NewSystem(client)
 	object.ID = d.Id()
 	err := object.Read()
 
@@ -333,13 +341,13 @@ func resourceVaultSystemRead(d *schema.ResourceData, m interface{}) error {
 		d.SetId("")
 		return fmt.Errorf("Error reading System: %v", err)
 	}
-	//LogD.Printf("System from tenant: %v", object)
+	//logger.Debugf("System from tenant: %v", object)
 
-	schemamap, err := generateSchemaMap(object)
+	schemamap, err := vault.GenerateSchemaMap(object)
 	if err != nil {
 		return err
 	}
-	LogD.Printf("Generated Map for resourceSystemRead(): %+v", schemamap)
+	logger.Debugf("Generated Map for resourceSystemRead(): %+v", schemamap)
 	for k, v := range schemamap {
 		if k == "connector_list" {
 			// Convert "value1,value1" to schema.TypeSet
@@ -349,12 +357,12 @@ func resourceVaultSystemRead(d *schema.ResourceData, m interface{}) error {
 		}
 	}
 
-	LogD.Printf("Completed reading System: %s", object.Name)
+	logger.Infof("Completed reading System: %s", object.Name)
 	return nil
 }
 
 func resourceVaultSystemCreate(d *schema.ResourceData, m interface{}) error {
-	LogD.Printf("Beginning System creation: %s", ResourceIDString(d))
+	logger.Infof("Beginning System creation: %s", ResourceIDString(d))
 
 	// Enable partial state mode
 	d.Partial(true)
@@ -362,7 +370,7 @@ func resourceVaultSystemCreate(d *schema.ResourceData, m interface{}) error {
 	client := m.(*restapi.RestClient)
 
 	// Create a System object and populate all attributes
-	object := NewVaultSystem(client)
+	object := vault.NewSystem(client)
 	err := createUpateGetSystemData(d, object)
 	if err != nil {
 		return err
@@ -387,27 +395,23 @@ func resourceVaultSystemCreate(d *schema.ResourceData, m interface{}) error {
 	d.SetPartial("session_type")
 	d.SetPartial("description")
 
-	// 2nd step to update system login profile
-	// Create API call doesn't set system login profile so need to run update again
-	if object.LoginDefaultProfile != "" {
-		LogD.Printf("Update login profile for System creation: %s", ResourceIDString(d))
+	// 2nd step to update system login profile and connectors
+	// Create API call doesn't set system login profile and connectors so need to run update again
+	if object.LoginDefaultProfile != "" || object.ProxyCollectionList != "" {
+		logger.Debugf("Update login profile and connector for System creation: %s", ResourceIDString(d))
 		resp, err := object.Update()
 		if err != nil || !resp.Success {
 			return fmt.Errorf("Error updating System attribute: %v", err)
 		}
 		d.SetPartial("default_profile_id")
+		d.SetPartial("connector_list")
 	}
 
 	// 3rd step to add system to Sets
 	if len(object.Sets) > 0 {
-		for _, v := range object.Sets {
-			setObj := NewManualSet(client)
-			setObj.ID = v
-			setObj.ObjectType = "Server"
-			resp, err := setObj.UpdateSetMembers([]string{object.ID}, "add")
-			if err != nil || !resp.Success {
-				return fmt.Errorf("Error adding System to Set: %v", err)
-			}
+		err := object.AddToSetsByID(object.Sets)
+		if err != nil {
+			return err
 		}
 		d.SetPartial("sets")
 	}
@@ -423,18 +427,18 @@ func resourceVaultSystemCreate(d *schema.ResourceData, m interface{}) error {
 
 	// Creation completed
 	d.Partial(false)
-	LogD.Printf("Creation of System completed: %s", object.Name)
+	logger.Infof("Creation of System completed: %s", object.Name)
 	return resourceVaultSystemRead(d, m)
 }
 
 func resourceVaultSystemUpdate(d *schema.ResourceData, m interface{}) error {
-	LogD.Printf("Beginning System update: %s", ResourceIDString(d))
+	logger.Infof("Beginning System update: %s", ResourceIDString(d))
 
 	// Enable partial state mode
 	d.Partial(true)
 
 	client := m.(*restapi.RestClient)
-	object := NewVaultSystem(client)
+	object := vault.NewSystem(client)
 
 	object.ID = d.Id()
 	err := createUpateGetSystemData(d, object)
@@ -454,7 +458,7 @@ func resourceVaultSystemUpdate(d *schema.ResourceData, m interface{}) error {
 		if err != nil || !resp.Success {
 			return fmt.Errorf("Error updating System attribute: %v", err)
 		}
-		LogD.Printf("Updated attributes to: %+v", object)
+		logger.Debugf("Updated attributes to: %+v", object)
 		d.SetPartial("name")
 		d.SetPartial("fqdn")
 		d.SetPartial("computer_class")
@@ -469,9 +473,9 @@ func resourceVaultSystemUpdate(d *schema.ResourceData, m interface{}) error {
 		old, new := d.GetChange("sets")
 		// Remove old Sets
 		for _, v := range flattenSchemaSetToStringSlice(old) {
-			setObj := NewManualSet(client)
+			setObj := vault.NewManualSet(client)
 			setObj.ID = v
-			setObj.ObjectType = "Server"
+			setObj.ObjectType = object.SetType
 			resp, err := setObj.UpdateSetMembers([]string{object.ID}, "remove")
 			if err != nil || !resp.Success {
 				return fmt.Errorf("Error removing System from Set: %v", err)
@@ -479,9 +483,9 @@ func resourceVaultSystemUpdate(d *schema.ResourceData, m interface{}) error {
 		}
 		// Add new Sets
 		for _, v := range flattenSchemaSetToStringSlice(new) {
-			setObj := NewManualSet(client)
+			setObj := vault.NewManualSet(client)
 			setObj.ID = v
-			setObj.ObjectType = "Server"
+			setObj.ObjectType = object.SetType
 			resp, err := setObj.UpdateSetMembers([]string{object.ID}, "add")
 			if err != nil || !resp.Success {
 				return fmt.Errorf("Error adding System to Set: %v", err)
@@ -496,15 +500,9 @@ func resourceVaultSystemUpdate(d *schema.ResourceData, m interface{}) error {
 		// We don't want to care the details of changes
 		// So, let's first remove the old permissions
 		var err error
-		var perms map[string]string
-		if object.ComputerClass == "Windows" || object.ComputerClass == "Unix" {
-			perms = winnixPermissions
-		} else {
-			perms = systemPermissions
-		}
 		if old != nil {
 			// do not validate old values
-			object.Permissions, err = expandPermissions(old, perms, false)
+			object.Permissions, err = expandPermissions(old, object.ValidPermissions, false)
 			if err != nil {
 				return err
 			}
@@ -515,7 +513,7 @@ func resourceVaultSystemUpdate(d *schema.ResourceData, m interface{}) error {
 		}
 
 		if new != nil {
-			object.Permissions, err = expandPermissions(new, perms, true)
+			object.Permissions, err = expandPermissions(new, object.ValidPermissions, true)
 			if err != nil {
 				return err
 			}
@@ -528,15 +526,15 @@ func resourceVaultSystemUpdate(d *schema.ResourceData, m interface{}) error {
 	}
 
 	d.Partial(false)
-	LogD.Printf("Updating of System completed: %s", object.Name)
+	logger.Infof("Updating of System completed: %s", object.Name)
 	return resourceVaultSystemRead(d, m)
 }
 
 func resourceVaultSystemDelete(d *schema.ResourceData, m interface{}) error {
-	LogD.Printf("Beginning deletion of System: %s", ResourceIDString(d))
+	logger.Infof("Beginning deletion of System: %s", ResourceIDString(d))
 	client := m.(*restapi.RestClient)
 
-	object := NewVaultSystem(client)
+	object := vault.NewSystem(client)
 	object.ID = d.Id()
 	resp, err := object.Delete()
 
@@ -550,11 +548,11 @@ func resourceVaultSystemDelete(d *schema.ResourceData, m interface{}) error {
 		d.SetId("")
 	}
 
-	LogD.Printf("Deletion of System completed: %s", ResourceIDString(d))
+	logger.Infof("Deletion of System completed: %s", ResourceIDString(d))
 	return nil
 }
 
-func createUpateGetSystemData(d *schema.ResourceData, object *VaultSystem) error {
+func createUpateGetSystemData(d *schema.ResourceData, object *vault.System) error {
 	// System -> Settings menu related settings
 	object.Name = d.Get("name").(string)
 	object.FQDN = d.Get("fqdn").(string)
@@ -571,6 +569,9 @@ func createUpateGetSystemData(d *schema.ResourceData, object *VaultSystem) error
 	}
 	if v, ok := d.GetOk("management_mode"); ok {
 		object.ManagementMode = v.(string)
+	}
+	if v, ok := d.GetOk("management_port"); ok {
+		object.ManagementPort = v.(int)
 	}
 	if v, ok := d.GetOk("system_timezone"); ok {
 		object.TimeZoneID = v.(string)
@@ -597,6 +598,9 @@ func createUpateGetSystemData(d *schema.ResourceData, object *VaultSystem) error
 	if v, ok := d.GetOk("default_profile_id"); ok {
 		object.LoginDefaultProfile = v.(string)
 	}
+	if v, ok := d.GetOk("privilege_elevation_default_profile_id"); ok {
+		object.PrivilegeElevationDefaultProfile = v.(string)
+	}
 	// System -> Advanced menu related settings
 	if v, ok := d.GetOk("local_account_automatic_maintenance"); ok {
 		object.AllowAutomaticLocalAccountMaintenance = v.(bool)
@@ -606,6 +610,9 @@ func createUpateGetSystemData(d *schema.ResourceData, object *VaultSystem) error
 	}
 	if v, ok := d.GetOk("domain_id"); ok {
 		object.DomainID = v.(string)
+	}
+	if v, ok := d.GetOk("remove_user_on_session_end"); ok {
+		object.RemoveUserOnSessionEnd = v.(bool)
 	}
 	if v, ok := d.GetOk("allow_multiple_checkouts"); ok {
 		object.AllowMultipleCheckouts = v.(bool)
@@ -656,6 +663,12 @@ func createUpateGetSystemData(d *schema.ResourceData, object *VaultSystem) error
 	if v, ok := d.GetOk("enable_zonerole_workflow"); ok {
 		object.ZoneRoleWorkflowEnabled = v.(bool)
 	}
+	if v, ok := d.GetOk("use_domain_workflow_rules"); ok {
+		object.UseDomainWorkflowRoles = v.(bool)
+	}
+	if v, ok := d.GetOk("use_domain_workflow_approvers"); ok {
+		object.UseDomainWorkflowApprovers = v.(bool)
+	}
 	// System -> Connectors menu related settings
 	if v, ok := d.GetOk("connector_list"); ok {
 		object.ProxyCollectionList = flattenSchemaSetToString(v.(*schema.Set))
@@ -667,13 +680,8 @@ func createUpateGetSystemData(d *schema.ResourceData, object *VaultSystem) error
 	// Permissions
 	if v, ok := d.GetOk("permission"); ok {
 		var err error
-		var perms map[string]string
-		if object.ComputerClass == "Windows" || object.ComputerClass == "Unix" {
-			perms = winnixPermissions
-		} else {
-			perms = systemPermissions
-		}
-		object.Permissions, err = expandPermissions(v, perms, true)
+		object.ResolveValidPermissions()
+		object.Permissions, err = expandPermissions(v, object.ValidPermissions, true)
 		if err != nil {
 			return err
 		}
@@ -681,6 +689,14 @@ func createUpateGetSystemData(d *schema.ResourceData, object *VaultSystem) error
 	// Challenge rules
 	if v, ok := d.GetOk("challenge_rule"); ok {
 		object.ChallengeRules = expandChallengeRules(v.([]interface{}))
+		// Perform validations
+		if err := validateChallengeRules(object.ChallengeRules); err != nil {
+			return fmt.Errorf("Schema setting error: %s", err)
+		}
+	}
+	// Privilege Elevation Challenge rules
+	if v, ok := d.GetOk("privilege_elevation_rule"); ok {
+		object.PrivilegeElevationRules = expandChallengeRules(v.([]interface{}))
 		// Perform validations
 		if err := validateChallengeRules(object.ChallengeRules); err != nil {
 			return fmt.Errorf("Schema setting error: %s", err)

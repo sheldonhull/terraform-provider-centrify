@@ -7,6 +7,8 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/helper/hashcode"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
+	logger "github.com/marcozj/golang-sdk/logging"
+	vault "github.com/marcozj/golang-sdk/platform"
 )
 
 // ResourceIDStringInterface - Generic interface for resource ID
@@ -186,6 +188,28 @@ func customCommandParamHash(v interface{}) int {
 	return hashcode.String(buf.String())
 }
 
+func customAccessKeyHash(v interface{}) int {
+	var buf bytes.Buffer
+	m := v.(map[string]interface{})
+	if v, ok := m["access_key_id"]; ok {
+		buf.WriteString(fmt.Sprintf("%s-", v.(string)))
+	}
+
+	return hashcode.String(buf.String())
+}
+
+func customGroupMappingHash(v interface{}) int {
+	var buf bytes.Buffer
+	m := v.(map[string]interface{})
+	if v, ok := m["attribute_value"]; ok {
+		buf.WriteString(fmt.Sprintf("%s-", v.(string)))
+	}
+	if v, ok := m["group_name"]; ok {
+		buf.WriteString(fmt.Sprintf("%s-", v.(string)))
+	}
+	return hashcode.String(buf.String())
+}
+
 // StringSliceToInterface converts []string to []interface{}
 func StringSliceToInterface(s []string) []interface{} {
 	i := make([]interface{}, len(s))
@@ -195,24 +219,24 @@ func StringSliceToInterface(s []string) []interface{} {
 	return i
 }
 
-func expandRoleMembers(v interface{}) []RoleMember {
-	members := []RoleMember{}
+func expandRoleMembers(v interface{}) []vault.RoleMember {
+	members := []vault.RoleMember{}
 
 	for _, p := range v.(*schema.Set).List() {
-		member := RoleMember{}
+		member := vault.RoleMember{}
 		member.MemberID = p.(map[string]interface{})["id"].(string)
 		member.MemberName = p.(map[string]interface{})["name"].(string)
 		member.MemberType = p.(map[string]interface{})["type"].(string)
 		members = append(members, member)
 	}
-	LogD.Printf("Role members: %+v", members)
+	logger.Debugf("Role members: %+v", members)
 
 	return members
 }
 
-func expandPermissions(v interface{}, valid map[string]string, validate bool) ([]Permission, error) {
+func expandPermissions(v interface{}, valid map[string]string, validate bool) ([]vault.Permission, error) {
 	m := v.(*schema.Set).List()
-	var permissions []Permission
+	var permissions []vault.Permission
 	if m != nil {
 		for _, v := range m {
 			// Validate given list of permissions against a valid map
@@ -228,7 +252,7 @@ func expandPermissions(v interface{}, valid map[string]string, validate bool) ([
 				}
 			}
 			// Convert map to Permission object
-			permission := Permission{
+			permission := vault.Permission{
 				PrincipalID:   v.(map[string]interface{})["principal_id"].(string),
 				PrincipalName: v.(map[string]interface{})["principal_name"].(string),
 				PrincipalType: v.(map[string]interface{})["principal_type"].(string),
@@ -240,8 +264,8 @@ func expandPermissions(v interface{}, valid map[string]string, validate bool) ([
 	return permissions, nil
 }
 
-func expandChallengeRules(v []interface{}) *ChallengeRules {
-	challengerules := &ChallengeRules{}
+func expandChallengeRules(v []interface{}) *vault.ChallengeRules {
+	challengerules := &vault.ChallengeRules{}
 	// Deal with root level
 	challengerules.Enabled = true
 	challengerules.Type = "RowSet"
@@ -249,13 +273,13 @@ func expandChallengeRules(v []interface{}) *ChallengeRules {
 
 	for _, lrv := range v {
 		// Deal with "_Value" level
-		challengerule := ChallengeRule{}
+		challengerule := vault.ChallengeRule{}
 		challengerule.AuthProfileID = lrv.(map[string]interface{})["authentication_profile_id"].(string)
 		rules := lrv.(map[string]interface{})["rule"]
 
 		for _, rv := range rules.(*schema.Set).List() {
 			// Deal with "Conditions" level
-			rule := ChallengeCondition{}
+			rule := vault.ChallengeCondition{}
 			rule.Filter = rv.(map[string]interface{})["filter"].(string)
 			rule.Condition = rv.(map[string]interface{})["condition"].(string)
 			rule.Value = rv.(map[string]interface{})["value"].(string)
@@ -267,17 +291,17 @@ func expandChallengeRules(v []interface{}) *ChallengeRules {
 	return challengerules
 }
 
-func expandCommandParams(v interface{}) []DesktopAppParam {
-	parms := []DesktopAppParam{}
+func expandCommandParams(v interface{}) []vault.DesktopAppParam {
+	parms := []vault.DesktopAppParam{}
 
 	for _, p := range v.(*schema.Set).List() {
-		parm := DesktopAppParam{}
+		parm := vault.DesktopAppParam{}
 		parm.ParamName = p.(map[string]interface{})["name"].(string)
 		parm.ParamType = p.(map[string]interface{})["type"].(string)
 		parm.TargetObjectID = p.(map[string]interface{})["target_object_id"].(string)
 		parms = append(parms, parm)
 	}
-	LogD.Printf("Command params: %+v", parms)
+	logger.Debugf("Command params: %+v", parms)
 
 	return parms
 }
@@ -396,4 +420,47 @@ func getChallengeRulesSchema() *schema.Schema {
 			},
 		},
 	}
+}
+
+func getAccessKeySchema() *schema.Schema {
+	return &schema.Schema{
+		Type:        schema.TypeSet,
+		Optional:    true,
+		Description: "AWS Access Key",
+		Set:         customAccessKeyHash,
+		Elem: &schema.Resource{
+			Schema: map[string]*schema.Schema{
+				"id": {
+					Type:        schema.TypeString,
+					Optional:    true,
+					Computed:    true,
+					Description: "AWS access key id",
+				},
+				"access_key_id": {
+					Type:        schema.TypeString,
+					Required:    true,
+					Description: "AWS access key id",
+				},
+				"secret_access_key": {
+					Type:        schema.TypeString,
+					Required:    true,
+					Sensitive:   true,
+					Description: "AWS secret access key",
+				},
+			},
+		},
+	}
+}
+
+func expandAccessKeys(v interface{}) []vault.AccessKey {
+	accesskeys := []vault.AccessKey{}
+
+	for _, p := range v.(*schema.Set).List() {
+		accesskey := vault.AccessKey{}
+		accesskey.AccessKeyID = p.(map[string]interface{})["access_key_id"].(string)
+		accesskey.SecretAccessKey = p.(map[string]interface{})["secret_access_key"].(string)
+		accesskeys = append(accesskeys, accesskey)
+	}
+
+	return accesskeys
 }

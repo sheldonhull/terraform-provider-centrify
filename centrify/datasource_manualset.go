@@ -3,9 +3,12 @@ package centrify
 import (
 	"fmt"
 
-	"github.com/centrify/terraform-provider/cloud-golang-sdk/restapi"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
+	"github.com/marcozj/golang-sdk/enum/settype"
+	logger "github.com/marcozj/golang-sdk/logging"
+	vault "github.com/marcozj/golang-sdk/platform"
+	"github.com/marcozj/golang-sdk/restapi"
 )
 
 func dataSourceManualSet() *schema.Resource {
@@ -23,15 +26,16 @@ func dataSourceManualSet() *schema.Resource {
 				Required:    true,
 				Description: "Type of set",
 				ValidateFunc: validation.StringInSlice([]string{
-					"Server",
-					"VaultAccount",
-					"VaultDatabase",
-					"VaultDomain",
-					"DataVault",
-					"SshKeys",
-					"Subscriptions",
-					"Application",
-					"ResourceProfiles",
+					settype.System.String(),
+					settype.Account.String(),
+					settype.Database.String(),
+					settype.Domain.String(),
+					settype.Secret.String(),
+					settype.SSHKey.String(),
+					settype.Service.String(),
+					settype.Application.String(),
+					settype.ResourceProfile.String(),
+					settype.CloudProvider.String(),
 				}, false),
 			},
 			"subtype": {
@@ -54,9 +58,9 @@ func dataSourceManualSet() *schema.Resource {
 }
 
 func dataSourceManualSetRead(d *schema.ResourceData, m interface{}) error {
-	LogD.Printf("Finding Manual Set")
+	logger.Infof("Finding Manual Set")
 	client := m.(*restapi.RestClient)
-	object := NewManualSet(client)
+	object := vault.NewManualSet(client)
 	object.Name = d.Get("name").(string)
 	object.ObjectType = d.Get("type").(string)
 	object.SubObjectType = d.Get("subtype").(string)

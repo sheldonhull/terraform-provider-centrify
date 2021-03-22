@@ -8,7 +8,19 @@ import (
 	"github.com/biter777/countries"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/hashcode"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
+	vault "github.com/marcozj/golang-sdk/platform"
 )
+
+func contains(a interface{}, e interface{}) bool {
+	v := reflect.ValueOf(a)
+
+	for i := 0; i < v.Len(); i++ {
+		if v.Index(i).Interface() == e {
+			return true
+		}
+	}
+	return false
+}
 
 //Validate the incoming set only contains values from the specified set
 func validateSetValues(valid *schema.Set) schema.SchemaValidateFunc {
@@ -72,7 +84,7 @@ func isEmptyValue(v reflect.Value) bool {
 	return false
 }
 
-func validateChallengeRules(input *ChallengeRules) error {
+func validateChallengeRules(input *vault.ChallengeRules) error {
 	if input != nil && input.Rules != nil {
 		for _, rule := range input.Rules {
 			for _, v := range rule.ChallengeCondition {

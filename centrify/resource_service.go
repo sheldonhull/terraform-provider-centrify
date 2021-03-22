@@ -4,9 +4,12 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/centrify/terraform-provider/cloud-golang-sdk/restapi"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
+	"github.com/marcozj/golang-sdk/enum/servicetype"
+	logger "github.com/marcozj/golang-sdk/logging"
+	vault "github.com/marcozj/golang-sdk/platform"
+	"github.com/marcozj/golang-sdk/restapi"
 )
 
 func resourceService() *schema.Resource {
@@ -32,9 +35,9 @@ func resourceService() *schema.Resource {
 				Type:     schema.TypeString,
 				Required: true,
 				ValidateFunc: validation.StringInSlice([]string{
-					"WindowsService",
-					"ScheduledTask",
-					"IISApplicationPool",
+					servicetype.WindowsService.String(),
+					servicetype.ScheduledTask.String(),
+					servicetype.IISApplicationPool.String(),
 				}, false),
 			},
 			"service_name": {
@@ -74,7 +77,7 @@ func resourceService() *schema.Resource {
 				Elem: &schema.Schema{
 					Type: schema.TypeString,
 				},
-				Description: "List of Connectors",
+				Description: "Day of the week restart allowed",
 			},
 			"restart_start_time": {
 				Type:        schema.TypeString,
@@ -107,10 +110,10 @@ func resourceService() *schema.Resource {
 }
 
 func resourceServiceExists(d *schema.ResourceData, m interface{}) (bool, error) {
-	LogD.Printf("Checking service exist: %s", ResourceIDString(d))
+	logger.Infof("Checking service exist: %s", ResourceIDString(d))
 	client := m.(*restapi.RestClient)
 
-	object := NewService(client)
+	object := vault.NewService(client)
 	object.ID = d.Id()
 	err := object.Read()
 
@@ -121,16 +124,16 @@ func resourceServiceExists(d *schema.ResourceData, m interface{}) (bool, error) 
 		return false, err
 	}
 
-	LogD.Printf("Service exists in tenant: %s", object.ID)
+	logger.Infof("Service exists in tenant: %s", object.ID)
 	return true, nil
 }
 
 func resourceServiceRead(d *schema.ResourceData, m interface{}) error {
-	LogD.Printf("Reading service: %s", ResourceIDString(d))
+	logger.Infof("Reading service: %s", ResourceIDString(d))
 	client := m.(*restapi.RestClient)
 
 	// Create a NewService object and populate ID attribute
-	object := NewService(client)
+	object := vault.NewService(client)
 	object.ID = d.Id()
 	err := object.Read()
 
@@ -140,12 +143,12 @@ func resourceServiceRead(d *schema.ResourceData, m interface{}) error {
 		d.SetId("")
 		return fmt.Errorf("Error reading service: %v", err)
 	}
-	//LogD.Printf("Service from tenant: %+v", object)
-	schemamap, err := generateSchemaMap(object)
+	//logger.Debugf("Service from tenant: %+v", object)
+	schemamap, err := vault.GenerateSchemaMap(object)
 	if err != nil {
 		return err
 	}
-	LogD.Printf("Generated Map for resourceServiceRead(): %+v", schemamap)
+	logger.Debugf("Generated Map for resourceServiceRead(): %+v", schemamap)
 	for k, v := range schemamap {
 		if k == "days_of_week" {
 			// Convert "value1,value1" to schema.TypeSet
@@ -155,12 +158,12 @@ func resourceServiceRead(d *schema.ResourceData, m interface{}) error {
 		}
 	}
 
-	LogD.Printf("Completed reading service: %s", object.Name)
+	logger.Infof("Completed reading service: %s", object.Name)
 	return nil
 }
 
 func resourceServiceCreate(d *schema.ResourceData, m interface{}) error {
-	LogD.Printf("Beginning service creation: %s", ResourceIDString(d))
+	logger.Infof("Beginning service creation: %s", ResourceIDString(d))
 
 	// Enable partial state mode
 	d.Partial(true)
@@ -168,7 +171,7 @@ func resourceServiceCreate(d *schema.ResourceData, m interface{}) error {
 	client := m.(*restapi.RestClient)
 
 	// Create a service object and populate all attributes
-	object := NewService(client)
+	object := vault.NewService(client)
 	err := createUpateGetServiceData(d, object)
 	if err != nil {
 		return err
@@ -204,14 +207,9 @@ func resourceServiceCreate(d *schema.ResourceData, m interface{}) error {
 
 	// 2nd step to add service to Sets
 	if len(object.Sets) > 0 {
-		for _, v := range object.Sets {
-			setObj := NewManualSet(client)
-			setObj.ID = v
-			setObj.ObjectType = "Subscriptions"
-			resp, err := setObj.UpdateSetMembers([]string{object.ID}, "add")
-			if err != nil || !resp.Success {
-				return fmt.Errorf("Error adding Service to Set: %v", err)
-			}
+		err := object.AddToSetsByID(object.Sets)
+		if err != nil {
+			return err
 		}
 		d.SetPartial("sets")
 	}
@@ -227,18 +225,18 @@ func resourceServiceCreate(d *schema.ResourceData, m interface{}) error {
 
 	// Creation completed
 	d.Partial(false)
-	LogD.Printf("Creation of service completed: %s", object.Name)
+	logger.Infof("Creation of service completed: %s", object.Name)
 	return resourceServiceRead(d, m)
 }
 
 func resourceServiceUpdate(d *schema.ResourceData, m interface{}) error {
-	LogD.Printf("Beginning service update: %s", ResourceIDString(d))
+	logger.Infof("Beginning service update: %s", ResourceIDString(d))
 
 	// Enable partial state mode
 	d.Partial(true)
 
 	client := m.(*restapi.RestClient)
-	object := NewService(client)
+	object := vault.NewService(client)
 	object.ID = d.Id()
 	err := createUpateGetServiceData(d, object)
 	if err != nil {
@@ -252,7 +250,7 @@ func resourceServiceUpdate(d *schema.ResourceData, m interface{}) error {
 		if err != nil || !resp.Success {
 			return fmt.Errorf("Error updating service attribute: %v", err)
 		}
-		LogD.Printf("Updated attributes to: %v", object)
+		logger.Debugf("Updated attributes to: %v", object)
 		d.SetPartial("description")
 		d.SetPartial("system_id")
 		d.SetPartial("service_type")
@@ -273,9 +271,9 @@ func resourceServiceUpdate(d *schema.ResourceData, m interface{}) error {
 		old, new := d.GetChange("sets")
 		// Remove old Sets
 		for _, v := range flattenSchemaSetToStringSlice(old) {
-			setObj := NewManualSet(client)
+			setObj := vault.NewManualSet(client)
 			setObj.ID = v
-			setObj.ObjectType = "Subscriptions"
+			setObj.ObjectType = object.SetType
 			resp, err := setObj.UpdateSetMembers([]string{object.ID}, "remove")
 			if err != nil || !resp.Success {
 				return fmt.Errorf("Error removing Service from Set: %v", err)
@@ -283,9 +281,9 @@ func resourceServiceUpdate(d *schema.ResourceData, m interface{}) error {
 		}
 		// Add new Sets
 		for _, v := range flattenSchemaSetToStringSlice(new) {
-			setObj := NewManualSet(client)
+			setObj := vault.NewManualSet(client)
 			setObj.ID = v
-			setObj.ObjectType = "Subscriptions"
+			setObj.ObjectType = object.SetType
 			resp, err := setObj.UpdateSetMembers([]string{object.ID}, "add")
 			if err != nil || !resp.Success {
 				return fmt.Errorf("Error adding Service to Set: %v", err)
@@ -302,7 +300,7 @@ func resourceServiceUpdate(d *schema.ResourceData, m interface{}) error {
 		var err error
 		if old != nil {
 			// do not validate old values
-			object.Permissions, err = expandPermissions(old, object.MyPermissionList, false)
+			object.Permissions, err = expandPermissions(old, object.ValidPermissions, false)
 			if err != nil {
 				return err
 			}
@@ -313,7 +311,7 @@ func resourceServiceUpdate(d *schema.ResourceData, m interface{}) error {
 		}
 
 		if new != nil {
-			object.Permissions, err = expandPermissions(new, object.MyPermissionList, true)
+			object.Permissions, err = expandPermissions(new, object.ValidPermissions, true)
 			if err != nil {
 				return err
 			}
@@ -327,15 +325,15 @@ func resourceServiceUpdate(d *schema.ResourceData, m interface{}) error {
 
 	// We succeeded, disable partial mode. This causes Terraform to save all fields again.
 	d.Partial(false)
-	LogD.Printf("Updating of service completed: %s", object.Name)
+	logger.Infof("Updating of service completed: %s", object.Name)
 	return resourceServiceRead(d, m)
 }
 
 func resourceServiceDelete(d *schema.ResourceData, m interface{}) error {
-	LogD.Printf("Beginning deletion of service: %s", ResourceIDString(d))
+	logger.Infof("Beginning deletion of service: %s", ResourceIDString(d))
 	client := m.(*restapi.RestClient)
 
-	object := NewService(client)
+	object := vault.NewService(client)
 	object.ID = d.Id()
 
 	resp, err := object.Delete()
@@ -350,11 +348,11 @@ func resourceServiceDelete(d *schema.ResourceData, m interface{}) error {
 		d.SetId("")
 	}
 
-	LogD.Printf("Deletion of service completed: %s", ResourceIDString(d))
+	logger.Infof("Deletion of service completed: %s", ResourceIDString(d))
 	return nil
 }
 
-func createUpateGetServiceData(d *schema.ResourceData, object *Service) error {
+func createUpateGetServiceData(d *schema.ResourceData, object *vault.Service) error {
 	object.Name = d.Get("service_name").(string)
 	object.SystemID = d.Get("system_id").(string)
 	if v, ok := d.GetOk("description"); ok {
@@ -396,7 +394,7 @@ func createUpateGetServiceData(d *schema.ResourceData, object *Service) error {
 	// Permissions
 	if v, ok := d.GetOk("permission"); ok {
 		var err error
-		object.Permissions, err = expandPermissions(v, object.MyPermissionList, true)
+		object.Permissions, err = expandPermissions(v, object.ValidPermissions, true)
 		if err != nil {
 			return err
 		}

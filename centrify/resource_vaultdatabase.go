@@ -4,9 +4,12 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/centrify/terraform-provider/cloud-golang-sdk/restapi"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
+	"github.com/marcozj/golang-sdk/enum/databaseclass"
+	logger "github.com/marcozj/golang-sdk/logging"
+	vault "github.com/marcozj/golang-sdk/platform"
+	"github.com/marcozj/golang-sdk/restapi"
 )
 
 func resourceVaultDatabase() *schema.Resource {
@@ -35,9 +38,9 @@ func resourceVaultDatabase() *schema.Resource {
 				Required:    true,
 				Description: "Type of the Database",
 				ValidateFunc: validation.StringInSlice([]string{
-					"SQLServer",
-					"Oracle",
-					"SAPAse",
+					databaseclass.SQLServer.String(),
+					databaseclass.Oracle.String(),
+					databaseclass.SAPASE.String(),
 				}, false),
 			},
 			"description": {
@@ -54,7 +57,12 @@ func resourceVaultDatabase() *schema.Resource {
 			"instance_name": {
 				Type:        schema.TypeString,
 				Optional:    true,
-				Description: "Instance name of the Database",
+				Description: "Instance name of MS SQL Database",
+			},
+			"service_name": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: "Service name of Oracle database",
 			},
 			"skip_reachability_test": {
 				Type:        schema.TypeBool,
@@ -66,7 +74,7 @@ func resourceVaultDatabase() *schema.Resource {
 				Type:         schema.TypeInt,
 				Optional:     true,
 				Description:  "Specifies the number of minutes that a checked out password is valid.",
-				ValidateFunc: validation.IntAtLeast(15),
+				ValidateFunc: validation.IntBetween(15, 2147483647),
 			},
 			// Database -> Advanced menu related settings
 			"allow_multiple_checkouts": {
@@ -83,7 +91,7 @@ func resourceVaultDatabase() *schema.Resource {
 				Type:         schema.TypeInt,
 				Optional:     true,
 				Description:  "Password rotation interval (days)",
-				ValidateFunc: validation.IntAtLeast(1),
+				ValidateFunc: validation.IntBetween(1, 2147483647),
 			},
 			"enable_password_rotation_after_checkin": {
 				Type:        schema.TypeBool,
@@ -91,9 +99,10 @@ func resourceVaultDatabase() *schema.Resource {
 				Description: "Enable password rotation after checkin",
 			},
 			"minimum_password_age": {
-				Type:        schema.TypeInt,
-				Optional:    true,
-				Description: "Minimum Password Age (days)",
+				Type:         schema.TypeInt,
+				Optional:     true,
+				Description:  "Minimum Password Age (days)",
+				ValidateFunc: validation.IntBetween(0, 2147483647),
 			},
 			"password_profile_id": {
 				Type:     schema.TypeString,
@@ -110,7 +119,7 @@ func resourceVaultDatabase() *schema.Resource {
 				Type:         schema.TypeInt,
 				Optional:     true,
 				Description:  "Password history cleanup (days)",
-				ValidateFunc: validation.IntAtLeast(90),
+				ValidateFunc: validation.IntBetween(90, 2147483647),
 			},
 			// Database -> Connectors menu related settings
 			"connector_list": {
@@ -138,10 +147,10 @@ func resourceVaultDatabase() *schema.Resource {
 }
 
 func resourceVaultDatabaseExists(d *schema.ResourceData, m interface{}) (bool, error) {
-	LogD.Printf("Checking VaultDatabase exist: %s", ResourceIDString(d))
+	logger.Infof("Checking VaultDatabase exist: %s", ResourceIDString(d))
 	client := m.(*restapi.RestClient)
 
-	object := NewVaultDatabase(client)
+	object := vault.NewDatabase(client)
 	object.ID = d.Id()
 	err := object.Read()
 
@@ -152,16 +161,16 @@ func resourceVaultDatabaseExists(d *schema.ResourceData, m interface{}) (bool, e
 		return false, err
 	}
 
-	LogD.Printf("VaultDatabase exists in tenant: %s", object.ID)
+	logger.Infof("VaultDatabase exists in tenant: %s", object.ID)
 	return true, nil
 }
 
 func resourceVaultDatabaseRead(d *schema.ResourceData, m interface{}) error {
-	LogD.Printf("Reading VaultDatabase: %s", ResourceIDString(d))
+	logger.Infof("Reading VaultDatabase: %s", ResourceIDString(d))
 	client := m.(*restapi.RestClient)
 
 	// Create a VaultDatabase object and populate ID attribute
-	object := NewVaultDatabase(client)
+	object := vault.NewDatabase(client)
 	object.ID = d.Id()
 	err := object.Read()
 
@@ -171,13 +180,13 @@ func resourceVaultDatabaseRead(d *schema.ResourceData, m interface{}) error {
 		d.SetId("")
 		return fmt.Errorf("Error reading VaultDatabase: %v", err)
 	}
-	//LogD.Printf("VaultDatabase from tenant: %v", object)
+	//logger.Debugf("VaultDatabase from tenant: %v", object)
 
-	schemamap, err := generateSchemaMap(object)
+	schemamap, err := vault.GenerateSchemaMap(object)
 	if err != nil {
 		return err
 	}
-	LogD.Printf("Generated Map for resourceVaultDatabaseRead(): %+v", schemamap)
+	logger.Debugf("Generated Map for resourceVaultDatabaseRead(): %+v", schemamap)
 	for k, v := range schemamap {
 		if k == "connector_list" {
 			// Convert "value1,value1" to schema.TypeSet
@@ -187,20 +196,20 @@ func resourceVaultDatabaseRead(d *schema.ResourceData, m interface{}) error {
 		}
 	}
 
-	LogD.Printf("Completed reading VaultDatabase: %s", object.Name)
+	logger.Infof("Completed reading VaultDatabase: %s", object.Name)
 	return nil
 }
 
 func resourceVaultDatabaseCreate(d *schema.ResourceData, m interface{}) error {
-	LogD.Printf("Beginning VaultDatabase creation: %s", ResourceIDString(d))
+	logger.Infof("Beginning VaultDatabase creation: %s", ResourceIDString(d))
 
 	// Enable partial state mode
 	d.Partial(true)
 
 	client := m.(*restapi.RestClient)
 
-	// Create a VaultDatabase object and populate all attributes
-	object := NewVaultDatabase(client)
+	// Create a Database object and populate all attributes
+	object := vault.NewDatabase(client)
 	err := createUpateGetVaultDatabaseData(d, object)
 	if err != nil {
 		return err
@@ -234,14 +243,9 @@ func resourceVaultDatabaseCreate(d *schema.ResourceData, m interface{}) error {
 
 	// 3rd step to add VaultDatabase to Sets
 	if len(object.Sets) > 0 {
-		for _, v := range object.Sets {
-			setObj := NewManualSet(client)
-			setObj.ID = v
-			setObj.ObjectType = "VaultDatabase"
-			resp, err := setObj.UpdateSetMembers([]string{object.ID}, "add")
-			if err != nil || !resp.Success {
-				return fmt.Errorf("Error adding VaultDatabase to Set: %v", err)
-			}
+		err := object.AddToSetsByID(object.Sets)
+		if err != nil {
+			return err
 		}
 		d.SetPartial("sets")
 	}
@@ -257,18 +261,18 @@ func resourceVaultDatabaseCreate(d *schema.ResourceData, m interface{}) error {
 
 	// Creation completed
 	d.Partial(false)
-	LogD.Printf("Creation of VaultDatabase completed: %s", object.Name)
+	logger.Infof("Creation of VaultDatabase completed: %s", object.Name)
 	return resourceVaultDatabaseRead(d, m)
 }
 
 func resourceVaultDatabaseUpdate(d *schema.ResourceData, m interface{}) error {
-	LogD.Printf("Beginning VaultDatabase update: %s", ResourceIDString(d))
+	logger.Infof("Beginning VaultDatabase update: %s", ResourceIDString(d))
 
 	// Enable partial state mode
 	d.Partial(true)
 
 	client := m.(*restapi.RestClient)
-	object := NewVaultDatabase(client)
+	object := vault.NewDatabase(client)
 
 	object.ID = d.Id()
 	err := createUpateGetVaultDatabaseData(d, object)
@@ -285,7 +289,7 @@ func resourceVaultDatabaseUpdate(d *schema.ResourceData, m interface{}) error {
 		if err != nil || !resp.Success {
 			return fmt.Errorf("Error updating VaultDatabase attribute: %v", err)
 		}
-		LogD.Printf("Updated attributes to: %+v", object)
+		logger.Debugf("Updated attributes to: %+v", object)
 		d.SetPartial("name")
 		d.SetPartial("hostname")
 		d.SetPartial("database_class")
@@ -297,9 +301,9 @@ func resourceVaultDatabaseUpdate(d *schema.ResourceData, m interface{}) error {
 		old, new := d.GetChange("sets")
 		// Remove old Sets
 		for _, v := range flattenSchemaSetToStringSlice(old) {
-			setObj := NewManualSet(client)
+			setObj := vault.NewManualSet(client)
 			setObj.ID = v
-			setObj.ObjectType = "VaultDatabase"
+			setObj.ObjectType = object.SetType
 			resp, err := setObj.UpdateSetMembers([]string{object.ID}, "remove")
 			if err != nil || !resp.Success {
 				return fmt.Errorf("Error removing VaultDatabase from Set: %v", err)
@@ -307,9 +311,9 @@ func resourceVaultDatabaseUpdate(d *schema.ResourceData, m interface{}) error {
 		}
 		// Add new Sets
 		for _, v := range flattenSchemaSetToStringSlice(new) {
-			setObj := NewManualSet(client)
+			setObj := vault.NewManualSet(client)
 			setObj.ID = v
-			setObj.ObjectType = "VaultDatabase"
+			setObj.ObjectType = object.SetType
 			resp, err := setObj.UpdateSetMembers([]string{object.ID}, "add")
 			if err != nil || !resp.Success {
 				return fmt.Errorf("Error adding VaultDatabase to Set: %v", err)
@@ -326,7 +330,7 @@ func resourceVaultDatabaseUpdate(d *schema.ResourceData, m interface{}) error {
 		var err error
 		if old != nil {
 			// do not validate old values
-			object.Permissions, err = expandPermissions(old, databasePermissions, false)
+			object.Permissions, err = expandPermissions(old, object.ValidPermissions, false)
 			if err != nil {
 				return err
 			}
@@ -337,7 +341,7 @@ func resourceVaultDatabaseUpdate(d *schema.ResourceData, m interface{}) error {
 		}
 
 		if new != nil {
-			object.Permissions, err = expandPermissions(new, databasePermissions, true)
+			object.Permissions, err = expandPermissions(new, object.ValidPermissions, true)
 			if err != nil {
 				return err
 			}
@@ -350,15 +354,15 @@ func resourceVaultDatabaseUpdate(d *schema.ResourceData, m interface{}) error {
 	}
 
 	d.Partial(false)
-	LogD.Printf("Updating of VaultDatabase completed: %s", object.Name)
+	logger.Infof("Updating of VaultDatabase completed: %s", object.Name)
 	return resourceVaultDatabaseRead(d, m)
 }
 
 func resourceVaultDatabaseDelete(d *schema.ResourceData, m interface{}) error {
-	LogD.Printf("Beginning deletion of VaultDatabase: %s", ResourceIDString(d))
+	logger.Infof("Beginning deletion of VaultDatabase: %s", ResourceIDString(d))
 	client := m.(*restapi.RestClient)
 
-	object := NewVaultDatabase(client)
+	object := vault.NewDatabase(client)
 	object.ID = d.Id()
 	resp, err := object.Delete()
 
@@ -372,11 +376,11 @@ func resourceVaultDatabaseDelete(d *schema.ResourceData, m interface{}) error {
 		d.SetId("")
 	}
 
-	LogD.Printf("Deletion of VaultDatabase completed: %s", ResourceIDString(d))
+	logger.Infof("Deletion of VaultDatabase completed: %s", ResourceIDString(d))
 	return nil
 }
 
-func createUpateGetVaultDatabaseData(d *schema.ResourceData, object *VaultDatabase) error {
+func createUpateGetVaultDatabaseData(d *schema.ResourceData, object *vault.Database) error {
 	// Database -> Settings menu related settings
 	object.Name = d.Get("name").(string)
 	object.FQDN = d.Get("hostname").(string)
@@ -389,6 +393,9 @@ func createUpateGetVaultDatabaseData(d *schema.ResourceData, object *VaultDataba
 	}
 	if v, ok := d.GetOk("instance_name"); ok {
 		object.InstanceName = v.(string)
+	}
+	if v, ok := d.GetOk("service_name"); ok {
+		object.ServiceName = v.(string)
 	}
 	if v, ok := d.GetOk("skip_reachability_test"); ok {
 		object.SkipReachabilityTest = v.(bool)
@@ -432,10 +439,17 @@ func createUpateGetVaultDatabaseData(d *schema.ResourceData, object *VaultDataba
 	// Permissions
 	if v, ok := d.GetOk("permission"); ok {
 		var err error
-		object.Permissions, err = expandPermissions(v, databasePermissions, true)
+		object.Permissions, err = expandPermissions(v, object.ValidPermissions, true)
 		if err != nil {
 			return err
 		}
+	}
+	// Verify database type
+	if object.DatabaseClass == "SQLServer" && object.InstanceName == "" {
+		return fmt.Errorf("instance_name must be provided for SQLServer database type")
+	}
+	if object.DatabaseClass == "Oracle" && object.ServiceName == "" {
+		return fmt.Errorf("service_name must be provided for Oracle database type")
 	}
 
 	return nil

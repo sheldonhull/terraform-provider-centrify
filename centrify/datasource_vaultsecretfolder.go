@@ -3,8 +3,10 @@ package centrify
 import (
 	"fmt"
 
-	"github.com/centrify/terraform-provider/cloud-golang-sdk/restapi"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
+	logger "github.com/marcozj/golang-sdk/logging"
+	vault "github.com/marcozj/golang-sdk/platform"
+	"github.com/marcozj/golang-sdk/restapi"
 )
 
 func dataSourceVaultSecretFolder() *schema.Resource {
@@ -32,9 +34,9 @@ func dataSourceVaultSecretFolder() *schema.Resource {
 }
 
 func dataSourceVaultSecretFolderRead(d *schema.ResourceData, m interface{}) error {
-	LogD.Printf("Finding VaultSecretFolder")
+	logger.Infof("Finding VaultSecretFolder")
 	client := m.(*restapi.RestClient)
-	object := NewVaultSecretFolder(client)
+	object := vault.NewSecretFolder(client)
 	object.Name = d.Get("name").(string)
 	if v, ok := d.GetOk("parent_path"); ok {
 		object.ParentPath = v.(string)

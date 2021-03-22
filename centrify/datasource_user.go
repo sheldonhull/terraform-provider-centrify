@@ -3,8 +3,10 @@ package centrify
 import (
 	"fmt"
 
-	"github.com/centrify/terraform-provider/cloud-golang-sdk/restapi"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
+	logger "github.com/marcozj/golang-sdk/logging"
+	vault "github.com/marcozj/golang-sdk/platform"
+	"github.com/marcozj/golang-sdk/restapi"
 )
 
 func dataSourceUser() *schema.Resource {
@@ -32,9 +34,9 @@ func dataSourceUser() *schema.Resource {
 }
 
 func dataSourceUserRead(d *schema.ResourceData, m interface{}) error {
-	LogD.Printf("Finding user")
+	logger.Infof("Finding user")
 	client := m.(*restapi.RestClient)
-	object := NewUser(client)
+	object := vault.NewUser(client)
 	object.Name = d.Get("username").(string)
 
 	result, err := object.Query()
@@ -42,7 +44,7 @@ func dataSourceUserRead(d *schema.ResourceData, m interface{}) error {
 		return fmt.Errorf("Error retrieving vault object: %s", err)
 	}
 
-	//LogD.Printf("Found user: %+v", result)
+	//logger.Debugf("Found user: %+v", result)
 	d.SetId(result["ID"].(string))
 	d.Set("username", result["Username"].(string))
 	d.Set("email", result["Email"].(string))

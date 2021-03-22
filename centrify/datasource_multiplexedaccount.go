@@ -3,8 +3,10 @@ package centrify
 import (
 	"fmt"
 
-	"github.com/centrify/terraform-provider/cloud-golang-sdk/restapi"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
+	logger "github.com/marcozj/golang-sdk/logging"
+	vault "github.com/marcozj/golang-sdk/platform"
+	"github.com/marcozj/golang-sdk/restapi"
 )
 
 func dataSourceMultiplexedAccount() *schema.Resource {
@@ -47,9 +49,9 @@ func dataSourceMultiplexedAccount() *schema.Resource {
 }
 
 func dataSourceMultiplexedAccountRead(d *schema.ResourceData, m interface{}) error {
-	LogD.Printf("Finding multiplexed account")
+	logger.Infof("Finding multiplexed account")
 	client := m.(*restapi.RestClient)
-	object := NewMultiplexedAccount(client)
+	object := vault.NewMultiplexedAccount(client)
 	object.Name = d.Get("name").(string)
 
 	result, err := object.Query()
@@ -57,7 +59,7 @@ func dataSourceMultiplexedAccountRead(d *schema.ResourceData, m interface{}) err
 		return fmt.Errorf("Error retrieving multiplexed account: %s", err)
 	}
 
-	//LogD.Printf("Found multiplexed account: %+v", result)
+	//logger.Debugf("Found multiplexed account: %+v", result)
 	d.SetId(result["ID"].(string))
 	d.Set("name", result["Name"].(string))
 	d.Set("description", result["Description"].(string))
@@ -66,7 +68,9 @@ func dataSourceMultiplexedAccountRead(d *schema.ResourceData, m interface{}) err
 	//d.Set("account2_id", result["RealAccount2ID"].(string))
 	//d.Set("account1", result["RealAccount1"].(string))
 	//d.Set("account2", result["RealAccount2"].(string))
-	//d.Set("active_account", result["ActiveAccount"].(string))
+	if result["ActiveAccount"] != nil {
+		d.Set("active_account", result["ActiveAccount"].(string))
+	}
 
 	return nil
 }

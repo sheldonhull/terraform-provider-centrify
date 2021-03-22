@@ -4,9 +4,11 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/centrify/terraform-provider/cloud-golang-sdk/restapi"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
+	logger "github.com/marcozj/golang-sdk/logging"
+	vault "github.com/marcozj/golang-sdk/platform"
+	"github.com/marcozj/golang-sdk/restapi"
 )
 
 func resourcePasswordProfile() *schema.Resource {
@@ -37,7 +39,7 @@ func resourcePasswordProfile() *schema.Resource {
 			},
 			"maximum_password_length": {
 				Type:         schema.TypeInt,
-				Optional:     true,
+				Required:     true,
 				Description:  "Maximum password length",
 				ValidateFunc: validation.IntBetween(8, 128),
 			},
@@ -120,10 +122,10 @@ func resourcePasswordProfile() *schema.Resource {
 }
 
 func resourcePasswordProfileExists(d *schema.ResourceData, m interface{}) (bool, error) {
-	LogD.Printf("Checking password profile exist: %s", ResourceIDString(d))
+	logger.Infof("Checking password profile exist: %s", ResourceIDString(d))
 	client := m.(*restapi.RestClient)
 
-	object := NewPasswordProfile(client)
+	object := vault.NewPasswordProfile(client)
 	object.ID = d.Id()
 	err := object.Read()
 
@@ -134,16 +136,16 @@ func resourcePasswordProfileExists(d *schema.ResourceData, m interface{}) (bool,
 		return false, err
 	}
 
-	LogD.Printf("Authentication password exists in tenant: %s", object.ID)
+	logger.Infof("Authentication password exists in tenant: %s", object.ID)
 	return true, nil
 }
 
 func resourcePasswordProfileRead(d *schema.ResourceData, m interface{}) error {
-	LogD.Printf("Reading password profile: %s", ResourceIDString(d))
+	logger.Infof("Reading password profile: %s", ResourceIDString(d))
 	client := m.(*restapi.RestClient)
 
 	// Create a password profile object and populate ID attribute
-	object := NewPasswordProfile(client)
+	object := vault.NewPasswordProfile(client)
 	object.ID = d.Id()
 	err := object.Read()
 
@@ -153,26 +155,26 @@ func resourcePasswordProfileRead(d *schema.ResourceData, m interface{}) error {
 		d.SetId("")
 		return fmt.Errorf("Error reading password profile: %v", err)
 	}
-	//LogD.Printf("password profile from tenant: %v", object)
+	//logger.Debugf("password profile from tenant: %v", object)
 
-	schemamap, err := generateSchemaMap(object)
+	schemamap, err := vault.GenerateSchemaMap(object)
 	if err != nil {
 		return err
 	}
-	LogD.Printf("Generated Map for resourcePasswordProfileRead(): %+v", schemamap)
+	logger.Debugf("Generated Map for resourcePasswordProfileRead(): %+v", schemamap)
 	for k, v := range schemamap {
 		d.Set(k, v)
 	}
 
-	LogD.Printf("Completed reading password profile: %s", object.Name)
+	logger.Infof("Completed reading password profile: %s", object.Name)
 	return nil
 }
 
 func resourcePasswordProfileDelete(d *schema.ResourceData, m interface{}) error {
-	LogD.Printf("Beginning deletion of password profile: %s", ResourceIDString(d))
+	logger.Infof("Beginning deletion of password profile: %s", ResourceIDString(d))
 	client := m.(*restapi.RestClient)
 
-	object := NewPasswordProfile(client)
+	object := vault.NewPasswordProfile(client)
 	object.ID = d.Id()
 	resp, err := object.Delete()
 
@@ -186,17 +188,17 @@ func resourcePasswordProfileDelete(d *schema.ResourceData, m interface{}) error 
 		d.SetId("")
 	}
 
-	LogD.Printf("Deletion of password profile completed: %s", ResourceIDString(d))
+	logger.Infof("Deletion of password profile completed: %s", ResourceIDString(d))
 	return nil
 }
 
 func resourcePasswordProfileCreate(d *schema.ResourceData, m interface{}) error {
-	LogD.Printf("Beginning password profile creation: %s", ResourceIDString(d))
+	logger.Infof("Beginning password profile creation: %s", ResourceIDString(d))
 
 	client := m.(*restapi.RestClient)
 
 	// Create a password profile object and populate all attributes
-	object := NewPasswordProfile(client)
+	object := vault.NewPasswordProfile(client)
 	createUpateGetPasswordProfileData(d, object)
 
 	resp, err := object.Create()
@@ -213,15 +215,15 @@ func resourcePasswordProfileCreate(d *schema.ResourceData, m interface{}) error 
 	object.ID = id
 
 	// Creation completed
-	LogD.Printf("Creation of password profile completed: %s", object.Name)
+	logger.Infof("Creation of password profile completed: %s", object.Name)
 	return resourcePasswordProfileRead(d, m)
 }
 
 func resourcePasswordProfileUpdate(d *schema.ResourceData, m interface{}) error {
-	LogD.Printf("Beginning password profile update: %s", ResourceIDString(d))
+	logger.Infof("Beginning password profile update: %s", ResourceIDString(d))
 
 	client := m.(*restapi.RestClient)
-	object := NewPasswordProfile(client)
+	object := vault.NewPasswordProfile(client)
 
 	object.ID = d.Id()
 	createUpateGetPasswordProfileData(d, object)
@@ -234,14 +236,14 @@ func resourcePasswordProfileUpdate(d *schema.ResourceData, m interface{}) error 
 		if err != nil || !resp.Success {
 			return fmt.Errorf("Error updating password profile attribute: %v", err)
 		}
-		LogD.Printf("Updated attributes to: %+v", object)
+		logger.Debugf("Updated attributes to: %+v", object)
 	}
 
-	LogD.Printf("Updating of password profile completed: %s", object.Name)
+	logger.Infof("Updating of password profile completed: %s", object.Name)
 	return resourcePasswordProfileRead(d, m)
 }
 
-func createUpateGetPasswordProfileData(d *schema.ResourceData, object *PasswordProfile) error {
+func createUpateGetPasswordProfileData(d *schema.ResourceData, object *vault.PasswordProfile) error {
 	object.Name = d.Get("name").(string)
 	if v, ok := d.GetOk("description"); ok {
 		object.Description = v.(string)

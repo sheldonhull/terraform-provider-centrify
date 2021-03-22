@@ -4,9 +4,11 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/centrify/terraform-provider/cloud-golang-sdk/restapi"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
+	logger "github.com/marcozj/golang-sdk/logging"
+	vault "github.com/marcozj/golang-sdk/platform"
+	"github.com/marcozj/golang-sdk/restapi"
 )
 
 func resourceVaultDomain() *schema.Resource {
@@ -26,16 +28,17 @@ func resourceVaultDomain() *schema.Resource {
 				Type:        schema.TypeString,
 				Required:    true,
 				ForceNew:    true,
-				Description: "The name of the system",
+				Description: "The domain name",
 			},
 			"description": {
 				Type:        schema.TypeString,
 				Optional:    true,
-				Description: "Description of the system",
+				Description: "Description of the domain",
 			},
 			"verify": {
 				Type:        schema.TypeBool,
 				Optional:    true,
+				Default:     true,
 				Description: "Whether to verify the Domain upon creation",
 			},
 			// Policy menu related settings
@@ -43,52 +46,48 @@ func resourceVaultDomain() *schema.Resource {
 				Type:         schema.TypeInt,
 				Optional:     true,
 				Description:  "Checkout lifetime (minutes)",
-				ValidateFunc: validation.IntAtLeast(15),
+				ValidateFunc: validation.IntBetween(15, 2147483647),
 			},
-			// Advanced menu -> Administrative Account Settings
-			"administrative_account_id": {
-				Type:        schema.TypeString,
-				Optional:    true,
-				Description: "ID of administrative account",
-			},
-			"administrative_account_name": {
-				Type:        schema.TypeString,
-				Optional:    true,
-				Computed:    true,
-				Description: "Name of administrative account",
-			},
-			"administrative_account_domain": {
-				Type:        schema.TypeString,
-				Optional:    true,
-				Computed:    true,
-				Description: "Domain of administrative account",
-			},
-			"administrative_account_password": {
-				Type:        schema.TypeString,
-				Optional:    true,
-				Sensitive:   true,
-				Description: "Password of administrative account",
-			},
-			"auto_domain_account_maintenance": {
-				Type:        schema.TypeBool,
-				Optional:    true,
-				Description: "Enable Automatic Domain Account Maintenance",
-			},
-			"auto_local_account_maintenance": {
-				Type:        schema.TypeBool,
-				Optional:    true,
-				Description: "Enable Automatic Local Account Maintenance",
-			},
-			"manual_domain_account_unlock": {
-				Type:        schema.TypeBool,
-				Optional:    true,
-				Description: "Enable Manual Domain Account Unlock",
-			},
-			"manual_local_account_unlock": {
-				Type:        schema.TypeBool,
-				Optional:    true,
-				Description: "Enable Manual Local Account Unlock",
-			},
+			/*
+				// Advanced menu -> Administrative Account Settings
+				"administrative_account_id": {
+					Type:        schema.TypeString,
+					Optional:    true,
+					Description: "ID of administrative account",
+				},
+				"administrative_account_name": {
+					Type:        schema.TypeString,
+					Optional:    true,
+					Computed:    true,
+					Description: "Name of administrative account",
+				},
+				"administrative_account_password": {
+					Type:        schema.TypeString,
+					Optional:    true,
+					Sensitive:   true,
+					Description: "Password of administrative account",
+				},
+				"auto_domain_account_maintenance": {
+					Type:        schema.TypeBool,
+					Optional:    true,
+					Description: "Enable Automatic Domain Account Maintenance",
+				},
+				"auto_local_account_maintenance": {
+					Type:        schema.TypeBool,
+					Optional:    true,
+					Description: "Enable Automatic Local Account Maintenance",
+				},
+				"manual_domain_account_unlock": {
+					Type:        schema.TypeBool,
+					Optional:    true,
+					Description: "Enable Manual Domain Account Unlock",
+				},
+				"manual_local_account_unlock": {
+					Type:        schema.TypeBool,
+					Optional:    true,
+					Description: "Enable Manual Local Account Unlock",
+				},
+			*/
 			// Advanced -> Security Settings
 			"allow_multiple_checkouts": {
 				Type:        schema.TypeBool,
@@ -111,9 +110,10 @@ func resourceVaultDomain() *schema.Resource {
 				Description: "Enable password rotation after checkin",
 			},
 			"minimum_password_age": {
-				Type:        schema.TypeInt,
-				Optional:    true,
-				Description: "Minimum Password Age (days)",
+				Type:         schema.TypeInt,
+				Optional:     true,
+				Description:  "Minimum Password Age (days)",
+				ValidateFunc: validation.IntBetween(0, 2147483647),
 			},
 			"password_profile_id": {
 				Type:        schema.TypeString,
@@ -130,7 +130,7 @@ func resourceVaultDomain() *schema.Resource {
 				Type:         schema.TypeInt,
 				Optional:     true,
 				Description:  "Password history cleanup (days)",
-				ValidateFunc: validation.IntAtLeast(90),
+				ValidateFunc: validation.IntBetween(90, 2147483647),
 			},
 			// Advanced -> Domain/Zone Tasks
 			"enable_zone_joined_check": {
@@ -140,10 +140,11 @@ func resourceVaultDomain() *schema.Resource {
 				Description: "Enable periodic domain/zone joined check",
 			},
 			"zone_joined_check_interval": {
-				Type:        schema.TypeInt,
-				Optional:    true,
-				Default:     1440,
-				Description: "Domain/zone joined check interval (minutes)",
+				Type:         schema.TypeInt,
+				Optional:     true,
+				Default:      1440,
+				Description:  "Domain/zone joined check interval (minutes)",
+				ValidateFunc: validation.IntBetween(1, 2147483647),
 			},
 			"enable_zone_role_cleanup": {
 				Type:        schema.TypeBool,
@@ -152,10 +153,11 @@ func resourceVaultDomain() *schema.Resource {
 				Description: "Enable periodic removal of expired zone role assignments",
 			},
 			"zone_role_cleanup_interval": {
-				Type:        schema.TypeInt,
-				Optional:    true,
-				Default:     6,
-				Description: "Expired zone role assignment removal interval (hours)",
+				Type:         schema.TypeInt,
+				Optional:     true,
+				Default:      6,
+				Description:  "Expired zone role assignment removal interval (hours)",
+				ValidateFunc: validation.IntBetween(1, 2147483647),
 			},
 			// System -> Connectors menu related settings
 			"connector_list": {
@@ -184,10 +186,10 @@ func resourceVaultDomain() *schema.Resource {
 }
 
 func resourceVaultDomainExists(d *schema.ResourceData, m interface{}) (bool, error) {
-	LogD.Printf("Checking Domain exist: %s", ResourceIDString(d))
+	logger.Infof("Checking Domain exist: %s", ResourceIDString(d))
 	client := m.(*restapi.RestClient)
 
-	object := NewVaultDomain(client)
+	object := vault.NewDomain(client)
 	object.ID = d.Id()
 	err := object.Read()
 
@@ -198,16 +200,16 @@ func resourceVaultDomainExists(d *schema.ResourceData, m interface{}) (bool, err
 		return false, err
 	}
 
-	LogD.Printf("Domain exists in tenant: %s", object.ID)
+	logger.Infof("Domain exists in tenant: %s", object.ID)
 	return true, nil
 }
 
 func resourceVaultDomainRead(d *schema.ResourceData, m interface{}) error {
-	LogD.Printf("Reading Domain: %s", ResourceIDString(d))
+	logger.Infof("Reading Domain: %s", ResourceIDString(d))
 	client := m.(*restapi.RestClient)
 
 	// Create a Domain object and populate ID attribute
-	object := NewVaultDomain(client)
+	object := vault.NewDomain(client)
 	object.ID = d.Id()
 	err := object.Read()
 
@@ -217,13 +219,13 @@ func resourceVaultDomainRead(d *schema.ResourceData, m interface{}) error {
 		d.SetId("")
 		return fmt.Errorf("Error reading Domain: %v", err)
 	}
-	//LogD.Printf("Domain from tenant: %v", object)
+	//logger.Debugf("Domain from tenant: %v", object)
 
-	schemamap, err := generateSchemaMap(object)
+	schemamap, err := vault.GenerateSchemaMap(object)
 	if err != nil {
 		return err
 	}
-	LogD.Printf("Generated Map for resourceVaultDomainRead(): %+v", schemamap)
+	logger.Debugf("Generated Map for resourceVaultDomainRead(): %+v", schemamap)
 	for k, v := range schemamap {
 		if k == "connector_list" {
 			// Convert "value1,value1" to schema.TypeSet
@@ -233,12 +235,12 @@ func resourceVaultDomainRead(d *schema.ResourceData, m interface{}) error {
 		}
 	}
 
-	LogD.Printf("Completed reading Domain: %s", object.Name)
+	logger.Infof("Completed reading Domain: %s", object.Name)
 	return nil
 }
 
 func resourceVaultDomainCreate(d *schema.ResourceData, m interface{}) error {
-	LogD.Printf("Beginning Domain creation: %s", ResourceIDString(d))
+	logger.Infof("Beginning Domain creation: %s", ResourceIDString(d))
 
 	// Enable partial state mode
 	d.Partial(true)
@@ -246,7 +248,7 @@ func resourceVaultDomainCreate(d *schema.ResourceData, m interface{}) error {
 	client := m.(*restapi.RestClient)
 
 	// Create a Domain object and populate all attributes
-	object := NewVaultDomain(client)
+	object := vault.NewDomain(client)
 	object.Name = d.Get("name").(string)
 	if v, ok := d.GetOk("description"); ok {
 		object.Description = v.(string)
@@ -271,35 +273,31 @@ func resourceVaultDomainCreate(d *schema.ResourceData, m interface{}) error {
 	d.SetPartial("name")
 	d.SetPartial("description")
 
+	// Get the rest of attributes
+	err = createUpateGetDomainData(d, object)
+	if err != nil {
+		return err
+	}
 	/*
 		// 2nd step, set administrative account
 		if object.AdminAccountID != "" {
-			err := object.setAdminAccount()
+			err := object.SetAdminAccount()
 			if err != nil {
 				return fmt.Errorf("Error setting Domain administrative account: %v", err)
 			}
 		}
 	*/
 	// 3nd step, update domain after creation
-	err = createUpateGetDomainData(d, object)
+	_, err = object.Update()
 	if err != nil {
-		return err
-	}
-	_, err2 := object.Update()
-	if err2 != nil {
-		return fmt.Errorf("Error updating Domain: %v", err2)
+		return fmt.Errorf("Error updating Domain: %v", err)
 	}
 
 	// 4rd step to add system to Sets
 	if len(object.Sets) > 0 {
-		for _, v := range object.Sets {
-			setObj := NewManualSet(client)
-			setObj.ID = v
-			setObj.ObjectType = "VaultDomain"
-			resp3, err3 := setObj.UpdateSetMembers([]string{object.ID}, "add")
-			if err3 != nil || !resp3.Success {
-				return fmt.Errorf("Error adding Domain to Set: %v", err3)
-			}
+		err := object.AddToSetsByID(object.Sets)
+		if err != nil {
+			return err
 		}
 		d.SetPartial("sets")
 	}
@@ -315,18 +313,18 @@ func resourceVaultDomainCreate(d *schema.ResourceData, m interface{}) error {
 
 	// Creation completed
 	d.Partial(false)
-	LogD.Printf("Creation of Domain completed: %s", object.Name)
+	logger.Infof("Creation of Domain completed: %s", object.Name)
 	return resourceVaultDomainRead(d, m)
 }
 
 func resourceVaultDomainUpdate(d *schema.ResourceData, m interface{}) error {
-	LogD.Printf("Beginning Domain update: %s", ResourceIDString(d))
+	logger.Infof("Beginning Domain update: %s", ResourceIDString(d))
 
 	// Enable partial state mode
 	d.Partial(true)
 
 	client := m.(*restapi.RestClient)
-	object := NewVaultDomain(client)
+	object := vault.NewDomain(client)
 
 	object.ID = d.Id()
 	err := createUpateGetDomainData(d, object)
@@ -342,7 +340,7 @@ func resourceVaultDomainUpdate(d *schema.ResourceData, m interface{}) error {
 		var err error
 		if old != nil {
 			// do not validate old values
-			object.Permissions, err = expandPermissions(old, domainPermissions, false)
+			object.Permissions, err = expandPermissions(old, object.ValidPermissions, false)
 			if err != nil {
 				return err
 			}
@@ -353,7 +351,7 @@ func resourceVaultDomainUpdate(d *schema.ResourceData, m interface{}) error {
 		}
 
 		if new != nil {
-			object.Permissions, err = expandPermissions(new, domainPermissions, true)
+			object.Permissions, err = expandPermissions(new, object.ValidPermissions, true)
 			if err != nil {
 				return err
 			}
@@ -364,19 +362,18 @@ func resourceVaultDomainUpdate(d *schema.ResourceData, m interface{}) error {
 		}
 		d.SetPartial("permission")
 	}
-
-	// Deal with administative account change first otherwise account maintenace options can't be set
-	if d.HasChange("administrative_account_id") {
-		err := object.setAdminAccount()
-		if err != nil {
-			return fmt.Errorf("Error updating Domain administrative account: %v", err)
+	/*
+		// Deal with administative account change first otherwise account maintenace options can't be set
+		if d.HasChange("administrative_account_id") {
+			err := object.SetAdminAccount()
+			if err != nil {
+				return fmt.Errorf("Error updating Domain administrative account: %v", err)
+			}
+			d.SetPartial("administrative_account_id")
 		}
-		d.SetPartial("administrative_account_id")
-	}
-
+	*/
 	// Deal with normal attribute changes first
-	if d.HasChanges("name", "description", "checkout_lifetime", "auto_domain_account_maintenance", "auto_local_account_maintenance",
-		"manual_domain_account_unlock", "manual_local_account_unlock", "allow_multiple_checkouts", "enable_password_rotation", "password_rotate_interval",
+	if d.HasChanges("name", "description", "checkout_lifetime", "allow_multiple_checkouts", "enable_password_rotation", "password_rotate_interval",
 		"enable_password_rotation_after_checkin", "minimum_password_age", "password_profile_id", "enable_password_history_cleanup",
 		"password_historycleanup_duration", "enable_zone_joined_check", "zone_joined_check_interval", "enable_zone_role_cleanup",
 		"zone_role_cleanup_interval", "connector_list") {
@@ -384,14 +381,10 @@ func resourceVaultDomainUpdate(d *schema.ResourceData, m interface{}) error {
 		if err != nil || !resp.Success {
 			return fmt.Errorf("Error updating Domain attribute: %v", err)
 		}
-		LogD.Printf("Updated attributes to: %+v", object)
+		//logger.Debugf("Updated attributes to: %+v", object)
 		d.SetPartial("name")
 		d.SetPartial("description")
 		d.SetPartial("checkout_lifetime")
-		d.SetPartial("auto_domain_account_maintenance")
-		d.SetPartial("auto_local_account_maintenance")
-		d.SetPartial("manual_domain_account_unlock")
-		d.SetPartial("manual_local_account_unlock")
 		d.SetPartial("allow_multiple_checkouts")
 		d.SetPartial("enable_password_rotation")
 		d.SetPartial("password_rotate_interval")
@@ -412,9 +405,9 @@ func resourceVaultDomainUpdate(d *schema.ResourceData, m interface{}) error {
 		old, new := d.GetChange("sets")
 		// Remove old Sets
 		for _, v := range flattenSchemaSetToStringSlice(old) {
-			setObj := NewManualSet(client)
+			setObj := vault.NewManualSet(client)
 			setObj.ID = v
-			setObj.ObjectType = "VaultDomain"
+			setObj.ObjectType = object.SetType
 			resp, err := setObj.UpdateSetMembers([]string{object.ID}, "remove")
 			if err != nil || !resp.Success {
 				return fmt.Errorf("Error removing System from Set: %v", err)
@@ -422,9 +415,9 @@ func resourceVaultDomainUpdate(d *schema.ResourceData, m interface{}) error {
 		}
 		// Add new Sets
 		for _, v := range flattenSchemaSetToStringSlice(new) {
-			setObj := NewManualSet(client)
+			setObj := vault.NewManualSet(client)
 			setObj.ID = v
-			setObj.ObjectType = "VaultDomain"
+			setObj.ObjectType = object.SetType
 			resp, err := setObj.UpdateSetMembers([]string{object.ID}, "add")
 			if err != nil || !resp.Success {
 				return fmt.Errorf("Error adding System to Set: %v", err)
@@ -434,15 +427,15 @@ func resourceVaultDomainUpdate(d *schema.ResourceData, m interface{}) error {
 	}
 
 	d.Partial(false)
-	LogD.Printf("Updating of Domain completed: %s", object.Name)
+	logger.Infof("Updating of Domain completed: %s", object.Name)
 	return resourceVaultDomainRead(d, m)
 }
 
 func resourceVaultDomainDelete(d *schema.ResourceData, m interface{}) error {
-	LogD.Printf("Beginning deletion of Domain: %s", ResourceIDString(d))
+	logger.Infof("Beginning deletion of Domain: %s", ResourceIDString(d))
 	client := m.(*restapi.RestClient)
 
-	object := NewVaultDomain(client)
+	object := vault.NewDomain(client)
 	object.ID = d.Id()
 	resp, err := object.Delete()
 
@@ -456,11 +449,11 @@ func resourceVaultDomainDelete(d *schema.ResourceData, m interface{}) error {
 		d.SetId("")
 	}
 
-	LogD.Printf("Deletion of Domain completed: %s", ResourceIDString(d))
+	logger.Infof("Deletion of Domain completed: %s", ResourceIDString(d))
 	return nil
 }
 
-func createUpateGetDomainData(d *schema.ResourceData, object *VaultDomain) error {
+func createUpateGetDomainData(d *schema.ResourceData, object *vault.Domain) error {
 	object.Name = d.Get("name").(string)
 	if v, ok := d.GetOk("description"); ok {
 		object.Description = v.(string)
@@ -469,33 +462,35 @@ func createUpateGetDomainData(d *schema.ResourceData, object *VaultDomain) error
 	if v, ok := d.GetOk("checkout_lifetime"); ok {
 		object.DefaultCheckoutTime = v.(int)
 	}
-	// Advanced menu -> Administrative Account Settings
-	if v, ok := d.GetOk("administrative_account_id"); ok {
-		object.AdminAccountID = v.(string)
-	}
+	/*
+		// Advanced menu -> Administrative Account Settings
+		if v, ok := d.GetOk("administrative_account_id"); ok {
+			object.AdminAccountID = v.(string)
+		}
 
-	if v, ok := d.GetOk("administrative_account_name"); ok {
-		object.AdminAccountName = v.(string)
-	}
-	if v, ok := d.GetOk("administrative_account_domain"); ok {
-		object.AdminAccountDomain = v.(string)
-	}
-	if v, ok := d.GetOk("administrative_account_password"); ok {
-		object.AdminAccountPassword = v.(string)
-	}
+		if v, ok := d.GetOk("administrative_account_name"); ok {
+			object.AdminAccountName = v.(string)
+		}
+		if v, ok := d.GetOk("administrative_account_domain"); ok {
+			object.AdminAccountDomain = v.(string)
+		}
+		if v, ok := d.GetOk("administrative_account_password"); ok {
+			object.AdminAccountPassword = v.(string)
+		}
 
-	if v, ok := d.GetOk("auto_domain_account_maintenance"); ok {
-		object.AutoDomainAccountMaintenance = v.(bool)
-	}
-	if v, ok := d.GetOk("auto_local_account_maintenance"); ok {
-		object.AutoLocalAccountMaintenance = v.(bool)
-	}
-	if v, ok := d.GetOk("manual_domain_account_unlock"); ok {
-		object.ManualDomainAccountUnlock = v.(bool)
-	}
-	if v, ok := d.GetOk("manual_local_account_unlock"); ok {
-		object.ManualLocalAccountUnlock = v.(bool)
-	}
+		if v, ok := d.GetOk("auto_domain_account_maintenance"); ok {
+			object.AutoDomainAccountMaintenance = v.(bool)
+		}
+		if v, ok := d.GetOk("auto_local_account_maintenance"); ok {
+			object.AutoLocalAccountMaintenance = v.(bool)
+		}
+		if v, ok := d.GetOk("manual_domain_account_unlock"); ok {
+			object.ManualDomainAccountUnlock = v.(bool)
+		}
+		if v, ok := d.GetOk("manual_local_account_unlock"); ok {
+			object.ManualLocalAccountUnlock = v.(bool)
+		}
+	*/
 	// Advanced -> Security Settings
 	if v, ok := d.GetOk("allow_multiple_checkouts"); ok {
 		object.AllowMultipleCheckouts = v.(bool)
@@ -546,7 +541,7 @@ func createUpateGetDomainData(d *schema.ResourceData, object *VaultDomain) error
 	// Permissions
 	if v, ok := d.GetOk("permission"); ok {
 		var err error
-		object.Permissions, err = expandPermissions(v, domainPermissions, true)
+		object.Permissions, err = expandPermissions(v, object.ValidPermissions, true)
 		if err != nil {
 			return err
 		}

@@ -4,9 +4,11 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/centrify/terraform-provider/cloud-golang-sdk/restapi"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
+	logger "github.com/marcozj/golang-sdk/logging"
+	vault "github.com/marcozj/golang-sdk/platform"
+	"github.com/marcozj/golang-sdk/restapi"
 )
 
 func resourceAuthenticationProfile() *schema.Resource {
@@ -64,10 +66,10 @@ func resourceAuthenticationProfile() *schema.Resource {
 }
 
 func resourceAuthenticationProfileExists(d *schema.ResourceData, m interface{}) (bool, error) {
-	LogD.Printf("Checking authentication profile exist: %s", ResourceIDString(d))
+	logger.Infof("Checking authentication profile exist: %s", ResourceIDString(d))
 	client := m.(*restapi.RestClient)
 
-	object := NewAuthenticationProfile(client)
+	object := vault.NewAuthenticationProfile(client)
 	object.ID = d.Id()
 	err := object.Read()
 
@@ -78,16 +80,16 @@ func resourceAuthenticationProfileExists(d *schema.ResourceData, m interface{}) 
 		return false, err
 	}
 
-	LogD.Printf("Authentication profile exists in tenant: %s", object.ID)
+	logger.Infof("Authentication profile exists in tenant: %s", object.ID)
 	return true, nil
 }
 
 func resourceAuthenticationProfileRead(d *schema.ResourceData, m interface{}) error {
-	LogD.Printf("Reading authentication profile: %s", ResourceIDString(d))
+	logger.Infof("Reading authentication profile: %s", ResourceIDString(d))
 	client := m.(*restapi.RestClient)
 
 	// Create a authentication profile object and populate ID attribute
-	object := NewAuthenticationProfile(client)
+	object := vault.NewAuthenticationProfile(client)
 	object.ID = d.Id()
 	err := object.Read()
 
@@ -97,13 +99,13 @@ func resourceAuthenticationProfileRead(d *schema.ResourceData, m interface{}) er
 		d.SetId("")
 		return fmt.Errorf("Error reading authentication profile: %v", err)
 	}
-	//LogD.Printf("Authentication profile from tenant: %v", object)
+	//logger.Debugf("Authentication profile from tenant: %v", object)
 
-	schemamap, err := generateSchemaMap(object)
+	schemamap, err := vault.GenerateSchemaMap(object)
 	if err != nil {
 		return err
 	}
-	LogD.Printf("Generated Map for resourceAuthenticationProfileRead(): %+v", schemamap)
+	logger.Debugf("Generated Map for resourceAuthenticationProfileRead(): %+v", schemamap)
 	for k, v := range schemamap {
 		if k == "additional_data" {
 			d.Set(k, flattenAdditionalData(object.AdditionalData))
@@ -112,15 +114,15 @@ func resourceAuthenticationProfileRead(d *schema.ResourceData, m interface{}) er
 		}
 	}
 
-	LogD.Printf("Completed reading authentication profile: %s", object.Name)
+	logger.Infof("Completed reading authentication profile: %s", object.Name)
 	return nil
 }
 
 func resourceAuthenticationProfileDelete(d *schema.ResourceData, m interface{}) error {
-	LogD.Printf("Beginning deletion of authentication profile: %s", ResourceIDString(d))
+	logger.Infof("Beginning deletion of authentication profile: %s", ResourceIDString(d))
 	client := m.(*restapi.RestClient)
 
-	object := NewAuthenticationProfile(client)
+	object := vault.NewAuthenticationProfile(client)
 	object.ID = d.Id()
 	resp, err := object.Delete()
 
@@ -134,17 +136,17 @@ func resourceAuthenticationProfileDelete(d *schema.ResourceData, m interface{}) 
 		d.SetId("")
 	}
 
-	LogD.Printf("Deletion of authentication profile completed: %s", ResourceIDString(d))
+	logger.Infof("Deletion of authentication profile completed: %s", ResourceIDString(d))
 	return nil
 }
 
 func resourceAuthenticationProfileCreate(d *schema.ResourceData, m interface{}) error {
-	LogD.Printf("Beginning authentication profile creation: %s", ResourceIDString(d))
+	logger.Infof("Beginning authentication profile creation: %s", ResourceIDString(d))
 
 	client := m.(*restapi.RestClient)
 
 	// Create a authentication profile object and populate all attributes
-	object := NewAuthenticationProfile(client)
+	object := vault.NewAuthenticationProfile(client)
 	createUpateGetAutheProfileData(d, object)
 
 	resp, err := object.Create()
@@ -161,15 +163,15 @@ func resourceAuthenticationProfileCreate(d *schema.ResourceData, m interface{}) 
 	object.ID = id
 
 	// Creation completed
-	LogD.Printf("Creation of authentication profile completed: %s", object.Name)
+	logger.Infof("Creation of authentication profile completed: %s", object.Name)
 	return resourceAuthenticationProfileRead(d, m)
 }
 
 func resourceAuthenticationProfileUpdate(d *schema.ResourceData, m interface{}) error {
-	LogD.Printf("Beginning authentication profile update: %s", ResourceIDString(d))
+	logger.Infof("Beginning authentication profile update: %s", ResourceIDString(d))
 
 	client := m.(*restapi.RestClient)
-	object := NewAuthenticationProfile(client)
+	object := vault.NewAuthenticationProfile(client)
 
 	object.ID = d.Id()
 	object.UUID = d.Id()
@@ -181,14 +183,14 @@ func resourceAuthenticationProfileUpdate(d *schema.ResourceData, m interface{}) 
 		if err != nil || !resp.Success {
 			return fmt.Errorf("Error updating authentication profile attribute: %v", err)
 		}
-		LogD.Printf("Updated attributes to: %+v", object)
+		logger.Debugf("Updated attributes to: %+v", object)
 	}
 
-	LogD.Printf("Updating of authentication profile completed: %s", object.Name)
+	logger.Infof("Updating of authentication profile completed: %s", object.Name)
 	return resourceAuthenticationProfileRead(d, m)
 }
 
-func createUpateGetAutheProfileData(d *schema.ResourceData, object *AuthenticationProfile) error {
+func createUpateGetAutheProfileData(d *schema.ResourceData, object *vault.AuthenticationProfile) error {
 	object.Name = d.Get("name").(string)
 	if v, ok := d.GetOk("pass_through_duration"); ok {
 		object.DurationInMinutes = v.(int)
@@ -203,17 +205,17 @@ func createUpateGetAutheProfileData(d *schema.ResourceData, object *Authenticati
 	return nil
 }
 
-func expandAdditionalData(v interface{}) *AdditionalData {
-	var adData *AdditionalData
+func expandAdditionalData(v interface{}) *vault.AdditionalData {
+	var adData *vault.AdditionalData
 	d := v.([]interface{})[0].(map[string]interface{})
-	adData = &AdditionalData{
+	adData = &vault.AdditionalData{
 		NumberOfQuestions: d["number_of_questions"].(int),
 	}
 
 	return adData
 }
 
-func flattenAdditionalData(v *AdditionalData) []interface{} {
+func flattenAdditionalData(v *vault.AdditionalData) []interface{} {
 	adData := map[string]interface{}{
 		"number_of_questions": v.NumberOfQuestions,
 	}
