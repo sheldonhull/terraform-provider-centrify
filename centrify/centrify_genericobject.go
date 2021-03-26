@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/centrify/terraform-provider/cloud-golang-sdk/restapi"
+	"github.com/centrify/terraform-provider-centrify/cloud-golang-sdk/restapi"
 )
 
 // Generic object

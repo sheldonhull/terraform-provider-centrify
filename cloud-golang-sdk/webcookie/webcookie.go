@@ -12,8 +12,8 @@ import (
 	"strings"
 	"syscall"
 
-	"github.com/centrify/terraform-provider/cloud-golang-sdk/restapi"
-	"github.com/centrify/terraform-provider/cloud-golang-sdk/util"
+	"github.com/centrify/terraform-provider-centrify/cloud-golang-sdk/restapi"
+	"github.com/centrify/terraform-provider-centrify/cloud-golang-sdk/util"
 	"golang.org/x/crypto/ssh/terminal"
 )
 

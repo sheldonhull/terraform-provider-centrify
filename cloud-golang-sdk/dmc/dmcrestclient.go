@@ -4,7 +4,7 @@ import (
 	"crypto/tls"
 	"net/http"
 
-	"github.com/centrify/terraform-provider/cloud-golang-sdk/restapi"
+	"github.com/centrify/terraform-provider-centrify/cloud-golang-sdk/restapi"
 )
 
 // DMC represents a stateful dmc client

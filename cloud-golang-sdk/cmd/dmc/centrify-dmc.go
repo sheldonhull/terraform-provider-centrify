@@ -6,7 +6,7 @@ import (
 	"log"
 	"os"
 
-	"github.com/centrify/terraform-provider/cloud-golang-sdk/dmc"
+	"github.com/centrify/terraform-provider-centrify/cloud-golang-sdk/dmc"
 )
 
 func main() {

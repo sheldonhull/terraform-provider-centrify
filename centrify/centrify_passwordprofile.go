@@ -4,7 +4,7 @@ import (
 	"errors"
 	"fmt"
 
-	"github.com/centrify/terraform-provider/cloud-golang-sdk/restapi"
+	"github.com/centrify/terraform-provider-centrify/cloud-golang-sdk/restapi"
 )
 
 // PasswordProfile - Encapsulates a single Password Profile

@@ -7,8 +7,8 @@ import (
 	"net/http/cookiejar"
 	"net/url"
 
-	"github.com/centrify/terraform-provider/cloud-golang-sdk/restapi"
-	"github.com/centrify/terraform-provider/cloud-golang-sdk/util"
+	"github.com/centrify/terraform-provider-centrify/cloud-golang-sdk/restapi"
+	"github.com/centrify/terraform-provider-centrify/cloud-golang-sdk/util"
 )
 
 // GetClient creates REST client

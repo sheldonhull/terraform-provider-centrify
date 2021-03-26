@@ -4,7 +4,7 @@ import (
 	"errors"
 	"strings"
 
-	"github.com/centrify/terraform-provider/cloud-golang-sdk/restapi"
+	"github.com/centrify/terraform-provider-centrify/cloud-golang-sdk/restapi"
 )
 
 // Policy - Encapsulates a single policy
