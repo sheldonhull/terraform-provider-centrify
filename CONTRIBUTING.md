@@ -9,3 +9,4 @@ Hi there! We're excited to have you as a contributor.
   * Write good commit messages. See [Good Commit Message Guide](https://chris.beams.io/posts/git-commit/)
   * Fork and clone the repo. If you have not done so already, you'll need to fork the provider repo on GitHub. For more on how to do this, see [Fork a repo](https://docs.github.com/en/github/getting-started-with-github/fork-a-repo)
   * See the [README.md](./README.md) for docs on how to setup development environment
+  * It might take us a while to fully review your PR as in order to keep main branch in good working order, we review requests carefully. Please be patient
