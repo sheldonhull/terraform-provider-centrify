@@ -1,5 +1,11 @@
 # RELEASE NOTES
 
+## 0.1.3 (March 26,2021)
+
+- Repository Name Change
+- CONTRIBUTING.md Added
+- VERSION File Added
+
 ## 0.1.2 (March 18, 2021)
 
 BUG FIXES:
@@ -15,4 +21,4 @@ BUG FIXES:
 
 ## 0.1.0 (March 14, 2021)
 
-- Initial release
+- Initial release=
