@@ -21,7 +21,7 @@ func TestAccResourceUserCreation(t *testing.T) {
 		CheckDestroy: testAccCheckUserDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccBasicValExists(),
+				Config: testAccBasicValExists(rName),
 				Check: resource.ComposeAggregateTestCheckFunc(
 					resource.TestCheckResourceAttr(resourceName, "username", rName),
 					resource.TestCheckResourceAttr(resourceName, "email", "test@example.com"),
