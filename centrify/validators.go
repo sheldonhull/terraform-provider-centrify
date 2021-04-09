@@ -11,7 +11,7 @@ import (
 	vault "github.com/marcozj/golang-sdk/platform"
 )
 
-func contains(a interface{}, e interface{}) bool {
+func acontains(a interface{}, e interface{}) bool {
 	v := reflect.ValueOf(a)
 
 	for i := 0; i < v.Len(); i++ {
@@ -120,7 +120,7 @@ func validateChallengeRules(input *vault.ChallengeRules) error {
 					}
 					// Validate device value
 					devices := []string{"iOS", "Android", "WindowsMobile", "Mac", "Windows", "Linux"}
-					if !contains(devices, v.Value) {
+					if !acontains(devices, v.Value) {
 						return fmt.Errorf("In %+v: DeviceOs must have value: %+v", v, devices)
 					}
 				case "Browser":
@@ -129,7 +129,7 @@ func validateChallengeRules(input *vault.ChallengeRules) error {
 					}
 					// Validate browser value
 					browser := []string{"Other", "Chrome", "Firefox", "IE", "Safari", "MicrosoftEdge"}
-					if !contains(browser, v.Value) {
+					if !acontains(browser, v.Value) {
 						return fmt.Errorf("In %+v: Browser must have value: %+v", v, browser)
 					}
 				case "CountryCode":
