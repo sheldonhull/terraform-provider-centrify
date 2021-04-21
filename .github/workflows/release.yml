@@ -11,8 +11,9 @@
 #
 name: release
 on:
-  release:
-    types: [published, edited, created]
+  push:
+    tag:
+    - 'v*'
 
 jobs:
   goreleaser:
