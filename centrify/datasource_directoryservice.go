@@ -6,10 +6,10 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
-	"github.com/marcozj/golang-sdk/enum/directoryservice"
-	logger "github.com/marcozj/golang-sdk/logging"
-	vault "github.com/marcozj/golang-sdk/platform"
-	"github.com/marcozj/golang-sdk/restapi"
+	"github.com/centrify/terraform-provider-centrify/golang-sdk/enum/directoryservice"
+	logger "github.com/centrify/terraform-provider-centrify/golang-sdk/logging"
+	vault "github.com/centrify/terraform-provider-centrify/golang-sdk/platform"
+	"github.com/centrify/terraform-provider-centrify/golang-sdk/restapi"
 )
 
 func dataSourceDirectoryService() *schema.Resource {
