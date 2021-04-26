@@ -6,10 +6,10 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
-	"github.com/centrify/terraform-provider-centrify/golang-sdk/enum/servicetype"
-	logger "github.com/centrify/terraform-provider-centrify/golang-sdk/logging"
-	vault "github.com/centrify/terraform-provider-centrify/golang-sdk/platform"
-	"github.com/centrify/terraform-provider-centrify/golang-sdk/restapi"
+	"github.com/centrify/terraform-provider-centrify/cloud-golang-sdk/enum/servicetype"
+	logger "github.com/centrify/terraform-provider-centrify/cloud-golang-sdk/logging"
+	vault "github.com/centrify/terraform-provider-centrify/cloud-golang-sdk/platform"
+	"github.com/centrify/terraform-provider-centrify/cloud-golang-sdk/restapi"
 )
 
 func resourceService() *schema.Resource {

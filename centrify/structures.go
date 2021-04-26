@@ -7,8 +7,8 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/helper/hashcode"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
-	logger "github.com/centrify/terraform-provider-centrify/golang-sdk/logging"
-	vault "github.com/centrify/terraform-provider-centrify/golang-sdk/platform"
+	logger "github.com/centrify/terraform-provider-centrify/cloud-golang-sdk/logging"
+	vault "github.com/centrify/terraform-provider-centrify/cloud-golang-sdk/platform"
 )
 
 // ResourceIDStringInterface - Generic interface for resource ID

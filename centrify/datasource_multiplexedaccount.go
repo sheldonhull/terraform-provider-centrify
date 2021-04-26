@@ -4,9 +4,9 @@ import (
 	"fmt"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
-	logger "github.com/centrify/terraform-provider-centrify/golang-sdk/logging"
-	vault "github.com/centrify/terraform-provider-centrify/golang-sdk/platform"
-	"github.com/centrify/terraform-provider-centrify/golang-sdk/restapi"
+	logger "github.com/centrify/terraform-provider-centrify/cloud-golang-sdk/logging"
+	vault "github.com/centrify/terraform-provider-centrify/cloud-golang-sdk/platform"
+	"github.com/centrify/terraform-provider-centrify/cloud-golang-sdk/restapi"
 )
 
 func dataSourceMultiplexedAccount() *schema.Resource {

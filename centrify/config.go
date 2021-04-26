@@ -3,8 +3,8 @@ package centrify
 import (
 	"fmt"
 
-	"github.com/centrify/terraform-provider-centrify/golang-sdk/dmc"
-	"github.com/centrify/terraform-provider-centrify/golang-sdk/oauth"
+	"github.com/centrify/terraform-provider-centrify/cloud-golang-sdk/dmc"
+	"github.com/centrify/terraform-provider-centrify/cloud-golang-sdk/oauth"
 )
 
 // Config - Centrify Vault client struct
