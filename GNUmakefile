@@ -4,9 +4,9 @@ WEBSITE_REPO=github.com/hashicorp/terraform-website
 PKG_NAME=centrifyvault
 
 # Local provider install parameter
-version = 0.1.2
+version = 0.1.3
 registry_name = registry.terraform.io
-namespace = marcozj
+namespace = centrify
 bin_name = terraform-provider-$(PKG_NAME)
 build_dir = $(GOPATH)/bin
 TF_PLUGIN_DIR ?= ~/.terraform.d/plugins
