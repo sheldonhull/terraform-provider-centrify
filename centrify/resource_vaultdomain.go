@@ -6,9 +6,9 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
-	logger "github.com/marcozj/golang-sdk/logging"
-	vault "github.com/marcozj/golang-sdk/platform"
-	"github.com/marcozj/golang-sdk/restapi"
+	logger "github.com/centrify/terraform-provider-centrify/golang-sdk/logging"
+	vault "github.com/centrify/terraform-provider-centrify/golang-sdk/platform"
+	"github.com/centrify/terraform-provider-centrify/golang-sdk/restapi"
 )
 
 func resourceVaultDomain() *schema.Resource {
