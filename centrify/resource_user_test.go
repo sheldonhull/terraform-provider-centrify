@@ -8,8 +8,8 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/terraform"
 	"github.com/hashicorp/terraform/helper/acctest"
-	vault "github.com/marcozj/golang-sdk/platform"
-	"github.com/marcozj/golang-sdk/restapi"
+	vault "github.com/centrify/terraform-provider-centrify/golang-sdk/platform"
+	"github.com/centrify/terraform-provider-centrify/golang-sdk/restapi"
 )
 
 func TestAccResourceUserCreation(t *testing.T) {
