@@ -1,4 +1,4 @@
-BINARY = terraform-provider-centrifyvault
+BINARY = terraform-provider-centrify
 VERSION = 0.1.0
 
 BASE_PATH = $(shell pwd)
