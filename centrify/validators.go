@@ -8,7 +8,7 @@ import (
 	"github.com/biter777/countries"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/hashcode"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
-	vault "github.com/marcozj/golang-sdk/platform"
+	vault "github.com/centrify/terraform-provider-centrify/golang-sdk/platform"
 )
 
 func acontains(a interface{}, e interface{}) bool {
