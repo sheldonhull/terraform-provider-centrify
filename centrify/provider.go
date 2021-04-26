@@ -5,7 +5,7 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
-	logger "github.com/marcozj/golang-sdk/logging"
+	logger "github.com/centrify/terraform-provider-centrify/golang-sdk/logging"
 )
 
 var logPath string
