@@ -4,12 +4,28 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
-	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
 	logger "github.com/centrify/terraform-provider-centrify/cloud-golang-sdk/logging"
 	vault "github.com/centrify/terraform-provider-centrify/cloud-golang-sdk/platform"
 	"github.com/centrify/terraform-provider-centrify/cloud-golang-sdk/restapi"
+	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
 )
+
+func resourceAuthenticationProfile_deprecated() *schema.Resource {
+	return &schema.Resource{
+		Create: resourceAuthenticationProfileCreate,
+		Read:   resourceAuthenticationProfileRead,
+		Update: resourceAuthenticationProfileUpdate,
+		Delete: resourceAuthenticationProfileDelete,
+		Exists: resourceAuthenticationProfileExists,
+		Importer: &schema.ResourceImporter{
+			State: schema.ImportStatePassthrough,
+		},
+
+		Schema:             getAuthenticationProfileSchema(),
+		DeprecationMessage: "resource centrifyvault_authenticationprofile is deprecated will be removed in the future, use centrify_authenticationprofile instead",
+	}
+}
 
 func resourceAuthenticationProfile() *schema.Resource {
 	return &schema.Resource{
@@ -18,49 +34,56 @@ func resourceAuthenticationProfile() *schema.Resource {
 		Update: resourceAuthenticationProfileUpdate,
 		Delete: resourceAuthenticationProfileDelete,
 		Exists: resourceAuthenticationProfileExists,
+		Importer: &schema.ResourceImporter{
+			State: schema.ImportStatePassthrough,
+		},
 
-		Schema: map[string]*schema.Schema{
-			"uuid": {
-				Type:        schema.TypeString,
-				Computed:    true,
-				Description: "The UUID of the authenticaiton profile",
+		Schema: getAuthenticationProfileSchema(),
+	}
+}
+
+func getAuthenticationProfileSchema() map[string]*schema.Schema {
+	return map[string]*schema.Schema{
+		"uuid": {
+			Type:        schema.TypeString,
+			Computed:    true,
+			Description: "The UUID of the authenticaiton profile",
+		},
+		"name": {
+			Type:        schema.TypeString,
+			Required:    true,
+			Description: "The name of the authenticaiton profile",
+		},
+		"challenges": {
+			Type:     schema.TypeList,
+			Required: true,
+			MaxItems: 2,
+			MinItems: 1,
+			Elem: &schema.Schema{
+				Type: schema.TypeString,
 			},
-			"name": {
-				Type:        schema.TypeString,
-				Required:    true,
-				Description: "The name of the authenticaiton profile",
-			},
-			"challenges": {
-				Type:     schema.TypeList,
-				Required: true,
-				MaxItems: 2,
-				MinItems: 1,
-				Elem: &schema.Schema{
-					Type: schema.TypeString,
-				},
-				Description: "Authentication mechanisms for challenges",
-			},
-			"additional_data": {
-				Type:     schema.TypeList,
-				Optional: true,
-				MaxItems: 1,
-				Elem: &schema.Resource{
-					Schema: map[string]*schema.Schema{
-						"number_of_questions": {
-							Type:         schema.TypeInt,
-							Optional:     true,
-							Description:  "Number of questions user must answer",
-							ValidateFunc: validation.IntBetween(0, 10),
-						},
+			Description: "Authentication mechanisms for challenges",
+		},
+		"additional_data": {
+			Type:     schema.TypeList,
+			Optional: true,
+			MaxItems: 1,
+			Elem: &schema.Resource{
+				Schema: map[string]*schema.Schema{
+					"number_of_questions": {
+						Type:         schema.TypeInt,
+						Optional:     true,
+						Description:  "Number of questions user must answer",
+						ValidateFunc: validation.IntBetween(0, 10),
 					},
 				},
 			},
-			"pass_through_duration": {
-				Type:        schema.TypeInt,
-				Optional:    true,
-				Default:     30,
-				Description: "Challenge Pass-Through Duration",
-			},
+		},
+		"pass_through_duration": {
+			Type:        schema.TypeInt,
+			Optional:    true,
+			Default:     30,
+			Description: "Challenge Pass-Through Duration",
 		},
 	}
 }
@@ -97,7 +120,7 @@ func resourceAuthenticationProfileRead(d *schema.ResourceData, m interface{}) er
 	// return here to prevent further processing.
 	if err != nil {
 		d.SetId("")
-		return fmt.Errorf("Error reading authentication profile: %v", err)
+		return fmt.Errorf("error reading authentication profile: %v", err)
 	}
 	//logger.Debugf("Authentication profile from tenant: %v", object)
 
@@ -129,7 +152,7 @@ func resourceAuthenticationProfileDelete(d *schema.ResourceData, m interface{}) 
 	// If the resource does not exist, inform Terraform. We want to immediately
 	// return here to prevent further processing.
 	if err != nil {
-		return fmt.Errorf("Error deleting authentication profile: %v", err)
+		return fmt.Errorf("error deleting authentication profile: %v", err)
 	}
 
 	if resp.Success {
@@ -151,12 +174,12 @@ func resourceAuthenticationProfileCreate(d *schema.ResourceData, m interface{}) 
 
 	resp, err := object.Create()
 	if err != nil {
-		return fmt.Errorf("Error creating authentication profile: %v", err)
+		return fmt.Errorf("error creating authentication profile: %v", err)
 	}
 
 	id := resp.Result["Uuid"].(string)
 	if id == "" {
-		return fmt.Errorf("Authentication profile ID is not set")
+		return fmt.Errorf("authentication profile ID is not set")
 	}
 	d.SetId(id)
 	// Need to populate ID attribute for subsequence processes
@@ -181,7 +204,7 @@ func resourceAuthenticationProfileUpdate(d *schema.ResourceData, m interface{}) 
 	if d.HasChanges("name", "challenges", "pass_through_duration", "additional_data") {
 		resp, err := object.Update()
 		if err != nil || !resp.Success {
-			return fmt.Errorf("Error updating authentication profile attribute: %v", err)
+			return fmt.Errorf("error updating authentication profile attribute: %v", err)
 		}
 		logger.Debugf("Updated attributes to: %+v", object)
 	}

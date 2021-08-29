@@ -5,12 +5,28 @@ import (
 	"log"
 	"strings"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
-	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
 	logger "github.com/centrify/terraform-provider-centrify/cloud-golang-sdk/logging"
 	vault "github.com/centrify/terraform-provider-centrify/cloud-golang-sdk/platform"
 	"github.com/centrify/terraform-provider-centrify/cloud-golang-sdk/restapi"
+	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
 )
+
+func resourceRole_deprecated() *schema.Resource {
+	return &schema.Resource{
+		Create: resourceRoleCreate,
+		Read:   resourceRoleRead,
+		Update: resourceRoleUpdate,
+		Delete: resourceRoleDelete,
+		Exists: resourceRoleExists,
+		Importer: &schema.ResourceImporter{
+			State: schema.ImportStatePassthrough,
+		},
+
+		Schema:             getRoleSchema(),
+		DeprecationMessage: "resource centrifyvault_role is deprecated will be removed in the future, use centrify_role instead",
+	}
+}
 
 func resourceRole() *schema.Resource {
 	return &schema.Resource{
@@ -19,59 +35,65 @@ func resourceRole() *schema.Resource {
 		Update: resourceRoleUpdate,
 		Delete: resourceRoleDelete,
 		Exists: resourceRoleExists,
+		Importer: &schema.ResourceImporter{
+			State: schema.ImportStatePassthrough,
+		},
 
-		Schema: map[string]*schema.Schema{
-			"name": {
-				Type:        schema.TypeString,
-				Required:    true,
-				Description: "The name of the role",
+		Schema: getRoleSchema(),
+	}
+}
+
+func getRoleSchema() map[string]*schema.Schema {
+	return map[string]*schema.Schema{
+		"name": {
+			Type:        schema.TypeString,
+			Required:    true,
+			Description: "The name of the role",
+		},
+		"description": {
+			Type:        schema.TypeString,
+			Optional:    true,
+			Description: "Description of an role",
+		},
+		"adminrights": {
+			Type:     schema.TypeSet,
+			Optional: true,
+			Elem: &schema.Schema{
+				Type: schema.TypeString,
 			},
-			"description": {
-				Type:        schema.TypeString,
-				Optional:    true,
-				Description: "Description of an role",
-			},
-			"adminrights": {
-				Type:     schema.TypeSet,
-				Optional: true,
-				Elem: &schema.Schema{
-					Type: schema.TypeString,
-				},
-			},
-			"member": {
-				Type:     schema.TypeSet,
-				Optional: true,
-				Set:      customRoleMemberHash,
-				Elem: &schema.Resource{
-					Schema: map[string]*schema.Schema{
-						"id": {
-							Type:        schema.TypeString,
-							Required:    true,
-							Description: "ID of the member",
-						},
-						"name": {
-							Type:        schema.TypeString,
-							Optional:    true,
-							Computed:    true,
-							Description: "Name of the member",
-						},
-						"type": {
-							Type:        schema.TypeString,
-							Required:    true,
-							Description: "Type of the member",
-							ValidateFunc: validation.StringInSlice([]string{
-								"User",
-								"Group",
-								"Role",
-							}, false),
-						},
+		},
+		"member": {
+			Type:     schema.TypeSet,
+			Optional: true,
+			Set:      customRoleMemberHash,
+			Elem: &schema.Resource{
+				Schema: map[string]*schema.Schema{
+					"id": {
+						Type:        schema.TypeString,
+						Required:    true,
+						Description: "ID of the member",
+					},
+					"name": {
+						Type:        schema.TypeString,
+						Optional:    true,
+						Computed:    true,
+						Description: "Name of the member",
+					},
+					"type": {
+						Type:        schema.TypeString,
+						Required:    true,
+						Description: "Type of the member",
+						ValidateFunc: validation.StringInSlice([]string{
+							"User",
+							"Group",
+							"Role",
+						}, false),
 					},
 				},
 			},
 		},
 	}
 }
-
 func resourceRoleExists(d *schema.ResourceData, m interface{}) (bool, error) {
 	logger.Infof("Checking role exist: %s", ResourceIDString(d))
 	client := m.(*restapi.RestClient)
@@ -104,7 +126,7 @@ func resourceRoleRead(d *schema.ResourceData, m interface{}) error {
 	// return here to prevent further processing.
 	if err != nil {
 		d.SetId("")
-		return fmt.Errorf("Error reading role: %v", err)
+		return fmt.Errorf(" Error reading role: %v", err)
 	}
 	logger.Debugf("Role from tenant: %v", object)
 
@@ -136,17 +158,14 @@ func resourceRoleCreate(d *schema.ResourceData, m interface{}) error {
 	// Response contains only role id
 	resp, err := object.Create()
 	if err != nil {
-		return fmt.Errorf("Error creating role: %v", err)
+		return fmt.Errorf(" Error creating role: %v", err)
 	}
 
 	id := resp.Result["_RowKey"].(string)
 	if id == "" {
-		return fmt.Errorf("Role ID is not set")
+		return fmt.Errorf(" The Role ID is not set")
 	}
 	d.SetId(id)
-	// Creation partially completed
-	d.SetPartial("name")
-	d.SetPartial("description")
 
 	// Need to populate ID attribute otherwise AssignAdminRights function will fail
 	object.ID = id
@@ -157,9 +176,8 @@ func resourceRoleCreate(d *schema.ResourceData, m interface{}) error {
 	if len(object.Members) > 0 {
 		resp, err := object.UpdateRoleMembers(object.Members, "Add")
 		if err != nil || !resp.Success {
-			return fmt.Errorf("Error adding members to role: %v", err)
+			return fmt.Errorf(" Error adding members to role: %v", err)
 		}
-		d.SetPartial("member")
 	}
 
 	// Assign admin rights
@@ -170,8 +188,6 @@ func resourceRoleCreate(d *schema.ResourceData, m interface{}) error {
 			return nil
 		}
 		logger.Debugf("Updated admin rights to: %v", object.AdminRights)
-		// Creation partially completed
-		d.SetPartial("adminrights")
 	}
 
 	// Creation completed
@@ -194,11 +210,9 @@ func resourceRoleUpdate(d *schema.ResourceData, m interface{}) error {
 	if d.HasChanges("name", "description") {
 		resp, err := object.Update()
 		if err != nil || !resp.Success {
-			return fmt.Errorf("Error updating role attribute: %v", err)
+			return fmt.Errorf(" Error updating role attribute: %v", err)
 		}
 		logger.Debugf("Updated attributes to: %+v", object)
-		d.SetPartial("name")
-		d.SetPartial("description")
 	}
 
 	// Deal with role members
@@ -207,14 +221,13 @@ func resourceRoleUpdate(d *schema.ResourceData, m interface{}) error {
 		// Remove old members
 		resp, err := object.UpdateRoleMembers(expandRoleMembers(old), "Delete")
 		if err != nil || !resp.Success {
-			return fmt.Errorf("Error removing members from role: %v", err)
+			return fmt.Errorf(" Error removing members from role: %v", err)
 		}
 		// Add new members
 		resp, err = object.UpdateRoleMembers(expandRoleMembers(new), "Add")
 		if err != nil || !resp.Success {
-			return fmt.Errorf("Error adding members to role: %v", err)
+			return fmt.Errorf(" Error adding members to role: %v", err)
 		}
-		d.SetPartial("member")
 	}
 
 	// Deal with admin rights change
@@ -222,13 +235,13 @@ func resourceRoleUpdate(d *schema.ResourceData, m interface{}) error {
 		// To update admin rights, we need to remove all existing ones first
 		rights, err := object.GetAdminRights()
 		if err != nil {
-			return fmt.Errorf("Error getting existing role admin rights: %v", err)
+			return fmt.Errorf(" Error getting existing role admin rights: %v", err)
 		}
 		logger.Debugf("Removing existing admin rights: %v", rights)
 		if rights != nil && len(rights) > 0 {
 			resp, err := object.RemoveAdminRights(rights)
 			if err != nil || !resp.Success {
-				return fmt.Errorf("Error removing existing role admin rights: %v", err)
+				return fmt.Errorf(" Error removing existing role admin rights: %v", err)
 			}
 		}
 		logger.Debugf("Removed existing admin rights: %v", rights)
@@ -245,11 +258,9 @@ func resourceRoleUpdate(d *schema.ResourceData, m interface{}) error {
 
 			resp, err := object.AssignAdminRights()
 			if err != nil || !resp.Success {
-				return fmt.Errorf("Error updating role admin rights: %v", err)
+				return fmt.Errorf(" Error updating role admin rights: %v", err)
 			}
 			logger.Debugf("Updated admin rights to: %v", adminrights)
-
-			d.SetPartial("adminrights")
 		}
 	}
 
@@ -270,7 +281,7 @@ func resourceRoleDelete(d *schema.ResourceData, m interface{}) error {
 	// If the resource does not exist, inform Terraform. We want to immediately
 	// return here to prevent further processing.
 	if err != nil {
-		return fmt.Errorf("Error deleting role: %v", err)
+		return fmt.Errorf(" Error deleting role: %v", err)
 	}
 
 	if resp.Success {
@@ -283,13 +294,13 @@ func resourceRoleDelete(d *schema.ResourceData, m interface{}) error {
 
 func createUpateGetRoleData(d *schema.ResourceData, object *vault.Role) error {
 	object.Name = d.Get("name").(string)
-	if v, ok := d.GetOk("description"); ok {
+	if v, ok := d.GetOk("description"); ok && d.HasChange("description") {
 		object.Description = v.(string)
 	}
-	if v, ok := d.GetOk("adminrights"); ok {
+	if v, ok := d.GetOk("adminrights"); ok && d.HasChange("adminrights") {
 		object.AdminRights = flattenSchemaSetToStringSlice(v)
 	}
-	if v, ok := d.GetOk("member"); ok {
+	if v, ok := d.GetOk("member"); ok && d.HasChange("member") {
 		object.Members = expandRoleMembers(v)
 	}
 

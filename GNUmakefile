@@ -1,14 +1,15 @@
 TEST?=$$(go list ./... |grep -v 'vendor')
 GOFMT_FILES?=$$(find . -name '*.go' |grep -v vendor)
 WEBSITE_REPO=github.com/hashicorp/terraform-website
-PKG_NAME=centrifyvault
+PKG_NAME=centrify
 
 # Local provider install parameter
-version = 0.1.3
+version = 0.2.4
 registry_name = registry.terraform.io
 namespace = centrify
 bin_name = terraform-provider-$(PKG_NAME)
-build_dir = $(GOPATH)/bin
+#build_dir = $(GOPATH)/bin
+build_dir = /tmp/
 TF_PLUGIN_DIR ?= ~/.terraform.d/plugins
 install_path = $(TF_PLUGIN_DIR)/$(registry_name)/$(namespace)/$(PKG_NAME)/$(version)/$$(go env GOOS)_$$(go env GOARCH)
 install_path_pre13 = $(TF_PLUGIN_DIR)/$$(go env GOOS)_$$(go env GOARCH)

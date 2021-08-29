@@ -37,7 +37,6 @@ type AuthMechanism struct {
 	PromptMechChosen string `json:"PromptMechChosen"`
 	PromptSelectMech string `json:"PromptSelectMech"`
 	MechanismID      string `json:"MechanismId"`
-	Credential       string
 }
 
 // AdvanceAuthResponse represents successful advance authentication response

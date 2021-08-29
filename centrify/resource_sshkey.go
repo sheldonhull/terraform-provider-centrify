@@ -4,11 +4,27 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	logger "github.com/centrify/terraform-provider-centrify/cloud-golang-sdk/logging"
 	vault "github.com/centrify/terraform-provider-centrify/cloud-golang-sdk/platform"
 	"github.com/centrify/terraform-provider-centrify/cloud-golang-sdk/restapi"
+	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 )
+
+func resourceSSHKey_deprecated() *schema.Resource {
+	return &schema.Resource{
+		Create: resourceSSHKeyCreate,
+		Read:   resourceSSHKeyRead,
+		Update: resourceSSHKeyUpdate,
+		Delete: resourceSSHKeyDelete,
+		Exists: resourceSSHKeyExists,
+		Importer: &schema.ResourceImporter{
+			State: schema.ImportStatePassthrough,
+		},
+
+		Schema:             getSSHKeySchema(),
+		DeprecationMessage: "resource centrifyvault_sshkey is deprecated will be removed in the future, use centrify_sshkey instead",
+	}
+}
 
 func resourceSSHKey() *schema.Resource {
 	return &schema.Resource{
@@ -17,54 +33,61 @@ func resourceSSHKey() *schema.Resource {
 		Update: resourceSSHKeyUpdate,
 		Delete: resourceSSHKeyDelete,
 		Exists: resourceSSHKeyExists,
-
-		Schema: map[string]*schema.Schema{
-			"name": {
-				Type:        schema.TypeString,
-				Required:    true,
-				Description: "Name of the SSH Key",
-			},
-			"description": {
-				Type:        schema.TypeString,
-				Optional:    true,
-				Description: "Description of the SSH Key",
-			},
-			"private_key": {
-				Type:        schema.TypeString,
-				Optional:    true,
-				Sensitive:   true,
-				Description: "SSH private key",
-			},
-			"passphrase": {
-				Type:        schema.TypeString,
-				Optional:    true,
-				Sensitive:   true,
-				Description: "Passphrase to use for encrypting the PrivateKey",
-			},
-			"key_type": {
-				Type:     schema.TypeString,
-				Optional: true,
-				Computed: true,
-			},
-			"default_profile_id": {
-				Type:        schema.TypeString,
-				Optional:    true,
-				Description: "Default SSH Key Challenge Profile",
-			},
-			// Add to Sets
-			"sets": {
-				Type:     schema.TypeSet,
-				Optional: true,
-				//Computed: true,
-				Set: schema.HashString,
-				Elem: &schema.Schema{
-					Type: schema.TypeString,
-				},
-				Description: "Add to list of Sets",
-			},
-			"permission":     getPermissionSchema(),
-			"challenge_rule": getChallengeRulesSchema(),
+		Importer: &schema.ResourceImporter{
+			State: schema.ImportStatePassthrough,
 		},
+
+		Schema: getSSHKeySchema(),
+	}
+}
+
+func getSSHKeySchema() map[string]*schema.Schema {
+	return map[string]*schema.Schema{
+		"name": {
+			Type:        schema.TypeString,
+			Required:    true,
+			Description: "Name of the SSH Key",
+		},
+		"description": {
+			Type:        schema.TypeString,
+			Optional:    true,
+			Description: "Description of the SSH Key",
+		},
+		"private_key": {
+			Type:        schema.TypeString,
+			Optional:    true,
+			Sensitive:   true,
+			Description: "SSH private key",
+		},
+		"passphrase": {
+			Type:        schema.TypeString,
+			Optional:    true,
+			Sensitive:   true,
+			Description: "Passphrase to use for encrypting the PrivateKey",
+		},
+		"key_type": {
+			Type:     schema.TypeString,
+			Optional: true,
+			Computed: true,
+		},
+		"default_profile_id": {
+			Type:        schema.TypeString,
+			Optional:    true,
+			Description: "Default SSH Key Challenge Profile",
+		},
+		// Add to Sets
+		"sets": {
+			Type:     schema.TypeSet,
+			Optional: true,
+			//Computed: true,
+			Set: schema.HashString,
+			Elem: &schema.Schema{
+				Type: schema.TypeString,
+			},
+			Description: "Add to list of Sets",
+		},
+		"permission":     getPermissionSchema(),
+		"challenge_rule": getChallengeRulesSchema(),
 	}
 }
 
@@ -91,7 +114,7 @@ func resourceSSHKeyRead(d *schema.ResourceData, m interface{}) error {
 	logger.Infof("Reading SSH Key: %s", ResourceIDString(d))
 	client := m.(*restapi.RestClient)
 
-	// Create a NewVaultSecret object and populate ID attribute
+	// Create a new SSHKey object and populate ID attribute
 	object := vault.NewSSHKey(client)
 	object.ID = d.Id()
 	err := object.Read()
@@ -100,7 +123,7 @@ func resourceSSHKeyRead(d *schema.ResourceData, m interface{}) error {
 	// return here to prevent further processing.
 	if err != nil {
 		d.SetId("")
-		return fmt.Errorf("Error reading SSH Key: %v", err)
+		return fmt.Errorf(" Error reading SSH Key: %v", err)
 	}
 	//logger.Debugf("SSH Key from tenant: %+v", object)
 	schemamap, err := vault.GenerateSchemaMap(object)
@@ -109,7 +132,12 @@ func resourceSSHKeyRead(d *schema.ResourceData, m interface{}) error {
 	}
 	logger.Debugf("Generated Map for resourceSSHKeyRead(): %+v", schemamap)
 	for k, v := range schemamap {
-		d.Set(k, v)
+		switch k {
+		case "challenge_rule":
+			d.Set(k, v.(map[string]interface{})["rule"])
+		default:
+			d.Set(k, v)
+		}
 	}
 
 	logger.Infof("Completed reading SSH Key: %s", object.Name)
@@ -133,7 +161,7 @@ func resourceSSHKeyCreate(d *schema.ResourceData, m interface{}) error {
 
 	resp, err := object.Create()
 	if err != nil {
-		return fmt.Errorf("Error creating SSH Key: %v", err)
+		return fmt.Errorf(" Error creating SSH Key: %v", err)
 	}
 
 	id := resp.Result
@@ -144,20 +172,14 @@ func resourceSSHKeyCreate(d *schema.ResourceData, m interface{}) error {
 	// Need to populate ID attribute for subsequence processes
 	object.ID = id
 
-	d.SetPartial("name")
-	d.SetPartial("description")
-	d.SetPartial("private_key")
-
 	// 2nd step to update challenge login profile
 	// Create API call doesn't set challenge profile so need to run update again
 	if object.SSHKeysDefaultProfileID != "" || object.ChallengeRules != nil {
 		object.PrivateKey = ""
 		resp, err := object.Update()
 		if err != nil || !resp.Success {
-			return fmt.Errorf("Error updating SSH Key attribute: %v", err)
+			return fmt.Errorf(" Error updating SSH Key attribute: %v", err)
 		}
-		d.SetPartial("default_profile_id")
-		d.SetPartial("challenge_rule")
 	}
 
 	if len(object.Sets) > 0 {
@@ -165,16 +187,14 @@ func resourceSSHKeyCreate(d *schema.ResourceData, m interface{}) error {
 		if err != nil {
 			return err
 		}
-		d.SetPartial("sets")
 	}
 
 	// add permissions
 	if _, ok := d.GetOk("permission"); ok {
 		_, err = object.SetPermissions(false)
 		if err != nil {
-			return fmt.Errorf("Error setting SSH Key permissions: %v", err)
+			return fmt.Errorf(" Error setting SSH Key permissions: %v", err)
 		}
-		d.SetPartial("permission")
 	}
 
 	// Creation completed
@@ -199,16 +219,15 @@ func resourceSSHKeyUpdate(d *schema.ResourceData, m interface{}) error {
 
 	// Deal with normal attribute changes first
 	if d.HasChanges("name", "description", "private_key", "default_profile_id", "challenge_rule") {
+		// Special handling for default_profile_id. Whenever there is change, default_profile_id must be set otherwise default profile setting will be removed
+		if v, ok := d.GetOk("default_profile_id"); ok && !d.HasChange("default_profile_id") {
+			object.SSHKeysDefaultProfileID = v.(string)
+		}
 		resp, err := object.Update()
 		if err != nil || !resp.Success {
-			return fmt.Errorf("Error updating SSH Key attribute: %v", err)
+			return fmt.Errorf(" Error updating SSH Key attribute: %v", err)
 		}
 		logger.Debugf("Updated attributes to: %v", object)
-		d.SetPartial("name")
-		d.SetPartial("description")
-		d.SetPartial("private_key")
-		d.SetPartial("default_profile_id")
-		d.SetPartial("challenge_rule")
 	}
 
 	if d.HasChange("sets") {
@@ -220,7 +239,7 @@ func resourceSSHKeyUpdate(d *schema.ResourceData, m interface{}) error {
 			setObj.ObjectType = object.SetType
 			resp, err := setObj.UpdateSetMembers([]string{object.ID}, "remove")
 			if err != nil || !resp.Success {
-				return fmt.Errorf("Error removing SSH Key from Set: %v", err)
+				return fmt.Errorf(" Error removing SSH Key from Set: %v", err)
 			}
 		}
 		// Add new Sets
@@ -230,10 +249,9 @@ func resourceSSHKeyUpdate(d *schema.ResourceData, m interface{}) error {
 			setObj.ObjectType = object.SetType
 			resp, err := setObj.UpdateSetMembers([]string{object.ID}, "add")
 			if err != nil || !resp.Success {
-				return fmt.Errorf("Error adding SSH Key to Set: %v", err)
+				return fmt.Errorf(" Error adding SSH Key to Set: %v", err)
 			}
 		}
-		d.SetPartial("sets")
 	}
 
 	// Deal with Permissions
@@ -250,7 +268,7 @@ func resourceSSHKeyUpdate(d *schema.ResourceData, m interface{}) error {
 			}
 			_, err = object.SetPermissions(true)
 			if err != nil {
-				return fmt.Errorf("Error removing SSH Key permissions: %v", err)
+				return fmt.Errorf(" Error removing SSH Key permissions: %v", err)
 			}
 		}
 
@@ -261,10 +279,9 @@ func resourceSSHKeyUpdate(d *schema.ResourceData, m interface{}) error {
 			}
 			_, err = object.SetPermissions(false)
 			if err != nil {
-				return fmt.Errorf("Error adding SSH Key permissions: %v", err)
+				return fmt.Errorf(" Error adding SSH Key permissions: %v", err)
 			}
 		}
-		d.SetPartial("permission")
 	}
 
 	// We succeeded, disable partial mode. This causes Terraform to save all fields again.
@@ -286,7 +303,7 @@ func resourceSSHKeyDelete(d *schema.ResourceData, m interface{}) error {
 		object.SSHKeysDefaultProfileID = ""
 		resp, err := object.Update()
 		if err != nil || !resp.Success {
-			return fmt.Errorf("Error updating SSH Key attribute: %v", err)
+			return fmt.Errorf(" Error updating SSH Key attribute: %v", err)
 		}
 	}
 
@@ -295,7 +312,7 @@ func resourceSSHKeyDelete(d *schema.ResourceData, m interface{}) error {
 	// If the resource does not exist, inform Terraform. We want to immediately
 	// return here to prevent further processing.
 	if err != nil {
-		return fmt.Errorf("Error deleting SSH Key: %v", err)
+		return fmt.Errorf(" Error deleting SSH Key: %v", err)
 	}
 
 	if resp.Success {
@@ -308,16 +325,16 @@ func resourceSSHKeyDelete(d *schema.ResourceData, m interface{}) error {
 
 func createUpateGetSSHKeyData(d *schema.ResourceData, object *vault.SSHKey) error {
 	object.Name = d.Get("name").(string)
-	if v, ok := d.GetOk("description"); ok {
+	if v, ok := d.GetOk("description"); ok && d.HasChange("description") {
 		object.Description = v.(string)
 	}
-	if v, ok := d.GetOk("private_key"); ok {
+	if v, ok := d.GetOk("private_key"); ok && d.HasChange("private_key") {
 		object.PrivateKey = v.(string)
 	}
-	if v, ok := d.GetOk("passphrase"); ok {
+	if v, ok := d.GetOk("passphrase"); ok && d.HasChange("passphrase") {
 		object.Passphrase = v.(string)
 	}
-	if v, ok := d.GetOk("default_profile_id"); ok {
+	if v, ok := d.GetOk("default_profile_id"); ok && d.HasChange("default_profile_id") {
 		object.SSHKeysDefaultProfileID = v.(string)
 	}
 	if v, ok := d.GetOk("sets"); ok {
@@ -332,11 +349,11 @@ func createUpateGetSSHKeyData(d *schema.ResourceData, object *vault.SSHKey) erro
 		}
 	}
 	// Challenge rules
-	if v, ok := d.GetOk("challenge_rule"); ok {
+	if v, ok := d.GetOk("challenge_rule"); ok && d.HasChange("challenge_rule") {
 		object.ChallengeRules = expandChallengeRules(v.([]interface{}))
 		// Perform validations
 		if err := validateChallengeRules(object.ChallengeRules); err != nil {
-			return fmt.Errorf("Schema setting error: %s", err)
+			return fmt.Errorf(" Schema setting error: %s", err)
 		}
 	}
 

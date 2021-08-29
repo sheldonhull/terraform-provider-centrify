@@ -1,67 +1,79 @@
 package centrify
 
 import (
-	"errors"
 	"fmt"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
-	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
 	logger "github.com/centrify/terraform-provider-centrify/cloud-golang-sdk/logging"
 	vault "github.com/centrify/terraform-provider-centrify/cloud-golang-sdk/platform"
 	"github.com/centrify/terraform-provider-centrify/cloud-golang-sdk/restapi"
+	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
 )
+
+func dataSourceDirectoryObject_deprecated() *schema.Resource {
+	return &schema.Resource{
+		Read: dataSourceDirectoryObjectRead,
+
+		Schema:             getDSDirectoryObjectSchema(),
+		DeprecationMessage: "dataresource centrifyvault_directoryobject is deprecated will be removed in the future, use centrify_directoryobject instead",
+	}
+}
 
 func dataSourceDirectoryObject() *schema.Resource {
 	return &schema.Resource{
 		Read: dataSourceDirectoryObjectRead,
 
-		Schema: map[string]*schema.Schema{
-			"name": {
-				Type:        schema.TypeString,
-				Required:    true,
-				Description: "Name of the directory object",
+		Schema: getDSDirectoryObjectSchema(),
+	}
+}
+
+func getDSDirectoryObjectSchema() map[string]*schema.Schema {
+	return map[string]*schema.Schema{
+		"name": {
+			Type:        schema.TypeString,
+			Required:    true,
+			Description: "Name of the directory object",
+		},
+		"object_type": {
+			Type:        schema.TypeString,
+			Required:    true,
+			Description: "Type of the directory object",
+			ValidateFunc: validation.StringInSlice([]string{
+				"User",
+				"Group",
+			}, false),
+		},
+		"system_name": {
+			Type:        schema.TypeString,
+			Optional:    true,
+			Computed:    true,
+			Description: "UPN of the directory object",
+		},
+		"display_name": {
+			Type:        schema.TypeString,
+			Optional:    true,
+			Computed:    true,
+			Description: "Display name of the directory object",
+		},
+		"distinguished_name": {
+			Type:        schema.TypeString,
+			Optional:    true,
+			Computed:    true,
+			Description: "Distinguished name of the directory object",
+		},
+		"forest": {
+			Type:        schema.TypeString,
+			Optional:    true,
+			Computed:    true,
+			Description: "Forest name of the directory object",
+		},
+		"directory_services": {
+			Type:     schema.TypeSet,
+			Required: true,
+			Elem: &schema.Schema{
+				Type: schema.TypeString,
 			},
-			"object_type": {
-				Type:        schema.TypeString,
-				Required:    true,
-				Description: "Type of the directory object",
-				ValidateFunc: validation.StringInSlice([]string{
-					"User",
-					"Group",
-				}, false),
-			},
-			"system_name": {
-				Type:        schema.TypeString,
-				Optional:    true,
-				Computed:    true,
-				Description: "UPN of the directory object",
-			},
-			"display_name": {
-				Type:        schema.TypeString,
-				Optional:    true,
-				Computed:    true,
-				Description: "Display name of the directory object",
-			},
-			"distinguished_name": {
-				Type:        schema.TypeString,
-				Optional:    true,
-				Computed:    true,
-				Description: "Distinguished name of the directory object",
-			},
-			"forest": {
-				Type:        schema.TypeString,
-				Optional:    true,
-				Computed:    true,
-				Description: "Forest name of the directory object",
-			},
-			"directory_services": {
-				Type:     schema.TypeSet,
-				Required: true,
-				Elem: &schema.Schema{
-					Type: schema.TypeString,
-				},
-				Description: "List of UUID of directory services",
-			},
+			Description: "List of UUID of directory services",
 		},
 	}
 }
@@ -76,7 +88,7 @@ func dataSourceDirectoryObjectRead(d *schema.ResourceData, m interface{}) error 
 
 	err := object.Read()
 	if err != nil {
-		return fmt.Errorf("Error retrieving directory services: %s", err)
+		return fmt.Errorf("error retrieving directory services: %s", err)
 	}
 
 	var results []vault.DirectoryObject
@@ -93,10 +105,11 @@ func dataSourceDirectoryObjectRead(d *schema.ResourceData, m interface{}) error 
 	}
 
 	if len(results) == 0 {
-		return errors.New("Query returns 0 object")
+		return fmt.Errorf("query returns 0 object for directory object %s", object.QueryName)
 	}
 	if len(results) > 1 {
-		return fmt.Errorf("Query returns too many objects (found %d, expected 1)", len(results))
+		return fmt.Errorf("search directory object %s, but returns too many objects (found %d, expected 1)", object.QueryName, len(results))
+
 	}
 
 	var result = results[0]

@@ -2,14 +2,14 @@
 subcategory: "Resources"
 ---
 
-# centrifyvault_sshkey (Resource)
+# centrify_sshkey (Resource)
 
 This resource allows you to create/update/delete ssh key.
 
 ## Example Usage
 
 ```terraform
-resource "centrifyvault_sshkey" "test_key" {
+resource "centrify_sshkey" "test_key" {
   name = "Test Key"
     description = "Test RSA key"
     private_key = file("rsa.key")
@@ -17,7 +17,7 @@ resource "centrifyvault_sshkey" "test_key" {
 }
 ```
 
-More examples can be found [here](https://github.com/marcozj/terraform-provider-centrifyvault/tree/main/examples/centrifyvault_sshkey)
+More examples can be found [here](https://github.com/centrify/terraform-provider-centrify/tree/main/examples/centrify_sshkey)
 
 ## Argument Reference
 
@@ -34,3 +34,13 @@ More examples can be found [here](https://github.com/marcozj/terraform-provider-
 - `passphrase` - (String, Sensitive) Passphrase to use for encrypting the PrivateKey.
 - `permission` - (Block Set) Domain permissions. Refer to [permission](./attribute_permission.md) attribute for details.
 - `sets` (Set of String) List of Set IDs the resource belongs to. Refer to [sets](./attribute_sets.md) attribute for details.
+
+## Import
+
+SSH Key can be imported using the resource `id`, e.g.
+
+```shell
+terraform import centrify_sshkey.example xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx
+```
+
+**Limitation:** `permission` and `set` aren't supported in import process.

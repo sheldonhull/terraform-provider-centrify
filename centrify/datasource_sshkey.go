@@ -3,67 +3,86 @@ package centrify
 import (
 	"fmt"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
-	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
 	"github.com/centrify/terraform-provider-centrify/cloud-golang-sdk/enum/keypairtype"
 	logger "github.com/centrify/terraform-provider-centrify/cloud-golang-sdk/logging"
 	vault "github.com/centrify/terraform-provider-centrify/cloud-golang-sdk/platform"
 	"github.com/centrify/terraform-provider-centrify/cloud-golang-sdk/restapi"
+	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
 )
+
+func dataSourceSSHKey_deprecated() *schema.Resource {
+	return &schema.Resource{
+		Read: dataSourceSSHKeyRead,
+
+		Schema:             getDSSSHKeySchema(),
+		DeprecationMessage: "dataresource centrifyvault_sshkey is deprecated will be removed in the future, use centrify_sshkey instead",
+	}
+}
 
 func dataSourceSSHKey() *schema.Resource {
 	return &schema.Resource{
 		Read: dataSourceSSHKeyRead,
 
-		Schema: map[string]*schema.Schema{
-			"name": {
-				Type:        schema.TypeString,
-				Required:    true,
-				Description: "Name of the ssh key",
-			},
-			"key_pair_type": {
-				Type:        schema.TypeString,
-				Required:    true,
-				Description: "Which key to retrieve from the pair, must be either PublicKey, PrivateKey, or PPK",
-				ValidateFunc: validation.StringInSlice([]string{
-					keypairtype.PublicKey.String(),
-					keypairtype.PrivateKey.String(),
-					keypairtype.PuTTY.String(),
-				}, false),
-			},
-			"key_format": {
-				Type:        schema.TypeString,
-				Optional:    true,
-				Default:     "PEM",
-				Description: "KeyFormat to retrieve the key in - only works for PublicKey",
-			},
-			"passphrase": {
-				Type:        schema.TypeString,
-				Optional:    true,
-				Sensitive:   true,
-				Description: "Passphrase to use for decrypting the PrivateKey",
-			},
-			"description": {
-				Type:     schema.TypeString,
-				Optional: true,
-			},
-			"key_type": {
-				Type:     schema.TypeString,
-				Computed: true,
-				Optional: true,
-			},
-			"checkout": {
-				Type:        schema.TypeBool,
-				Optional:    true,
-				Description: "Whether to retrieve SSH Key",
-			},
-			"ssh_key": {
-				Type:        schema.TypeString,
-				Optional:    true,
-				Sensitive:   true,
-				Description: "Content of the SSH Key",
-			},
+		Schema: getDSSSHKeySchema(),
+	}
+}
+
+func getDSSSHKeySchema() map[string]*schema.Schema {
+	return map[string]*schema.Schema{
+		"name": {
+			Type:        schema.TypeString,
+			Required:    true,
+			Description: "Name of the ssh key",
 		},
+		"key_pair_type": {
+			Type:        schema.TypeString,
+			Required:    true,
+			Description: "Which key to retrieve from the pair, must be either PublicKey, PrivateKey, or PPK",
+			ValidateFunc: validation.StringInSlice([]string{
+				keypairtype.PublicKey.String(),
+				keypairtype.PrivateKey.String(),
+				keypairtype.PuTTY.String(),
+			}, false),
+		},
+		"key_format": {
+			Type:        schema.TypeString,
+			Optional:    true,
+			Default:     "PEM",
+			Description: "KeyFormat to retrieve the key in - only works for PublicKey",
+		},
+		"passphrase": {
+			Type:        schema.TypeString,
+			Optional:    true,
+			Sensitive:   true,
+			Description: "Passphrase to use for decrypting the PrivateKey",
+		},
+		"description": {
+			Type:     schema.TypeString,
+			Computed: true,
+		},
+		"key_type": {
+			Type:     schema.TypeString,
+			Computed: true,
+			Optional: true,
+		},
+		"checkout": {
+			Type:        schema.TypeBool,
+			Optional:    true,
+			Description: "Whether to retrieve SSH Key",
+		},
+		"ssh_key": {
+			Type:        schema.TypeString,
+			Optional:    true,
+			Sensitive:   true,
+			Description: "Content of the SSH Key",
+		},
+		"default_profile_id": {
+			Type:        schema.TypeString,
+			Computed:    true,
+			Description: "Default SSH Key Challenge Profile",
+		},
+		"challenge_rule": getChallengeRulesSchema(),
 	}
 }
 
@@ -82,27 +101,31 @@ func dataSourceSSHKeyRead(d *schema.ResourceData, m interface{}) error {
 		object.KeyFormat = v.(string)
 	}
 
-	result, err := object.Query()
+	err := object.GetByName()
 	if err != nil {
-		return fmt.Errorf("Error retrieving SSH Key: %s", err)
+		return fmt.Errorf("error retrieving SSH Key with name '%s': %s", object.Name, err)
 	}
-
-	//logger.Debugf("Found account: %+v", result)
-	object.ID = result["ID"].(string)
 	d.SetId(object.ID)
-	d.Set("name", result["Name"].(string))
-	if result["Comment"] != nil {
-		d.Set("description", result["Comment"].(string))
+
+	schemamap, err := vault.GenerateSchemaMap(object)
+	if err != nil {
+		return err
 	}
-	if result["KeyType"] != nil {
-		d.Set("key_type", result["KeyType"].(string))
+	//logger.Debugf("Generated Map: %+v", schemamap)
+	for k, v := range schemamap {
+		switch k {
+		case "challenge_rule":
+			d.Set(k, v.(map[string]interface{})["rule"])
+		default:
+			d.Set(k, v)
+		}
 	}
 
 	// Retrieve SSH Key
 	if d.Get("checkout").(bool) {
 		thekey, err := object.RetriveSSHKey()
 		if err != nil {
-			return fmt.Errorf("Error retrieving SSH Key: %s", err)
+			return fmt.Errorf("error checking out SSH Key with name '%s': %s", object.Name, err)
 		}
 		d.Set("ssh_key", thekey)
 	}

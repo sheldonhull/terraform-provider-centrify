@@ -2,14 +2,14 @@
 subcategory: "Resources"
 ---
 
-# centrifyvault_sshkey (Data Source)
+# centrify_sshkey (Data Source)
 
 This data source gets information of ssh key.
 
 ## Example Usage
 
 ```terraform
-data "centrifyvault_sshkey" "testkey" {
+data "centrify_sshkey" "testkey" {
     name = "testkey"
     key_pair_type = "PrivateKey"
     passphrase = ""
@@ -18,11 +18,11 @@ data "centrifyvault_sshkey" "testkey" {
 }
 
 output "testkey_sshkey" {
-  value = data.centrifyvault_sshkey.testkey.ssh_key
+  value = data.centrify_sshkey.testkey.ssh_key
 }
 ```
 
-More examples can be found [here](https://github.com/marcozj/terraform-provider-centrifyvault/tree/main/examples/centrifyvault_sshkey)
+More examples can be found [here](https://github.com/centrify/terraform-provider-centrify/tree/main/examples/centrify_sshkey)
 
 ## Search Attributes
 
@@ -40,6 +40,14 @@ More examples can be found [here](https://github.com/marcozj/terraform-provider-
 ## Attributes Reference
 
 - `id` - id of the ssh key.
-- `description` - description property.
-- `key_type` - key_type property.
-- `ssh_key` - Retrieved ssh key.
+- `name` - (String) Name of the ssh key.
+- `description` - (String) Description of the SSH Key.
+- `key_pair_type` - (String) Which key to retrieve from the pair.
+- `passphrase` - (String, Sensitive) Passphrase to use for decrypting the PrivateKey.
+- `key_format` - (String) KeyFormat to retrieve the key in.
+- `key_type` - (String) Key type.
+- `challenge_rule` - (Block List) Authentication rules. Refer to [challenge_rule](./attribute_challengerule.md) attribute for details.
+- `default_profile_id` - (String) Default SSH Key Challenge Profile ID (used if no conditions matched).
+- `ssh_key` - (String, Sensitive) SSH private key. This attribute value is available only if `checkout` is set to `true`.
+- `passphrase` - (String, Sensitive) Passphrase to use for encrypting the PrivateKey.
+- `sets` (Set of String) List of Set IDs the resource belongs to. Refer to [sets](./attribute_sets.md) attribute for details.

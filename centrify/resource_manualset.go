@@ -4,13 +4,29 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
-	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
 	"github.com/centrify/terraform-provider-centrify/cloud-golang-sdk/enum/settype"
 	logger "github.com/centrify/terraform-provider-centrify/cloud-golang-sdk/logging"
 	vault "github.com/centrify/terraform-provider-centrify/cloud-golang-sdk/platform"
 	"github.com/centrify/terraform-provider-centrify/cloud-golang-sdk/restapi"
+	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
 )
+
+func resourceManualSet_deprecated() *schema.Resource {
+	return &schema.Resource{
+		Create: resourceManualSetCreate,
+		Read:   resourceManualSetRead,
+		Update: resourceManualSetUpdate,
+		Delete: resourceManualSetDelete,
+		Exists: resourceManualSetExists,
+		Importer: &schema.ResourceImporter{
+			State: schema.ImportStatePassthrough,
+		},
+
+		Schema:             getManualSetSchema(),
+		DeprecationMessage: "resource centrifyvault_manualset is deprecated will be removed in the future, use centrify_manualset instead",
+	}
+}
 
 func resourceManualSet() *schema.Resource {
 	return &schema.Resource{
@@ -19,50 +35,57 @@ func resourceManualSet() *schema.Resource {
 		Update: resourceManualSetUpdate,
 		Delete: resourceManualSetDelete,
 		Exists: resourceManualSetExists,
-
-		Schema: map[string]*schema.Schema{
-			"name": {
-				Type:        schema.TypeString,
-				Required:    true,
-				Description: "The name of the manual set",
-			},
-			"description": {
-				Type:        schema.TypeString,
-				Optional:    true,
-				Description: "Description of an manual set",
-			},
-			"type": {
-				Type:     schema.TypeString,
-				Required: true,
-				// Server -> Systems
-				// Subscriptions -> Services
-				// DataVault -> Secrets
-				Description: "Type of set. Valid values are: Server, VaultAccount, VaultDatabase, VaultDomain, DataVault, SshKeys, Subscriptions, Application, ResourceProfiles",
-				ValidateFunc: validation.StringInSlice([]string{
-					settype.System.String(),
-					settype.Account.String(),
-					settype.Database.String(),
-					settype.Domain.String(),
-					settype.Secret.String(),
-					settype.SSHKey.String(),
-					settype.Service.String(),
-					settype.Application.String(),
-					settype.ResourceProfile.String(),
-					settype.CloudProvider.String(),
-				}, false),
-			},
-			"subtype": {
-				Type:        schema.TypeString,
-				Optional:    true,
-				Description: "SubObjectType for application. Valid values are: Web and Desktop",
-				ValidateFunc: validation.StringInSlice([]string{
-					"Web",
-					"Desktop",
-				}, false),
-			},
-			"permission":        getPermissionSchema(),
-			"member_permission": getPermissionSchema(),
+		Importer: &schema.ResourceImporter{
+			State: schema.ImportStatePassthrough,
 		},
+
+		Schema: getManualSetSchema(),
+	}
+}
+
+func getManualSetSchema() map[string]*schema.Schema {
+	return map[string]*schema.Schema{
+		"name": {
+			Type:        schema.TypeString,
+			Required:    true,
+			Description: "The name of the manual set",
+		},
+		"description": {
+			Type:        schema.TypeString,
+			Optional:    true,
+			Description: "Description of an manual set",
+		},
+		"type": {
+			Type:     schema.TypeString,
+			Required: true,
+			// Server -> Systems
+			// Subscriptions -> Services
+			// DataVault -> Secrets
+			Description: "Type of set. Valid values are: Server, VaultAccount, VaultDatabase, VaultDomain, DataVault, SshKeys, Subscriptions, Application, ResourceProfiles",
+			ValidateFunc: validation.StringInSlice([]string{
+				settype.System.String(),
+				settype.Account.String(),
+				settype.Database.String(),
+				settype.Domain.String(),
+				settype.Secret.String(),
+				settype.SSHKey.String(),
+				settype.Service.String(),
+				settype.Application.String(),
+				settype.ResourceProfile.String(),
+				settype.CloudProvider.String(),
+			}, false),
+		},
+		"subtype": {
+			Type:        schema.TypeString,
+			Optional:    true,
+			Description: "SubObjectType for application. Valid values are: Web and Desktop",
+			ValidateFunc: validation.StringInSlice([]string{
+				"Web",
+				"Desktop",
+			}, false),
+		},
+		"permission":        getPermissionSchema(),
+		"member_permission": getPermissionSchema(),
 	}
 }
 
@@ -98,12 +121,18 @@ func resourceManualSetRead(d *schema.ResourceData, m interface{}) error {
 	// return here to prevent further processing.
 	if err != nil {
 		d.SetId("")
-		return fmt.Errorf("Error reading Manual Set: %v", err)
+		return fmt.Errorf(" Error reading Manual Set: %v", err)
 	}
 	//logger.Debugf("Manual Set from tenant: %v", object)
 
-	d.Set("name", object.Name)
-	d.Set("description", object.Description)
+	schemamap, err := vault.GenerateSchemaMap(object)
+	if err != nil {
+		return err
+	}
+	logger.Debugf("Generated Map for resourceManualSetRead(): %+v", schemamap)
+	for k, v := range schemamap {
+		d.Set(k, v)
+	}
 
 	logger.Infof("Completed reading Manual Set: %s", object.Name)
 	return nil
@@ -130,19 +159,14 @@ func resourceManualSetCreate(d *schema.ResourceData, m interface{}) error {
 
 	resp, err := object.Create()
 	if err != nil {
-		return fmt.Errorf("Error creating Manual Set: %v", err)
+		return fmt.Errorf(" Error creating Manual Set: %v", err)
 	}
 
 	id := resp.Result
 	if id == "" {
-		return fmt.Errorf("Manual Set ID is not set")
+		return fmt.Errorf(" Ehe Manual Set ID is not set")
 	}
 	d.SetId(id)
-	// Creation partially completed
-	d.SetPartial("name")
-	d.SetPartial("type")
-	d.SetPartial("subtype")
-	d.SetPartial("description")
 	// Need to populate ID attribute for subsequence processes
 	object.ID = id
 
@@ -151,18 +175,16 @@ func resourceManualSetCreate(d *schema.ResourceData, m interface{}) error {
 
 		_, err = object.SetPermissions(false)
 		if err != nil {
-			return fmt.Errorf("Error setting Manual Set permissions: %v", err)
+			return fmt.Errorf(" Error setting Manual Set permissions: %v", err)
 		}
-		d.SetPartial("permission")
 	}
 
 	// Handle Set member permissions
 	if _, ok := d.GetOk("member_permission"); ok {
 		_, err = object.SetMemberPermissions(false)
 		if err != nil {
-			return fmt.Errorf("Error setting Manual Set member permissions: %v", err)
+			return fmt.Errorf(" Error setting Manual Set member permissions: %v", err)
 		}
-		d.SetPartial("member_permission")
 	}
 
 	// Creation completed
@@ -193,11 +215,9 @@ func resourceManualSetUpdate(d *schema.ResourceData, m interface{}) error {
 	if d.HasChanges("name", "description") {
 		resp, err := object.Update()
 		if err != nil || !resp.Success {
-			return fmt.Errorf("Error updating Manual Set attribute: %v", err)
+			return fmt.Errorf(" Error updating Manual Set attribute: %v", err)
 		}
 		//logger.Debugf("Updated attributes to: %v", object)
-		d.SetPartial("name")
-		d.SetPartial("description")
 	}
 
 	// Deal with permission changes
@@ -214,7 +234,7 @@ func resourceManualSetUpdate(d *schema.ResourceData, m interface{}) error {
 			}
 			_, err = object.SetPermissions(true)
 			if err != nil {
-				return fmt.Errorf("Error removing Manual Set permissions: %v", err)
+				return fmt.Errorf(" Error removing Manual Set permissions: %v", err)
 			}
 		}
 
@@ -225,10 +245,9 @@ func resourceManualSetUpdate(d *schema.ResourceData, m interface{}) error {
 			}
 			_, err = object.SetPermissions(false)
 			if err != nil {
-				return fmt.Errorf("Error adding Manual Set permissions: %v", err)
+				return fmt.Errorf(" Error adding Manual Set permissions: %v", err)
 			}
 		}
-		d.SetPartial("permission")
 	}
 
 	// Deal with member permission changes
@@ -244,7 +263,7 @@ func resourceManualSetUpdate(d *schema.ResourceData, m interface{}) error {
 			}
 			_, err = object.SetMemberPermissions(true)
 			if err != nil {
-				return fmt.Errorf("Error removing Manual Set member permissions: %v", err)
+				return fmt.Errorf(" Error removing Manual Set member permissions: %v", err)
 			}
 		}
 
@@ -256,10 +275,9 @@ func resourceManualSetUpdate(d *schema.ResourceData, m interface{}) error {
 			}
 			_, err = object.SetMemberPermissions(false)
 			if err != nil {
-				return fmt.Errorf("Error adding Manual Set member permissions: %v", err)
+				return fmt.Errorf(" Error adding Manual Set member permissions: %v", err)
 			}
 		}
-		d.SetPartial("member_permission")
 	}
 
 	// We succeeded, disable partial mode. This causes Terraform to save all fields again.
@@ -279,7 +297,7 @@ func resourceManualSetDelete(d *schema.ResourceData, m interface{}) error {
 	// If the resource does not exist, inform Terraform. We want to immediately
 	// return here to prevent further processing.
 	if err != nil {
-		return fmt.Errorf("Error deleting Manual Set: %v", err)
+		return fmt.Errorf(" Error deleting Manual Set: %v", err)
 	}
 
 	if resp.Success {
@@ -294,7 +312,7 @@ func createUpateGetManualSetData(d *schema.ResourceData, object *vault.ManualSet
 	object.Name = d.Get("name").(string)
 	object.ObjectType = d.Get("type").(string)
 	object.SubObjectType = d.Get("subtype").(string)
-	if v, ok := d.GetOk("description"); ok {
+	if v, ok := d.GetOk("description"); ok && d.HasChange("description") {
 		object.Description = v.(string)
 	}
 
