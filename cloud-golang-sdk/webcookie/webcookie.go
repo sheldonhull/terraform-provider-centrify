@@ -12,8 +12,8 @@ import (
 	"strings"
 	"syscall"
 
+	log "github.com/centrify/terraform-provider-centrify/cloud-golang-sdk/logging"
 	"github.com/centrify/terraform-provider-centrify/cloud-golang-sdk/restapi"
-	"github.com/centrify/terraform-provider-centrify/cloud-golang-sdk/util"
 	"golang.org/x/crypto/ssh/terminal"
 )
 
@@ -23,11 +23,14 @@ type WebCookie struct {
 	ClientID       string
 	ClientSecret   string
 	SkipCertVerify bool
+	SessionID      string
+	TenantID       string
 }
 
 func (c *WebCookie) startAuthentication() (*AuthResponse, error) {
 	method := "/Security/StartAuthentication"
 	args := make(map[string]interface{})
+	//args["TenantId"] = c.TenantID
 	args["User"] = c.ClientID
 	args["Version"] = "1.0"
 
@@ -35,27 +38,32 @@ func (c *WebCookie) startAuthentication() (*AuthResponse, error) {
 	if err != nil {
 		return nil, err
 	}
-	//util.LogD.Printf("body: %+v\n", string(body))
 
 	response, err := NewAuthResponse(body)
-	util.LogD.Printf("response: %+v\n", response)
+	log.Debugf("StartAuthentication response: %+v\n", response)
 	if err != nil {
 		return nil, err
 	}
 	if response.Success == false {
 		return nil, fmt.Errorf("Failed to initiate authentication: %+v", response.Message)
 	}
+	c.SessionID = response.Result.SessionID
+	c.TenantID = response.Result.TenantID
+	if c.SessionID == "" || c.TenantID == "" {
+		return nil, fmt.Errorf("SessionId or TenantId is empty")
+	}
 
 	return response, nil
 
 }
 
-func (c *WebCookie) advanceAuthentication(authResp *AuthResponse) ([]AuthMechanism, error) {
+func (c *WebCookie) advanceAuthentication(authResp *AuthResponse) (string, error) {
+	var token string
 	challenges := authResp.Result.Challenges
 
-	var authMechs []AuthMechanism
+	//var authMechs []AuthMechanism
 	for i, challenge := range challenges {
-		util.LogD.Printf("Challenge %d -->\n", i)
+		log.Debugf("Challenge number: %d\n", i+1)
 		mechanisms := challenge.Mechanisms
 		var authMech AuthMechanism
 		if len(mechanisms) > 1 {
@@ -72,59 +80,37 @@ func (c *WebCookie) advanceAuthentication(authResp *AuthResponse) ([]AuthMechani
 			choice, err := strconv.Atoi(input)
 			choice = choice - 1
 			if choice < 0 || choice > len(mechanisms)-1 || err != nil {
-				return nil, fmt.Errorf("Invalid choice")
+				return "", fmt.Errorf("Invalid choice")
 			}
 			authMech = mechanisms[choice]
-			util.LogD.Printf("selected mech: %+v\n", authMech)
+			log.Debugf("selected mech: %+v\n", authMech)
 		} else {
 			// Only one mechanism so go ahead to ask for credential
 			authMech = mechanisms[0]
 
 		}
+		var err error
 		// Enter credential
 		switch authMech.Name {
-		case "UP":
-			fmt.Print("Enter Password: ")
-		case "SQ":
-			fmt.Printf("%s : ", authMech.Question)
+		case "UP", "SQ":
+			token, err = c.doUPAuthentication(authMech)
+			if err != nil {
+				return "", fmt.Errorf("Password authentication failed: %+v", err)
+			}
 		case "OATH", "SMS", "EMAIL", "PF":
-			fmt.Print("Enter Verification Code: ")
-		default:
-			fmt.Print("Enter Credential: ")
+			token, err = c.doOOBAuthentication(authMech)
+			if err != nil {
+				return "", fmt.Errorf("Verificstion code authentication failed: %+v", err)
+			}
 		}
-		bytePassword, _ := terminal.ReadPassword(int(syscall.Stdin))
-		password := strings.TrimSpace(string(bytePassword))
 
-		authMech.Credential = password
-		authMechs = append(authMechs, authMech)
 	}
 
-	return authMechs, nil
+	return token, nil
 }
 
-func (c *WebCookie) doAuthentication(authResp *AuthResponse, authMechs []AuthMechanism) (string, error) {
+func (c *WebCookie) postAuthRequest(args map[string]interface{}) (string, error) {
 	method := "/Security/AdvanceAuthentication"
-	args := make(map[string]interface{})
-	args["TenantId"] = authResp.Result.TenantID
-	args["SessionId"] = authResp.Result.SessionID
-
-	if len(authMechs) > 1 {
-		var ops []map[string]interface{}
-		for _, authMech := range authMechs {
-			subargs := make(map[string]interface{})
-			subargs["MechanismId"] = authMech.MechanismID
-			subargs["Action"] = "Answer"
-			subargs["Answer"] = authMech.Credential
-			ops = append(ops, subargs)
-		}
-		args["MultipleOperations"] = ops
-	} else if len(authMechs) == 1 {
-		authMech := authMechs[0]
-		args["MechanismId"] = authMech.MechanismID
-		args["Action"] = "Answer"
-		args["Answer"] = authMech.Credential
-	}
-	util.LogD.Printf("Auth post args: %+v\n", args)
 	httpresp, err := c.postAndGetResp(method, args)
 	if err != nil {
 		return "", err
@@ -138,21 +124,98 @@ func (c *WebCookie) doAuthentication(authResp *AuthResponse, authMechs []AuthMec
 	if err != nil {
 		return "", fmt.Errorf("Error process respond body: %v", err)
 	}
+	log.Debugf("AdvanceAuthentication response: %+v\n", resp)
 
 	if !resp.Success {
 		return "", fmt.Errorf("Authentication failed: %s", resp.Message)
 	}
-	// Get auth cookie
-	cookie := httpresp.Cookies()
-	util.LogD.Printf("Cookies: %+v\n", getCookieByName(cookie, ".ASPXAUTH"))
-	return getCookieByName(cookie, ".ASPXAUTH"), nil
+
+	authResult := resp.Result["Summary"]
+	if authResult != nil {
+		switch authResult.(string) {
+		case "LoginSuccess":
+			// Get auth cookie
+			cookie := httpresp.Cookies()
+			//log.Debugf("Cookies: %+v\n", getCookieByName(cookie, ".ASPXAUTH"))
+			return getCookieByName(cookie, ".ASPXAUTH"), nil
+		case "StartNextChallenge":
+			return "", nil
+		case "OobPending":
+			return "", nil
+		default:
+			return "", fmt.Errorf("%+v", resp.Result)
+		}
+	}
+	return "", nil
+}
+
+func (c *WebCookie) doUPAuthentication(authMech AuthMechanism) (string, error) {
+	args := make(map[string]interface{})
+	args["TenantId"] = c.TenantID
+	args["SessionId"] = c.SessionID
+	args["MechanismId"] = authMech.MechanismID
+	args["Action"] = "Answer"
+
+	if authMech.Question != "" {
+		// Security question prompt
+		fmt.Printf("%s : ", authMech.Question)
+	} else {
+		// Password prompt
+		fmt.Print("Enter Password: ")
+	}
+	bytePassword, _ := terminal.ReadPassword(int(syscall.Stdin))
+	password := strings.TrimSpace(string(bytePassword))
+	args["Answer"] = password
+
+	log.Debugf("Performing password authentication with action: %s\n", args["Action"])
+	cookie, err := c.postAuthRequest(args)
+	if err != nil {
+		return "", err
+	}
+
+	return cookie, nil
+}
+
+func (c *WebCookie) doOOBAuthentication(authMech AuthMechanism) (string, error) {
+	// For SMS, Phone, OTP and Email, first trigger the sending of verification code
+	args := make(map[string]interface{})
+	args["TenantId"] = c.TenantID
+	args["SessionId"] = c.SessionID
+	args["MechanismId"] = authMech.MechanismID
+	args["Action"] = "StartOOB"
+
+	var cookie string
+	var err error
+	log.Debugf("Starting OOB authentication: %+v\n", args)
+	cookie, err = c.postAuthRequest(args)
+	if err != nil {
+		return "", err
+	}
+
+	// After triggering verification code, prompt to enter code
+	if cookie == "" {
+		fmt.Print("Hit Enter if you have already authenticated out-of-bound or Enter Verification Code: ")
+		bytePassword, _ := terminal.ReadPassword(int(syscall.Stdin))
+		password := strings.TrimSpace(string(bytePassword))
+		if password != "" {
+			args["Action"] = "Answer"
+			args["Answer"] = password
+		} else {
+			args["Action"] = "Poll"
+		}
+		log.Debugf("Performing OOB authentication with action: %s\n", args["Action"])
+		cookie, err = c.postAuthRequest(args)
+		if err != nil {
+			return "", err
+		}
+	}
+	return cookie, nil
 }
 
 func (c *WebCookie) postAndGetResp(method string, args map[string]interface{}) (*http.Response, error) {
 	service := strings.TrimSuffix(c.Service, "/")
 	method = strings.TrimPrefix(method, "/")
 	postdata, _ := json.Marshal(args)
-	util.LogD.Printf("Post json: %+v", bytes.NewBuffer(postdata))
 	postreq, err := http.NewRequest("POST", service+"/"+method, bytes.NewBuffer(postdata))
 
 	if err != nil {

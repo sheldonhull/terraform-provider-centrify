@@ -4,11 +4,27 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	logger "github.com/centrify/terraform-provider-centrify/cloud-golang-sdk/logging"
 	vault "github.com/centrify/terraform-provider-centrify/cloud-golang-sdk/platform"
 	"github.com/centrify/terraform-provider-centrify/cloud-golang-sdk/restapi"
+	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 )
+
+func resourceUser_deprecated() *schema.Resource {
+	return &schema.Resource{
+		Create: resourceUserCreate,
+		Read:   resourceUserRead,
+		Update: resourceUserUpdate,
+		Delete: resourceUserDelete,
+		Exists: resourceUserExists,
+		Importer: &schema.ResourceImporter{
+			State: schema.ImportStatePassthrough,
+		},
+
+		Schema:             getUserSchema(),
+		DeprecationMessage: "resource centrifyvault_user is deprecated will be removed in the future, use centrify_user instead",
+	}
+}
 
 func resourceUser() *schema.Resource {
 	return &schema.Resource{
@@ -17,97 +33,105 @@ func resourceUser() *schema.Resource {
 		Update: resourceUserUpdate,
 		Delete: resourceUserDelete,
 		Exists: resourceUserExists,
+		Importer: &schema.ResourceImporter{
+			State: schema.ImportStatePassthrough,
+		},
 
-		Schema: map[string]*schema.Schema{
-			"username": {
-				Type:        schema.TypeString,
-				Required:    true,
-				Description: "The username in loginid@suffix format",
+		Schema: getUserSchema(),
+	}
+}
+
+func getUserSchema() map[string]*schema.Schema {
+	return map[string]*schema.Schema{
+		"username": {
+			Type:        schema.TypeString,
+			Required:    true,
+			Description: "The username in loginid@suffix format",
+		},
+		"email": {
+			Type:        schema.TypeString,
+			Optional:    true,
+			Description: "Email address",
+		},
+		"displayname": {
+			Type:        schema.TypeString,
+			Optional:    true,
+			Description: "Display name",
+		},
+		"password": {
+			Type:        schema.TypeString,
+			Optional:    true,
+			Sensitive:   true,
+			Description: "Password of the user",
+		},
+		"confirm_password": {
+			Type:        schema.TypeString,
+			Optional:    true,
+			Sensitive:   true,
+			Description: "Password of the user",
+		},
+		"password_never_expire": {
+			Type:        schema.TypeBool,
+			Optional:    true,
+			Default:     false,
+			Description: "Password never expires",
+		},
+		"force_password_change_next": {
+			Type:        schema.TypeBool,
+			Optional:    true,
+			Default:     true,
+			Description: "Require password change at next login",
+		},
+		"oauth_client": {
+			Type:        schema.TypeBool,
+			Optional:    true,
+			Default:     false,
+			Description: "Is OAuth confidential client",
+		},
+		"send_email_invite": {
+			Type:     schema.TypeBool,
+			Optional: true,
+			//Default:     true,
+			Description: "Send email invite for user profile setup",
+		},
+		"description": {
+			Type:        schema.TypeString,
+			Optional:    true,
+			Description: "Description of the user",
+		},
+		"office_number": {
+			Type:     schema.TypeString,
+			Optional: true,
+		},
+		"home_number": {
+			Type:     schema.TypeString,
+			Optional: true,
+		},
+		"mobile_number": {
+			Type:     schema.TypeString,
+			Optional: true,
+		},
+		"redirect_mfa_user_id": {
+			Type:        schema.TypeString,
+			Optional:    true,
+			Description: "Redirect multi factor authentication to a different user account (UUID value)",
+		},
+		"manager_username": {
+			Type:        schema.TypeString,
+			Optional:    true,
+			Default:     "Unassigned",
+			Description: "Username of the manager",
+		},
+		// Add to roles
+		"roles": {
+			Type:     schema.TypeSet,
+			Optional: true,
+			//Computed: true,
+			Set: schema.HashString,
+			Elem: &schema.Schema{
+				Type: schema.TypeString,
 			},
-			"email": {
-				Type:        schema.TypeString,
-				Optional:    true,
-				Description: "Email address",
-			},
-			"displayname": {
-				Type:        schema.TypeString,
-				Optional:    true,
-				Description: "Display name",
-			},
-			"password": {
-				Type:        schema.TypeString,
-				Optional:    true,
-				Sensitive:   true,
-				Description: "Password of the user",
-			},
-			"confirm_password": {
-				Type:        schema.TypeString,
-				Optional:    true,
-				Sensitive:   true,
-				Description: "Password of the user",
-			},
-			"password_never_expire": {
-				Type:        schema.TypeBool,
-				Optional:    true,
-				Default:     false,
-				Description: "Password never expires",
-			},
-			"force_password_change_next": {
-				Type:        schema.TypeBool,
-				Optional:    true,
-				Default:     true,
-				Description: "Require password change at next login",
-			},
-			"oauth_client": {
-				Type:        schema.TypeBool,
-				Optional:    true,
-				Default:     false,
-				Description: "Is OAuth confidential client",
-			},
-			"send_email_invite": {
-				Type:     schema.TypeBool,
-				Optional: true,
-				//Default:     true,
-				Description: "Send email invite for user profile setup",
-			},
-			"description": {
-				Type:        schema.TypeString,
-				Optional:    true,
-				Description: "Description of the user",
-			},
-			"office_number": {
-				Type:     schema.TypeString,
-				Optional: true,
-			},
-			"home_number": {
-				Type:     schema.TypeString,
-				Optional: true,
-			},
-			"mobile_number": {
-				Type:     schema.TypeString,
-				Optional: true,
-			},
-			"redirect_mfa_user_id": {
-				Type:        schema.TypeString,
-				Optional:    true,
-				Description: "Redirect multi factor authentication to a different user account (UUID value)",
-			},
-			"manager_username": {
-				Type:        schema.TypeString,
-				Optional:    true,
-				Description: "Username of the manager",
-			},
-			// Add to roles
-			"roles": {
-				Type:     schema.TypeSet,
-				Optional: true,
-				//Computed: true,
-				Set: schema.HashString,
-				Elem: &schema.Schema{
-					Type: schema.TypeString,
-				},
-				Description: "Add to list of Roles",
-			},
+			Description: "Add to list of Roles",
 		},
 	}
 }
@@ -144,7 +168,7 @@ func resourceUserRead(d *schema.ResourceData, m interface{}) error {
 	// return here to prevent further processing.
 	if err != nil {
 		d.SetId("")
-		return fmt.Errorf("Error reading user: %v", err)
+		return fmt.Errorf("error reading user: %v", err)
 	}
 	//logger.Debugf("User from tenant: %+v", object)
 	schemamap, err := vault.GenerateSchemaMap(object)
@@ -173,28 +197,16 @@ func resourceUserCreate(d *schema.ResourceData, m interface{}) error {
 
 	resp, err := object.Create()
 	if err != nil {
-		return fmt.Errorf("Error creating user: %v", err)
+		return fmt.Errorf("error creating user: %v", err)
 	}
 
 	id := resp.Result
 	if id == "" {
-		return fmt.Errorf("User ID is not set")
+		return fmt.Errorf("user ID is not set")
 	}
 	d.SetId(id)
 	// Need to populate ID attribute for subsequence processes
 	object.ID = id
-
-	d.SetPartial("username")
-	d.SetPartial("email")
-	d.SetPartial("displayname")
-	d.SetPartial("password_never_expire")
-	d.SetPartial("orce_password_change_next")
-	d.SetPartial("oauth_client")
-	d.SetPartial("office_number")
-	d.SetPartial("home_number")
-	d.SetPartial("mobile_number")
-	d.SetPartial("redirect_mfa_user_id")
-	d.SetPartial("manager_username")
 
 	// 2rd step to add system to Sets
 	if len(object.Roles) > 0 {
@@ -203,10 +215,9 @@ func resourceUserCreate(d *schema.ResourceData, m interface{}) error {
 			roleObj.ID = v
 			resp, err := roleObj.UpdateMembers([]string{object.ID}, "Add", "Users")
 			if err != nil || !resp.Success {
-				return fmt.Errorf("Error adding user to role: %v", err)
+				return fmt.Errorf("error adding user to role: %v", err)
 			}
 		}
-		d.SetPartial("roles")
 	}
 
 	// Creation completed
@@ -229,33 +240,26 @@ func resourceUserUpdate(d *schema.ResourceData, m interface{}) error {
 	// Deal with normal attribute changes first
 	if d.HasChanges("name", "email", "displayname", "password_never_expire", "force_password_change_next", "oauth_client", "send_email_invite",
 		"description", "office_number", "home_number", "mobile_number", "redirect_mfa_user_id", "manager_username") {
+		// Special handling for manager_username. Whenever there is change, manager_username must be set otherwise its setting will be removed
+		if v, ok := d.GetOk("manager_username"); ok && !d.HasChange("manager_username") {
+			object.ReportsTo = v.(string)
+		}
+		if v, ok := d.GetOk("redirect_mfa_user_id"); ok && !d.HasChange("redirect_mfa_user_id") {
+			object.RedirectMFAUserID = v.(string)
+		}
 		resp, err := object.Update()
 		if err != nil || !resp.Success {
-			return fmt.Errorf("Error updating VaultAccount attribute: %v", err)
+			return fmt.Errorf(" Error updating user attribute: %v", err)
 		}
 		logger.Debugf("Updated attributes to: %+v", object)
-		d.SetPartial("name")
-		d.SetPartial("email")
-		d.SetPartial("displayname")
-		d.SetPartial("password_never_expire")
-		d.SetPartial("force_password_change_next")
-		d.SetPartial("oauth_client")
-		d.SetPartial("send_email_invite")
-		d.SetPartial("description")
-		d.SetPartial("office_number")
-		d.SetPartial("home_number")
-		d.SetPartial("mobile_number")
-		d.SetPartial("redirect_mfa_user_id")
-		d.SetPartial("manager_username")
 	}
 
 	// Change password
 	if d.HasChange("password") {
 		resp, err := object.ChangePassword()
 		if err != nil || !resp.Success {
-			return fmt.Errorf("Error updating user password: %v", err)
+			return fmt.Errorf("error updating user password: %v", err)
 		}
-		d.SetPartial("password")
 	}
 
 	// Deal with role member
@@ -267,7 +271,7 @@ func resourceUserUpdate(d *schema.ResourceData, m interface{}) error {
 			roleObj.ID = v
 			resp, err := roleObj.UpdateMembers([]string{object.ID}, "Delete", "Users")
 			if err != nil || !resp.Success {
-				return fmt.Errorf("Error removing user from role: %v", err)
+				return fmt.Errorf("error removing user from role: %v", err)
 			}
 		}
 		// Add new roles
@@ -276,10 +280,9 @@ func resourceUserUpdate(d *schema.ResourceData, m interface{}) error {
 			roleObj.ID = v
 			resp, err := roleObj.UpdateMembers([]string{object.ID}, "Add", "Users")
 			if err != nil || !resp.Success {
-				return fmt.Errorf("Error adding user to role: %v", err)
+				return fmt.Errorf("error adding user to role: %v", err)
 			}
 		}
-		d.SetPartial("roles")
 	}
 
 	// We succeeded, disable partial mode. This causes Terraform to save all fields again.
@@ -299,7 +302,7 @@ func resourceUserDelete(d *schema.ResourceData, m interface{}) error {
 	// If the resource does not exist, inform Terraform. We want to immediately
 	// return here to prevent further processing.
 	if err != nil {
-		return fmt.Errorf("Error deleting user: %v", err)
+		return fmt.Errorf("error deleting user: %v", err)
 	}
 
 	if resp.Success {
@@ -312,10 +315,10 @@ func resourceUserDelete(d *schema.ResourceData, m interface{}) error {
 
 func createUpateGetUserData(d *schema.ResourceData, object *vault.User) error {
 	object.Name = d.Get("username").(string)
-	if v, ok := d.GetOk("email"); ok {
+	if v, ok := d.GetOk("email"); ok && d.HasChange("email") {
 		object.Mail = v.(string)
 	}
-	if v, ok := d.GetOk("displayname"); ok {
+	if v, ok := d.GetOk("displayname"); ok && d.HasChange("displayname") {
 		object.DisplayName = v.(string)
 	}
 	if v, ok := d.GetOk("password"); ok {
@@ -324,37 +327,37 @@ func createUpateGetUserData(d *schema.ResourceData, object *vault.User) error {
 	if v, ok := d.GetOk("confirm_password"); ok {
 		object.ConfirmPassword = v.(string)
 	}
-	if v, ok := d.GetOk("password_never_expire"); ok {
+	if v, ok := d.GetOk("password_never_expire"); ok && d.HasChange("password_never_expire") {
 		object.PasswordNeverExpire = v.(bool)
 	}
-	if v, ok := d.GetOk("force_password_change_next"); ok {
+	if v, ok := d.GetOk("force_password_change_next"); ok && d.HasChange("force_password_change_next") {
 		object.ForcePasswordChangeNext = v.(bool)
 	}
-	if v, ok := d.GetOk("oauth_client"); ok {
+	if v, ok := d.GetOk("oauth_client"); ok && d.HasChange("oauth_client") {
 		object.OauthClient = v.(bool)
 	}
-	if v, ok := d.GetOk("send_email_invite"); ok {
+	if v, ok := d.GetOk("send_email_invite"); ok && d.HasChange("send_email_invite") {
 		object.SendEmailInvite = v.(bool)
 	}
-	if v, ok := d.GetOk("description"); ok {
+	if v, ok := d.GetOk("description"); ok && d.HasChange("description") {
 		object.Description = v.(string)
 	}
-	if v, ok := d.GetOk("office_number"); ok {
+	if v, ok := d.GetOk("office_number"); ok && d.HasChange("office_number") {
 		object.OfficeNumber = v.(string)
 	}
-	if v, ok := d.GetOk("home_number"); ok {
+	if v, ok := d.GetOk("home_number"); ok && d.HasChange("home_number") {
 		object.HomeNumber = v.(string)
 	}
-	if v, ok := d.GetOk("mobile_number"); ok {
+	if v, ok := d.GetOk("mobile_number"); ok && d.HasChange("mobile_number") {
 		object.MobileNumber = v.(string)
 	}
 	//if v, ok := d.GetOk("redirect_mfa"); ok {
 	//		object.RedirectMFA = v.(bool)
 	//}
-	if v, ok := d.GetOk("redirect_mfa_user_id"); ok {
+	if v, ok := d.GetOk("redirect_mfa_user_id"); ok && d.HasChange("redirect_mfa_user_id") {
 		object.RedirectMFAUserID = v.(string)
 	}
-	if v, ok := d.GetOk("manager_username"); ok {
+	if v, ok := d.GetOk("manager_username"); ok && d.HasChange("manager_username") {
 		object.ReportsTo = v.(string)
 	}
 	if v, ok := d.GetOk("roles"); ok {

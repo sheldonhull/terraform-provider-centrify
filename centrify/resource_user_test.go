@@ -5,16 +5,16 @@ import (
 	"regexp"
 	"testing"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
-	"github.com/hashicorp/terraform-plugin-sdk/terraform"
-	"github.com/hashicorp/terraform/helper/acctest"
 	vault "github.com/centrify/terraform-provider-centrify/cloud-golang-sdk/platform"
 	"github.com/centrify/terraform-provider-centrify/cloud-golang-sdk/restapi"
+	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
+	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/terraform"
 )
 
 func TestAccResourceUserCreation(t *testing.T) {
 	rName := acctest.RandomWithPrefix("test-user@")
-	resourceName := "centrifyvault_user.testuser"
+	resourceName := "centrify_user.testuser"
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
@@ -36,7 +36,7 @@ func TestAccResourceUserCreation(t *testing.T) {
 
 func testAccBasicValExists(rName string) string {
 
-	return fmt.Sprintf(`resource "centrifyvault_user" "testuser" {
+	return fmt.Sprintf(`resource "centrify_user" "testuser" {
 		username = %[1]q
 		email = "test@example.com"
 		displayname = "Test User"
@@ -49,7 +49,7 @@ func testAccCheckUserDestroy(s *terraform.State) error {
 	client := testAccProvider.Meta().(*restapi.RestClient)
 	object := vault.NewUser(client)
 	for _, res := range s.RootModule().Resources {
-		if res.Type != "centrifyvault_user" {
+		if res.Type != "centrify_user" {
 			continue
 		}
 		object.ID = res.Primary.ID

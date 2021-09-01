@@ -5,16 +5,16 @@ import (
 	"regexp"
 	"testing"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
-	"github.com/hashicorp/terraform-plugin-sdk/terraform"
-	"github.com/hashicorp/terraform/helper/acctest"
 	vault "github.com/centrify/terraform-provider-centrify/cloud-golang-sdk/platform"
 	"github.com/centrify/terraform-provider-centrify/cloud-golang-sdk/restapi"
+	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
+	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/terraform"
 )
 
 func TestAccResourceRoleCreation(t *testing.T) {
 	rName := acctest.RandomWithPrefix("tf-acc-test")
-	resourceName := "centrifyvault_role.testrole"
+	resourceName := "centrify_role.testrole"
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
@@ -31,7 +31,7 @@ func TestAccResourceRoleCreation(t *testing.T) {
 }
 
 func testAccBasicDataExists(rName string) string {
-	return fmt.Sprintf(`resource "centrifyvault_role" "testrole" {
+	return fmt.Sprintf(`resource "centrify_role" "testrole" {
 		name = %[1]q
 	}`, rName)
 }
@@ -40,7 +40,7 @@ func testAccCheckRoleDestroy(s *terraform.State) error {
 	client := testAccProvider.Meta().(*restapi.RestClient)
 	object := vault.NewUser(client)
 	for _, res := range s.RootModule().Resources {
-		if res.Type != "centrifyvault_role" {
+		if res.Type != "centrify_role" {
 			continue
 		}
 		object.ID = res.Primary.ID

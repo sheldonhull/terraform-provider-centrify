@@ -39,6 +39,7 @@ type OauthClient struct {
 	ResponseHeaders http.Header
 	AppID           string
 	Scope           string
+	Token           string
 	SkipCertVerify  bool
 }
 

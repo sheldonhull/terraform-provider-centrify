@@ -3,15 +3,19 @@ package restapi
 import (
 	"encoding/json"
 	"fmt"
+	"io"
 	"io/ioutil"
 	"net/http"
 	"net/http/cookiejar"
 	"net/url"
+	"os"
 	"strings"
+
+	logger "github.com/centrify/terraform-provider-centrify/cloud-golang-sdk/logging"
 )
 
 const (
-	SourceHeader string = "centrify-sdk-go"
+	SourceHeader string = "golang-sdk"
 )
 
 type HttpClientFactory func() *http.Client
@@ -19,9 +23,10 @@ type HttpClientFactory func() *http.Client
 // BaseAPIResponse represents the most basic standard Centrify API response,
 //	where Result itself is left as raw json
 type BaseAPIResponse struct {
-	Success bool `json:"success"`
-	Result  json.RawMessage
-	Message string
+	Success   bool `json:"success"`
+	Result    json.RawMessage
+	Message   string
+	Exception string
 }
 
 type StringResponse struct {
@@ -51,7 +56,6 @@ type HttpError struct {
 	StatusCode int // HTTP status
 }
 
-// BackendType is the type of backend that is being implemented
 type RestClientMode uint32
 
 // RestClient represents a stateful API client (cookies maintained between calls, single service etc)
@@ -138,39 +142,26 @@ func (r *RestClient) CallSliceAPI(method string, args map[string]interface{}) (*
 }
 
 func (r *RestClient) postAndGetBody(method string, args map[string]interface{}) ([]byte, error) {
-	service := strings.TrimSuffix(r.Service, "/")
-	method = strings.TrimPrefix(method, "/")
-	postdata := strings.NewReader(payloadFromMap(args))
-	//log.Printf("Post json: %+v", postdata)
-	postreq, err := http.NewRequest("POST", service+"/"+method, postdata)
-
+	postreq, err := r.formHttpRequest(method, args)
 	if err != nil {
+		logger.ErrorTracef(err.Error())
 		return nil, err
-	}
-
-	postreq.Header.Add("Content-Type", "application/json")
-	postreq.Header.Add("X-CENTRIFY-NATIVE-CLIENT", "Yes")
-	postreq.Header.Add("X-CFY-SRC", r.SourceHeader)
-
-	for k, v := range r.Headers {
-		postreq.Header.Add(k, v)
 	}
 
 	httpresp, err := r.Client.Do(postreq)
 	if err != nil {
 		r.ResponseHeaders = nil
+		logger.ErrorTracef(err.Error())
 		return nil, err
 	}
-
 	defer httpresp.Body.Close()
 
 	// save response heasder
 	r.ResponseHeaders = httpresp.Header
 
 	if httpresp.StatusCode == 200 {
-		//b, _ := ioutil.ReadAll(httpresp.Body)
-		//log.Printf("respond string: %+v", string(b))
-		return ioutil.ReadAll(httpresp.Body)
+		body, err := ioutil.ReadAll(httpresp.Body)
+		return body, err
 	}
 
 	body, _ := ioutil.ReadAll(httpresp.Body)
@@ -196,6 +187,7 @@ func bodyToBaseAPIResponse(body []byte) (*BaseAPIResponse, error) {
 	reply := &BaseAPIResponse{}
 	err := json.Unmarshal(body, &reply)
 	if err != nil {
+		logger.ErrorTracef(err.Error())
 		return nil, fmt.Errorf("Failed to unmarshal BaseApiResponse from HTTP response: %v", err)
 	}
 	return reply, nil
@@ -205,6 +197,7 @@ func bodyToGenericMapResponse(body []byte) (*GenericMapResponse, error) {
 	reply := &GenericMapResponse{}
 	err := json.Unmarshal(body, &reply)
 	if err != nil {
+		logger.ErrorTracef(err.Error())
 		return nil, fmt.Errorf("Failed to unmarshal GenericMapResponse from HTTP response: %v", err)
 	}
 	return reply, nil
@@ -214,6 +207,7 @@ func bodyToStringResponse(body []byte) (*StringResponse, error) {
 	reply := &StringResponse{}
 	err := json.Unmarshal(body, &reply)
 	if err != nil {
+		logger.ErrorTracef(err.Error())
 		return nil, fmt.Errorf("Failed to unmarshal StringResponse from HTTP response: %v", err)
 	}
 	return reply, nil
@@ -223,6 +217,7 @@ func bodyToBoolResponse(body []byte) (*BoolResponse, error) {
 	reply := &BoolResponse{}
 	err := json.Unmarshal(body, &reply)
 	if err != nil {
+		logger.ErrorTracef(err.Error())
 		return nil, fmt.Errorf("Failed to unmarshal BoolResponse from HTTP response: %v", err)
 	}
 	return reply, nil
@@ -232,6 +227,7 @@ func bodyToSliceResponse(body []byte) (*SliceResponse, error) {
 	reply := &SliceResponse{}
 	err := json.Unmarshal(body, &reply)
 	if err != nil {
+		logger.ErrorTracef(err.Error())
 		return nil, fmt.Errorf("Failed to unmarshal BoolResponse from HTTP response: %v", err)
 	}
 	return reply, nil
@@ -249,18 +245,21 @@ func payloadFromList(input []map[string]interface{}) string {
 	return ""
 }
 
+// CallGenericMapListAPI is currently used by admin right assignment and removal for Role
 func (r *RestClient) CallGenericMapListAPI(method string, args []map[string]interface{}) (*GenericMapResponse, error) {
-	body, err := r.postAndGetBody2(method, args)
+	body, err := r.postAndGetBodyList(method, args)
 	if err != nil {
 		return nil, err
 	}
 	return bodyToGenericMapResponse(body)
 }
 
-func (r *RestClient) postAndGetBody2(method string, args []map[string]interface{}) ([]byte, error) {
+func (r *RestClient) postAndGetBodyList(method string, args []map[string]interface{}) ([]byte, error) {
 	service := strings.TrimSuffix(r.Service, "/")
 	method = strings.TrimPrefix(method, "/")
 	postdata := strings.NewReader(payloadFromList(args))
+	logger.Debugf("Post url: %s", service+"/"+method)
+	logger.Debugf("Post json: %+v", postdata)
 	postreq, err := http.NewRequest("POST", service+"/"+method, postdata)
 
 	if err != nil {
@@ -278,6 +277,7 @@ func (r *RestClient) postAndGetBody2(method string, args []map[string]interface{
 	httpresp, err := r.Client.Do(postreq)
 	if err != nil {
 		r.ResponseHeaders = nil
+		logger.ErrorTracef(err.Error())
 		return nil, err
 	}
 
@@ -292,4 +292,64 @@ func (r *RestClient) postAndGetBody2(method string, args []map[string]interface{
 
 	body, _ := ioutil.ReadAll(httpresp.Body)
 	return nil, &HttpError{error: fmt.Errorf("POST to %s failed with code %d, body: %s", method, httpresp.StatusCode, body), StatusCode: httpresp.StatusCode}
+}
+
+func (r *RestClient) DownloadFile(method string, args map[string]interface{}, filepath string) error {
+	postreq, err := r.formHttpRequest(method, args)
+	if err != nil {
+		logger.ErrorTracef(err.Error())
+		return err
+	}
+
+	httpresp, err := r.Client.Do(postreq)
+	if err != nil {
+		r.ResponseHeaders = nil
+		logger.ErrorTracef(err.Error())
+		return err
+	}
+	defer httpresp.Body.Close()
+
+	// save response heasder
+	r.ResponseHeaders = httpresp.Header
+
+	if httpresp.StatusCode == 200 {
+		// Create the file
+		out, err := os.Create(filepath)
+		if err != nil {
+			return err
+		}
+		defer out.Close()
+
+		// Write the body to file
+		_, err = io.Copy(out, httpresp.Body)
+		if err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (r *RestClient) formHttpRequest(method string, args map[string]interface{}) (*http.Request, error) {
+	service := strings.TrimSuffix(r.Service, "/")
+	method = strings.TrimPrefix(method, "/")
+	postdata := strings.NewReader(payloadFromMap(args))
+	logger.Debugf("Post url: %s", service+"/"+method)
+	logger.Debugf("Post json: %+v", postdata)
+	postreq, err := http.NewRequest("POST", service+"/"+method, postdata)
+
+	if err != nil {
+		logger.ErrorTracef(err.Error())
+		return nil, err
+	}
+
+	postreq.Header.Add("Content-Type", "application/json")
+	postreq.Header.Add("X-CENTRIFY-NATIVE-CLIENT", "Yes")
+	postreq.Header.Add("X-CFY-SRC", r.SourceHeader)
+
+	for k, v := range r.Headers {
+		postreq.Header.Add(k, v)
+	}
+
+	return postreq, nil
 }

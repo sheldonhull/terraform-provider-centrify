@@ -1,45 +1,57 @@
 package centrify
 
 import (
-	"errors"
 	"fmt"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
-	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
 	"github.com/centrify/terraform-provider-centrify/cloud-golang-sdk/enum/directoryservice"
 	logger "github.com/centrify/terraform-provider-centrify/cloud-golang-sdk/logging"
 	vault "github.com/centrify/terraform-provider-centrify/cloud-golang-sdk/platform"
 	"github.com/centrify/terraform-provider-centrify/cloud-golang-sdk/restapi"
+	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
 )
+
+func dataSourceDirectoryService_deprecated() *schema.Resource {
+	return &schema.Resource{
+		Read: dataSourceDirectoryServiceRead,
+
+		Schema:             getDSDirectoryServiceSchema(),
+		DeprecationMessage: "dataresource centrifyvault_directoryservice is deprecated will be removed in the future, use centrify_directoryservice instead",
+	}
+}
 
 func dataSourceDirectoryService() *schema.Resource {
 	return &schema.Resource{
 		Read: dataSourceDirectoryServiceRead,
 
-		Schema: map[string]*schema.Schema{
-			"name": {
-				Type:        schema.TypeString,
-				Required:    true,
-				Description: "Name of the Directory Service",
-			},
-			"type": {
-				Type:        schema.TypeString,
-				Required:    true,
-				Description: "Type of the Directory Service",
-				ValidateFunc: validation.StringInSlice([]string{
-					directoryservice.CentrifyDirectory.String(),
-					directoryservice.ActiveDirectory.String(),
-					directoryservice.FederatedDirectory.String(),
-					directoryservice.GoogleDirectory.String(),
-					directoryservice.LDAPDirectory.String(),
-				}, false),
-			},
-			"status": {
-				Type:        schema.TypeString,
-				Optional:    true,
-				Computed:    true,
-				Description: "Status of the Directory Service",
-			},
+		Schema: getDSDirectoryServiceSchema(),
+	}
+}
+
+func getDSDirectoryServiceSchema() map[string]*schema.Schema {
+	return map[string]*schema.Schema{
+		"name": {
+			Type:        schema.TypeString,
+			Required:    true,
+			Description: "Name of the Directory Service",
+		},
+		"type": {
+			Type:        schema.TypeString,
+			Required:    true,
+			Description: "Type of the Directory Service",
+			ValidateFunc: validation.StringInSlice([]string{
+				directoryservice.CentrifyDirectory.String(),
+				directoryservice.ActiveDirectory.String(),
+				directoryservice.FederatedDirectory.String(),
+				directoryservice.GoogleDirectory.String(),
+				directoryservice.LDAPDirectory.String(),
+			}, false),
+		},
+		"status": {
+			Type:        schema.TypeString,
+			Optional:    true,
+			Computed:    true,
+			Description: "Status of the Directory Service",
 		},
 	}
 }
@@ -51,7 +63,7 @@ func dataSourceDirectoryServiceRead(d *schema.ResourceData, m interface{}) error
 
 	err := object.Read()
 	if err != nil {
-		return fmt.Errorf("Error retrieving directory services: %s", err)
+		return fmt.Errorf("error retrieving directory services: %s", err)
 	}
 
 	name := d.Get("name").(string)
@@ -76,10 +88,10 @@ func dataSourceDirectoryServiceRead(d *schema.ResourceData, m interface{}) error
 		}
 	}
 	if len(results) == 0 {
-		return errors.New("Query returns 0 object")
+		return fmt.Errorf("query returns 0 object for directory service %s", name)
 	}
 	if len(results) > 1 {
-		return fmt.Errorf("Query returns too many objects (found %d, expected 1)", len(results))
+		return fmt.Errorf("search directory service %s, but returns too many objects (found %d, expected 1)", name, len(results))
 	}
 
 	var result = results[0]

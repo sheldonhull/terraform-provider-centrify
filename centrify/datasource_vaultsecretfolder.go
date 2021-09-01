@@ -3,38 +3,62 @@ package centrify
 import (
 	"fmt"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	logger "github.com/centrify/terraform-provider-centrify/cloud-golang-sdk/logging"
 	vault "github.com/centrify/terraform-provider-centrify/cloud-golang-sdk/platform"
 	"github.com/centrify/terraform-provider-centrify/cloud-golang-sdk/restapi"
+	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 )
 
-func dataSourceVaultSecretFolder() *schema.Resource {
+func dataSourceSecretFolder_deprecated() *schema.Resource {
 	return &schema.Resource{
-		Read: dataSourceVaultSecretFolderRead,
+		Read: dataSourceSecretFolderRead,
 
-		Schema: map[string]*schema.Schema{
-			"name": {
-				Type:        schema.TypeString,
-				Required:    true,
-				Description: "The name of the secret folder",
-			},
-			"description": {
-				Type:        schema.TypeString,
-				Optional:    true,
-				Description: "Description of an secret folder",
-			},
-			"parent_path": {
-				Type:        schema.TypeString,
-				Optional:    true,
-				Description: "Parent folder path of an secret folder",
-			},
-		},
+		Schema:             getDSSecretFolderSchema(),
+		DeprecationMessage: "dataresource centrifyvault_vaultsecretfolder is deprecated will be removed in the future, use centrify_secretfolder instead",
 	}
 }
 
-func dataSourceVaultSecretFolderRead(d *schema.ResourceData, m interface{}) error {
-	logger.Infof("Finding VaultSecretFolder")
+func dataSourceSecretFolder() *schema.Resource {
+	return &schema.Resource{
+		Read: dataSourceSecretFolderRead,
+
+		Schema: getDSSecretFolderSchema(),
+	}
+}
+
+func getDSSecretFolderSchema() map[string]*schema.Schema {
+	return map[string]*schema.Schema{
+		"name": {
+			Type:        schema.TypeString,
+			Required:    true,
+			Description: "The name of the secret folder",
+		},
+		"description": {
+			Type:        schema.TypeString,
+			Computed:    true,
+			Description: "Description of an secret folder",
+		},
+		"parent_path": {
+			Type:        schema.TypeString,
+			Optional:    true,
+			Description: "Parent folder path of an secret folder",
+		},
+		"parent_id": {
+			Type:        schema.TypeString,
+			Computed:    true,
+			Description: "Parent folder ID of an secret folder",
+		},
+		"default_profile_id": {
+			Type:        schema.TypeString,
+			Computed:    true,
+			Description: "Default Secret Challenge Profile (used if no conditions matched)",
+		},
+		"challenge_rule": getChallengeRulesSchema(),
+	}
+}
+
+func dataSourceSecretFolderRead(d *schema.ResourceData, m interface{}) error {
+	logger.Infof("Finding SecretFolder")
 	client := m.(*restapi.RestClient)
 	object := vault.NewSecretFolder(client)
 	object.Name = d.Get("name").(string)
@@ -42,22 +66,24 @@ func dataSourceVaultSecretFolderRead(d *schema.ResourceData, m interface{}) erro
 		object.ParentPath = v.(string)
 	}
 
-	result, err := object.Query()
+	err := object.GetByName()
 	if err != nil {
-		return fmt.Errorf("Error retrieving vault object: %s", err)
+		return fmt.Errorf("error retrieving secret folder with name '%s': %s", object.Name, err)
 	}
+	d.SetId(object.ID)
 
-	if result["ID"] == nil {
-		return fmt.Errorf("VaultSecretFolder ID is not set")
+	schemamap, err := vault.GenerateSchemaMap(object)
+	if err != nil {
+		return err
 	}
-
-	d.SetId(result["ID"].(string))
-	d.Set("name", result["Name"].(string))
-	if result["Description"] != nil {
-		d.Set("description", result["Description"].(string))
-	}
-	if result["ParentPath"] != nil {
-		d.Set("parent_path", result["ParentPath"].(string))
+	//logger.Debugf("Generated Map: %+v", schemamap)
+	for k, v := range schemamap {
+		switch k {
+		case "challenge_rule":
+			d.Set(k, v.(map[string]interface{})["rule"])
+		default:
+			d.Set(k, v)
+		}
 	}
 
 	return nil

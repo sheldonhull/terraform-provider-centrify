@@ -2,37 +2,39 @@
 subcategory: "Applications"
 ---
 
-# centrifyvault_desktopapp (Resource)
+# centrify_desktopapp (Resource)
 
 This resource allows you to create/update/delete DesktopApp.
 
 ## Example Usage
 
 ```terraform
-resource "centrifyvault_desktopapp" "test_desktopapp" {
+resource "centrify_desktopapp" "test_desktopapp" {
     name = "Test Desktop App"
     template_name = "GenericDesktopApplication"
     description = "Test Desktop Application"
-    application_host_id = data.centrifyvault_vaultsystem.apphost.id
+    application_host_id = data.centrify_system.apphost.id
     login_credential_type = "SharedAccount"
-    application_account_id = data.centrifyvault_vaultaccount.shared_account.id
+    application_account_id = data.centrify_account.shared_account.id
     application_alias = "pas_desktopapp"
     
     command_line = "--ini=ini\\web_myapp.ini --username={user.User} --password={user.Password}"
     command_parameter {
         name = "system"
         type = "Server"
-        target_object_id = data.centrifyvault_vaultsystem.my_app.id
+        target_object_id = data.centrify_system.my_app.id
+        value = data.centrify_system.my_app.name
     }
     command_parameter {
         name = "user"
         type = "VaultAccount"
-        target_object_id = data.centrifyvault_vaultaccount.admin.id
+        target_object_id = data.centrify_account.admin.id
+        value = data.centrify_account.admin.name
     }
 }
 ```
 
-More examples can be found [here](https://github.com/marcozj/terraform-provider-centrifyvault/tree/main/examples/centrifyvault_desktopapp)
+More examples can be found [here](https://github.com/centrify/terraform-provider-centrify/tree/main/examples/centrify_desktopapp)
 
 ## Argument Reference
 
@@ -53,7 +55,9 @@ More examples can be found [here](https://github.com/marcozj/terraform-provider-
 
 - `challenge_rule` - (Block List) Authentication rules. Refer to [challenge_rule](./attribute_challengerule.md) attribute for details.
 - `default_profile_id` - (String) Default Profile (used if no conditions matched).
-- `policy_script` - (String) Use script to specify authentication rules (configured rules are ignored)
+- `policy_script` - (String) Use script to specify authentication rules (configured rules are ignored).
+- `workflow_enabled` - (Boolean) Enable workflow for this application.
+- `workflow_approver` - (Block List) List of approvers. Refer to [workflow_approver](./attribute_workflow_approver.md) attribute for details.
 - `permission` - (Block Set) Domain permissions. Refer to [permission](./attribute_permission.md) attribute for details.
 - `sets` (Set of String) List of Set IDs the resource belongs to. Refer to [sets](./attribute_sets.md) attribute for details.
 
@@ -67,3 +71,14 @@ Required:
 Optional:
 
 - `target_object_id` - (String) ID of selected parameter value
+- `value` - (String) Value of the parameter
+
+## Import
+
+Desktop App can be imported using the resource `id`, e.g.
+
+```shell
+terraform import centrify_desktopapp.example xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx
+```
+
+**Limitation:** `permission` and `sets` aren't supported in import process.

@@ -12,9 +12,8 @@
 name: release
 on:
   push:
-    tag:
-    - 'v*'
-
+    tags:
+      - 'v*'
 jobs:
   goreleaser:
     runs-on: ubuntu-latest

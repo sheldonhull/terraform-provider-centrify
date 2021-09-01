@@ -7,8 +7,8 @@ import (
 	"net/http/cookiejar"
 	"net/url"
 
+	log "github.com/centrify/terraform-provider-centrify/cloud-golang-sdk/logging"
 	"github.com/centrify/terraform-provider-centrify/cloud-golang-sdk/restapi"
-	"github.com/centrify/terraform-provider-centrify/cloud-golang-sdk/util"
 )
 
 // GetClient creates REST client
@@ -38,7 +38,7 @@ func (c *WebCookie) GetClient() (*restapi.RestClient, error) {
 	}
 	c.Client.Jar = jar
 
-	util.LogD.Printf("Start authentication...\n")
+	log.Debugf("Start authentication...\n")
 	authResp, err := c.startAuthentication()
 	if err != nil {
 		return nil, err
@@ -48,16 +48,10 @@ func (c *WebCookie) GetClient() (*restapi.RestClient, error) {
 		return nil, fmt.Errorf("Failed to start authentication")
 	}
 
-	authMechs, err := c.advanceAuthentication(authResp)
+	token, err := c.advanceAuthentication(authResp)
 	if err != nil {
 		return nil, err
 	}
-
-	token, err := c.doAuthentication(authResp, authMechs)
-	if err != nil {
-		return nil, err
-	}
-	util.LogD.Printf("Token: %v\n", token)
 
 	var clientFactory restapi.HttpClientFactory = func() *http.Client {
 		return &http.Client{}

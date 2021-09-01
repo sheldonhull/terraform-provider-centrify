@@ -5,16 +5,27 @@ import (
 	"fmt"
 	"net/http"
 
+	log "github.com/centrify/terraform-provider-centrify/cloud-golang-sdk/logging"
 	"github.com/centrify/terraform-provider-centrify/cloud-golang-sdk/restapi"
-	"github.com/centrify/terraform-provider-centrify/cloud-golang-sdk/util"
 )
 
 // GetClient creates REST client
 func (c *OauthClient) GetClient() (*restapi.RestClient, error) {
-	// Use an oauth client to get our bearer token, currently always via confidential client flow
-	token, err := c.GetOauthToken()
-	if err != nil {
-		return nil, err
+	token := &TokenResponse{}
+	if c.Token != "" {
+		// If OAuth token is provided, use it to return authenticated Rest client
+		token = &TokenResponse{
+			AccessToken: c.Token,
+			TokenType:   "Bearer",
+		}
+	} else {
+		// Login with username and password to get OAuth token, then return authenticated Rest client
+		// Use an oauth client to get our bearer token, currently always via confidential client flow
+		var err error
+		token, err = c.GetOauthToken()
+		if err != nil {
+			return nil, err
+		}
 	}
 
 	// Then get rest client and set it up to use our token
@@ -58,7 +69,7 @@ func (c *OauthClient) GetOauthToken() (*TokenResponse, error) {
 		return nil, fmt.Errorf("Failed to get oauth token, failure: %v", failure)
 	}
 
-	util.LogD.Printf("Client token established - type: %s expires in: %d", token.TokenType, token.ExpiresIn)
+	log.Debugf("Client token established - type: %s expires in: %d", token.TokenType, token.ExpiresIn)
 	return token, nil
 }
 

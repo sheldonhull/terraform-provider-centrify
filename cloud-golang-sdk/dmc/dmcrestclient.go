@@ -37,7 +37,6 @@ func (c *DMC) GetClient() (*restapi.RestClient, error) {
 			return nil, err
 		}
 		c.Token = token
-		//LogD.Printf("dmc token: %v\n", c.Token)
 	}
 
 	restClient, err := restapi.GetNewRestClient(c.Service, clientFactory)
@@ -45,7 +44,6 @@ func (c *DMC) GetClient() (*restapi.RestClient, error) {
 		return nil, err
 	}
 
-	//restClient.SourceHeader = restapi.SourceHeader
 	restClient.Headers["Authorization"] = "Bearer " + c.Token
 	return restClient, nil
 }
