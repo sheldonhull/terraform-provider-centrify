@@ -125,7 +125,7 @@ func resourceRoleMembershipCreate(d *schema.ResourceData, m interface{}) error {
 
 	// Handle role members
 	if len(object.Members) > 0 {
-		resp, err := object.UpdateRoleMembers(object.Members, "Add")
+		resp, err := object.AddRoleMembers(object.Members, "Add")
 		if err != nil || !resp.Success {
 			return fmt.Errorf(" Error adding members to role: %v", err)
 		}
@@ -180,7 +180,7 @@ func resourceRoleMembershipDelete(d *schema.ResourceData, m interface{}) error {
 	createUpateGetRoleMembershipData(d, object)
 	// Handle role members
 	if len(object.Members) > 0 {
-		resp, err := object.UpdateRoleMembers(object.Members, "Delete")
+		resp, err := object.DeleteRoleMembers(object.Members, "Delete")
 		if err != nil || !resp.Success {
 			return fmt.Errorf(" Failed to remove members from role: %v", err)
 		}
