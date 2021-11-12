@@ -109,7 +109,6 @@ func (o *RoleMembership) UpdateRoleMembers(members []RoleMember, action string) 
 		actionArg[action] = userids
 		queryArg["Users"] = actionArg
 	}
-
 	resp, err := o.client.CallStringAPI(o.apiUpdate, queryArg)
 	if err != nil {
 		logger.Errorf(err.Error())
@@ -122,6 +121,64 @@ func (o *RoleMembership) UpdateRoleMembers(members []RoleMember, action string) 
 	}
 
 	return resp, nil
+}
+
+func (o *RoleMembership) AddRoleMembers(action string, uID string) (*restapi.StringResponse, error) {
+	if o.ID == "" {
+		errormsg := fmt.Sprintf("Missing ID for %s", GetVarType(0))
+		logger.Errorf(errormsg)
+		return nil, fmt.Errorf(errormsg)
+	}
+
+	var queryArg = make(map[string]interface{})
+	queryArg["Name"] = o.ID
+	var userids []string
+	userids = append(userids, uID)
+	var actionArg = make(map[string]interface{})
+	actionArg[action] = userids
+	queryArg["Users"] = actionArg
+	resp, err := o.client.CallStringAPI(o.apiUpdate, queryArg)
+	if err != nil {
+		logger.Errorf(err.Error())
+		return nil, err
+	}
+	if !resp.Success {
+		errmsg := fmt.Sprintf("%s %s", resp.Message, resp.Exception)
+		logger.Errorf(errmsg)
+		return nil, fmt.Errorf(errmsg)
+	}
+
+	return resp, nil
+
+}
+
+func (o *RoleMembership) DeleteRoleMembers(action string, userID string) (*restapi.StringResponse, error) {
+	if o.ID == "" {
+		errormsg := fmt.Sprintf("Missing ID for %s", GetVarType(0))
+		logger.Errorf(errormsg)
+		return nil, fmt.Errorf(errormsg)
+	}
+	var queryArg = make(map[string]interface{})
+	queryArg["Name"] = o.ID
+	var userids []string
+	userids = append(userids, userID)
+	var actionArg = make(map[string]interface{})
+	actionArg[action] = userids
+	queryArg["Users"] = actionArg
+	logger.Debugf("Users to be deleted: %+v", queryArg)
+	resp, err := o.client.CallStringAPI(o.apiUpdate, queryArg)
+	if err != nil {
+		logger.Errorf(err.Error())
+		return nil, err
+	}
+	if !resp.Success {
+		errmsg := fmt.Sprintf("%s %s", resp.Message, resp.Exception)
+		logger.Errorf(errmsg)
+		return nil, fmt.Errorf(errmsg)
+	}
+
+	return resp, nil
+
 }
 
 func (o *RoleMembership) getMembers() ([]RoleMember, error) {
@@ -159,64 +216,4 @@ func (o *RoleMembership) getMembers() ([]RoleMember, error) {
 	}
 
 	return members, nil
-}
-
-func (o *RoleMembership) DeleteRoleMembers(members []RoleMember, action string) (*restapi.StringResponse, error) {
-	if o.ID == "" {
-		errormsg := fmt.Sprintf("Missing ID for %s", GetVarType(0))
-		logger.Errorf(errormsg)
-		return nil, fmt.Errorf(errormsg)
-	}
-	var queryArg = make(map[string]interface{})
-	queryArg["Name"] = o.ID
-	resp, err := o.client.CallStringAPI(o.apiUpdate, queryArg)
-	if err != nil {
-		logger.Errorf(err.Error())
-		return nil, err
-	}
-	if !resp.Success {
-		errmsg := fmt.Sprintf("%s %s", resp.Message, resp.Exception)
-		logger.Errorf(errmsg)
-		return nil, fmt.Errorf(errmsg)
-	}
-
-	return resp, nil
-
-}
-
-
-func (o *RoleMembership) AddRoleMembers(members []RoleMember, action string) (*restapi.StringResponse, error) {
-	if o.ID == "" {
-		errormsg := fmt.Sprintf("Missing ID for %s", GetVarType(0))
-		logger.Errorf(errormsg)
-		return nil, fmt.Errorf(errormsg)
-	}
-	logger.Debugf("Working in CloudSDK")
-	var queryArg = make(map[string]interface{})
-	queryArg["Name"] = o.ID
-	var userids []string
-	logger.Debugf("Generated map for Cloud SDK %+v", members)
-	for _, member := range members {
-		switch member.MemberType {
-		case "User":
-			userids = append(userids, member.MemberID)
-		}
-	}
-
-	var actionArg = make(map[string]interface{})
-	actionArg[action] = userids
-	queryArg["Users"] = actionArg
-	resp, err := o.client.CallStringAPI(o.apiUpdate, queryArg)
-	if err != nil {
-		logger.Errorf(err.Error())
-		return nil, err
-	}
-	if !resp.Success {
-		errmsg := fmt.Sprintf("%s %s", resp.Message, resp.Exception)
-		logger.Errorf(errmsg)
-		return nil, fmt.Errorf(errmsg)
-	}
-
-	return resp, nil
-
 }
