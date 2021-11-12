@@ -2,7 +2,6 @@ package centrify
 
 import (
 	"fmt"
-
 	logger "github.com/centrify/terraform-provider-centrify/cloud-golang-sdk/logging"
 	vault "github.com/centrify/terraform-provider-centrify/cloud-golang-sdk/platform"
 	"github.com/centrify/terraform-provider-centrify/cloud-golang-sdk/restapi"
@@ -96,8 +95,8 @@ func resourceRoleMembershipRead(d *schema.ResourceData, m interface{}) error {
 		d.SetId("")
 		return fmt.Errorf(" Error reading role: %v", err)
 	}
-	logger.Debugf("Role from tenant: %v", object)
 
+	logger.Debugf("Role from tenant: %v", object)
 	schemamap, err := vault.GenerateSchemaMap(object)
 	if err != nil {
 		return err
@@ -119,18 +118,29 @@ func resourceRoleMembershipCreate(d *schema.ResourceData, m interface{}) error {
 
 	client := m.(*restapi.RestClient)
 
-	// Create a role object and populate all attributes
-	object := vault.NewRoleMembership(client)
-	createUpateGetRoleMembershipData(d, object)
-
-	// Handle role members
-	if len(object.Members) > 0 {
-		resp, err := object.AddRoleMembers(object.Members, "Add")
-		if err != nil || !resp.Success {
-			return fmt.Errorf(" Error adding members to role: %v", err)
-		}
+	//Flatten members from schema resource, to get the user id
+	var uID, utype string
+	if v, ok := d.GetOk("member"); ok {
+		uID, utype = flattenmembers(v)
 	}
 
+	object := vault.NewRoleMembership(client)
+	createUpateGetRoleMembershipData(d, object)
+	// Handle role members
+	if len(object.Members) > 0 && utype == "User" {
+		resp, err := object.AddRoleMembers("Add", uID)
+		if err != nil || !resp.Success {
+			return fmt.Errorf("Error adding members to role: %v", err)
+		}
+	} else {
+		if len(object.Members) > 0 {
+			resp, err := object.UpdateRoleMembers(object.Members, "Add")
+			if err != nil || !resp.Success {
+				return fmt.Errorf(" Error adding members to role: %v", err)
+			}
+
+		}
+	}
 	//d.SetId(d.Get("name").(string))
 	d.SetId(object.RoleID)
 	// Creation completed
@@ -174,15 +184,35 @@ func resourceRoleMembershipUpdate(d *schema.ResourceData, m interface{}) error {
 func resourceRoleMembershipDelete(d *schema.ResourceData, m interface{}) error {
 	logger.Infof("Beginning deletion of role membership: %s", ResourceIDString(d))
 	client := m.(*restapi.RestClient)
-
 	object := vault.NewRoleMembership(client)
 	object.ID = d.Id()
+	var uID, utype string
+	if v, ok := d.GetOk("member"); ok {
+		uID, utype = flattenmembers(v)
+	}
 	createUpateGetRoleMembershipData(d, object)
 	// Handle role members
-	if len(object.Members) > 0 {
-		resp, err := object.DeleteRoleMembers(object.Members, "Delete")
-		if err != nil || !resp.Success {
-			return fmt.Errorf(" Failed to remove members from role: %v", err)
+	if utype == "User" {
+		if len(object.Members) > 1 && object.ID == "sysadmin" {
+			resp, err := object.DeleteRoleMembers("Delete", uID)
+			if err != nil || !resp.Success {
+				return fmt.Errorf(" Failed to remove members from role: %v", err)
+			}
+		} else {
+			if len(object.Members) > 0 {
+				resp, err := object.DeleteRoleMembers("Delete", uID)
+				if err != nil || !resp.Success {
+					return fmt.Errorf(" Failed to remove members from role: %v", err)
+				}
+			}
+
+		}
+	} else {
+		if len(object.Members) > 0 {
+			resp, err := object.UpdateRoleMembers(object.Members, "Delete")
+			if err != nil || !resp.Success {
+				return fmt.Errorf(" Failed to remove members from role: %v", err)
+			}
 		}
 	}
 
@@ -197,6 +227,17 @@ func createUpateGetRoleMembershipData(d *schema.ResourceData, object *vault.Role
 	if v, ok := d.GetOk("member"); ok {
 		object.Members = expandRoleMembers(v)
 	}
-
 	return nil
+}
+
+func flattenmembers(s interface{}) (string, string) {
+
+	var MemberID, MemberType string
+	for _, v := range s.(*schema.Set).List() {
+		MemberID = v.(map[string]interface{})["id"].(string)
+		MemberType = v.(map[string]interface{})["type"].(string)
+
+	}
+
+	return MemberID, MemberType
 }
