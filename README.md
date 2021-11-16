@@ -53,7 +53,7 @@ Refer to **Supported Resources and Data Sources** section in [provider document]
 
 For example, this is how to [create a Windows system](./examples/centrify_system/system_windows_basic.tf) in Centrify Platform. This is how to [retrieve vaulted credentials](./examples/centrify_account/datasource_password.tf).
 
-To delete the resource, Best practice
-  Remove the resource file
+To delete the resource, Best practices are:    
+  Remove the resource file  
   Run terraform init && terraform apply
  
