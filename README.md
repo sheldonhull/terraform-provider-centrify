@@ -52,3 +52,9 @@ You can use Centrify Terraform Provider to configure Centrify platform including
 Refer to **Supported Resources and Data Sources** section in [provider document](./docs/index.md) page for details of supported configurations and [example](./examples/) usage.
 
 For example, this is how to [create a Windows system](./examples/centrify_system/system_windows_basic.tf) in Centrify Platform. This is how to [retrieve vaulted credentials](./examples/centrify_account/datasource_password.tf).
+
+## To delete the resource, Best practice
+ 
+ Remove the resource file
+ Run terraform init && terraform apply
+ 
