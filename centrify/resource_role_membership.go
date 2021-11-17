@@ -161,7 +161,7 @@ func resourceRoleMembershipUpdate(d *schema.ResourceData, m interface{}) error {
 	createUpateGetRoleMembershipData(d, object)
 
 	// Deal with role members
-	if d.HasChange("member") {
+	if d.HasChange("member") && object.ID != "sysadmin" {
 		old, new := d.GetChange("member")
 		// Remove old members
 		resp, err := object.UpdateRoleMembers(expandRoleMembers(old), "Delete")
